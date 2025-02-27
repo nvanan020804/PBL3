@@ -1,0 +1,73 @@
+.header {
+    background-color: #0e0d0dcb;
+    padding: 5px;
+    margin: 0px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 18px;
+    color: orange;
+    font-weight: bold;
+}
+.header-content {
+    background-color:  white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;  
+    padding: 10px 20px;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 80%; 
+}
+
+.search-form {
+    flex-grow: 1;
+    display: flex;
+    justify-content: flex-start;
+}
+.search-form input {
+    width: 300px;
+    border: 2px solid black;
+    border-radius: 3px;
+    padding: 10px;
+}
+.contact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.contact-text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.contact-text p {
+    margin: 0px;
+    font-weight: bold;
+}
+.contact img {  
+    width: 30px;
+    height: auto;
+}
+
+.logo {
+    display: flex;
+    justify-content: center;
+    flex-grow: 1;
+}
+.logo img {
+    width: 100px;   
+    height: auto;   
+}
+.sign-in {
+    display: flex;
+    margin: 0 40px;
+    font-weight: bold;
+}
+.sign-in a {
+    color: black;
+    text-decoration: none;
+}
+.sign-in a:hover {
+    color: rgb(125, 118, 118)
+}
