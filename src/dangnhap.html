@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DỰ ÁN WEB</title>
+    <meta charset = "UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel = "stylesheet" href = "../css/dangnhap.css">    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class = "container">
+        <div class="picture-login">
+            <img src="../img/login.jpg" alt="Ảnh đăng nhập">
+        </div>
+        <div class="main-login">
+            <div class="content-login">
+                <div class="header-login">
+                    <h2>Xin chào!</h2>
+                    <h2>Hãy đăng nhập tài khoản của bạn</h2>
+                    <h3>Đăng nhập để trải nghiệm dịch vụ của chúng tôi</h3>
+                </div>
+                <div class ="box-login">
+                    <div class = "label-login">
+                        <h2>LOGIN</h2>
+                    </div>
+                    <form id = "form-login" action = "/login" method = "post"> 
+                        <div class = "txtbox-login">           
+                            <div class = "inputbox-login">
+                                <i class = "fa fa-user"></i>    
+                                <input type="text" name = "username" placeholder="Username">
+                            </div>
+                            <div class="inputbox-login">
+                                <i class = "fa fa-lock"></i>
+                                <input type="password" name = "password" placeholder="Password">               
+                            </div> 
+                        </div>
+                        <div class="button-login">
+                            <button type = "submit"  >Đăng nhập</button>
+                        </div>  
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
