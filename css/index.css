@@ -1,0 +1,54 @@
+.album {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+    margin: auto;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .slider-container {
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  .slider-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  .slider-track img {
+    width: 100%;
+    flex-shrink: 0;
+    max-height: 400px;
+  }
+  .album button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background-color: rgba(0, 0, 0, 0.5); 
+    color: white;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 10px 15px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+  }
+  
+  .album button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  
+  .album .prev {
+    left: 10px;
+  }
+  
+  .album .next {
+    right: 10px;
+  }
+  
+  

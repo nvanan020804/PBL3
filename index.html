@@ -32,14 +32,14 @@
             </div>
         </div>
         <div class="menu">  
-            <nav>
+            <nav class="menu-box">
                 <ul>
-                    <li class="item-menu"><a href="index.html">TRANG CHỦ</a></li>
-                    <li class="item-menu"><a href="goidangki.html">GÓI DỊCH VỤ</a></li>
-                    <li class="item-menu"><a href="quanlykhachhang.html">KHÁCH HÀNG</a></li>
-                    <li class="item-menu"><a href="quanlythietbi.html">THIẾT BỊ</a></li>
-                    <li class="item-menu"><a href="sanphamkem.html">SẢN PHẨM</a></li>
-                    <li class="item-menu"><a href="thongke.html">THỐNG KÊ</a></li>
+                    <li class="item-menu active"><a href="index.html">TRANG CHỦ</a></li>
+                    <li class="item-menu active"><a href="src/goidangki.html">GÓI DỊCH VỤ</a></li>
+                    <li class="item-menu active"><a href="quanlykhachhang.html">KHÁCH HÀNG</a></li>
+                    <li class="item-menu active"><a href="quanlythietbi.html">THIẾT BỊ</a></li>
+                    <li class="item-menu active"><a href="sanphamkem.html">SẢN PHẨM</a></li>
+                    <li class="item-menu active"><a href="thongke.html">THỐNG KÊ</a></li>
                 </ul>
             </nav>
         </div>
@@ -48,8 +48,19 @@
             
             <div class="content">
                 <div class="main-content">
-                    <img src="img/home1.jpg" alt="Ảnh demo phòng">
-                    <h1>Chào mừng bạn đến với THE BOX POWER GYM</h1>
+                    <div class="album">
+                        <button class="prev" onclick="changeSlide(-1)">❮</button>
+                        <div class="slider-container">
+                          <div class="slider-track" id="slider-track">
+                            <img src="/img/home1.jpg" />
+                            <img src="/img/home2.jpg" />
+                            <img src="/img/home3.jpg" />
+                            <img src="/img/home4.jpg" />
+                          </div>
+                        </div>
+                        <button class="next" onclick="changeSlide(1)">❯</button>
+                      </div>
+                      
                 <div class="text">
                     <p>Chào mừng bạn đến với THE BOX POWER GYM - nơi giúp bạn chinh phục giới hạn bản thân và nâng cao sức khỏe! Chúng tôi cung cấp không gian tập luyện hiện đại, đa dạng bộ môn từ gym, cardio đến huấn luyện cá nhân. Hãy lựa chọn hành trình phù hợp và cùng chúng tôi xây dựng một lối sống năng động, mạnh mẽ!</p>
                 </div>                    
@@ -70,6 +81,7 @@
             </div>
         </div>
     </div>
+    <script src="/js/album.js"></script>
 </body>
 </html>
 

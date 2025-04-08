@@ -1,0 +1,93 @@
+
+@import url('header.css');
+@import url('footer.css');
+@import url('menu.css');
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0 auto;
+    max-width: 100%;
+    width: 100%;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+.container {
+    background-color: white;
+    max-width: 80%;
+    width: 100%;
+    padding: 20px;
+    margin: 0 auto;
+}
+
+.service-list{
+    display: flex;
+    grid-template-columns: repeat(3, 1fr);
+    justify-content: center;
+    gap: 90px;
+    background: #e5e4e2;
+    padding: 40px 20px;
+    flex-wrap: wrap;
+}
+
+
+button {
+    background: black;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 20px 0;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: #444;
+}
+  
+ul {
+    text-align: left;
+    padding-left: 0;
+    list-style: none;
+    font-size: 14px;
+}
+
+.g1,.g2,.g3{
+    border-radius: 20px;
+    width: 280px;
+    padding: 30px 20px;
+    position: relative;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.g1:hover,.g2:hover ,.g3:hover{
+    transform: scale(1.15);
+    transition: transform 0.6s ease, box-shadow 0.6s ease;
+
+    box-shadow: 0 12px 24px rgba(0,0,0,0.2); /* Đổ bóng rõ hơn */
+}
+
+.price{
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+
+.c2{
+    background: linear-gradient(270deg, #c0c0c0, #9498a6, #8b8e98, #c0c0c0);
+    animation: shimmer 4s linear infinite, sparkle 1.5s ease-in-out infinite;
+}
+.c1{
+    background: linear-gradient(270deg, #fff4a3, #f3c44d, #d4af37, #fff4a3);
+    animation: shimmer 4s linear infinite, sparkle 1.5s ease-in-out infinite;
+    
+}
+.c3{
+    background: linear-gradient(270deg,#bfe1ea, #98d1e0,#71b2c8, #c5deed);
+        animation: shimmer 4s linear infinite, sparkle 1.5s ease-in-out infinite;
+}

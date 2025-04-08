@@ -3,6 +3,7 @@
     background-color: #ffa26c;
     border-radius: 5px;
 }
+
 .menu ul {
     display: flex;
     justify-content: center;
@@ -11,18 +12,38 @@
     list-style-type: none;
     white-space: nowrap;
 }
+
 .menu ul li {
     font-size: 16px;
-    margin: 0;
-    padding: 15px 35px;
     font-weight: bold;
-    transition: background-color 0.3s ease-in-out;
-}
-.menu ul li:hover {
-    background-color: #f88a4a;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.menu ul a {
+.menu ul li a {
+    display: block;
+    padding: 15px 25px;
     text-decoration: none;
     color: black;
+    transition: color 0.3s ease;
+}
+
+
+.menu ul li:hover {
+    background-color: #f88a4a;
+    border-radius: 5px;
+    transform: translateY(-2px);
+}
+
+.menu ul li:hover a {
+    color: white;
+}
+
+
+.menu ul li.active {
+    background-color: #f19164;
+    border-radius: 5px;
+}
+
+.menu ul li.active a {
+    color: rgb(10, 10, 10);
 }
