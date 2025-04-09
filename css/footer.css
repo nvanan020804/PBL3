@@ -1,19 +1,27 @@
 .footer {
-    display:flex;
+    display: flex;
     flex-direction: row;
+    justify-content: space-between;
     align-items: flex-start;
-    justify-content: center;
-    background-color: #0e0d0dcb;
-    padding: 20px;
-    gap: 50px;
-    text-align: center;
-    color: orange;
-    border-radius: 5px;
-    font-size: 18px;
-    width: 100%;
-}
-.footer-content, .footer-contact {
-    max-width: 600px;
+    flex-wrap: wrap;
+  
+    background-color: #1a1a1a;
+    color: #ffa500;
+    padding: 40px 60px;
+    border-radius: 10px;
+    font-size: 16px;
+    justify-content: center; 
+    gap: 30%;;
+    margin-top: 60px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  }
+  
+  .footer-content,
+  .footer-contact {
+    flex: 1 1 300px; /* responsive co giãn */
+    max-width: 500px;
     text-align: justify;
-    font-size: 15px;   
-}
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  
