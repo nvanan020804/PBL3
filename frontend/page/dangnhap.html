@@ -23,24 +23,25 @@
                     <div class = "label-login">
                         <h2>LOGIN</h2>
                     </div>
-                    <form id = "form-login" action = "/login" method = "post"> 
+                    <form id = "form-login"> 
                         <div class = "txtbox-login">           
                             <div class = "inputbox-login">
                                 <i class = "fa fa-user"></i>    
-                                <input type="text" name = "username" placeholder="Username">
+                                <input type="text" name = "username" placeholder="Username" required>
                             </div>
                             <div class="inputbox-login">
                                 <i class = "fa fa-lock"></i>
-                                <input type="password" name = "password" placeholder="Password">               
+                                <input type="password" name = "password" placeholder="Password" required>               
                             </div> 
                         </div>
                         <div class="button-login">
-                            <button type = "submit" onclick="window.location.href='../index.html'">Đăng nhập</button>
+                            <button type = "submit">Đăng nhập</button>
                         </div>  
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    <script type="module" src="../js/dangnhap.js"></script>
 </body>
 </html>
