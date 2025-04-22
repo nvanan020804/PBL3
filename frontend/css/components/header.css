@@ -1,0 +1,88 @@
+/* HEADER CHUNG */
+.header {
+    background-color:#3F3E3E;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.header p {
+    font-size: 28px;
+    margin: 0 0 10px 0;
+    font-weight: bold;
+    color: #FF4136; /* đỏ năng lượng */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* FLEX BOX CĂN NGANG */
+.header-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    font-size: 14px;
+}
+
+/* PHẦN LIÊN HỆ */
+.contact-info {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.phone-icon {
+    color: #2ECC40; /* xanh lá cây */
+}
+
+.map-icon {
+    color: #3498DB; /* xanh da trời */
+}
+
+/* SOCIAL ICONS */
+.social-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.social-icons a {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    border: 2px solid white;
+    transition: all 0.3s ease;
+    font-size: 18px;
+}
+
+/* FACEBOOK */
+.facebook:hover {
+    background-color: #1877F2;
+    border-color: #1877F2;
+    color: white;
+}
+
+/* TIKTOK */
+.tiktok:hover {
+    background-color: #000000;
+    border-color: #000000;
+    color: white;
+}
+
+/* INSTAGRAM */
+.instagram:hover {
+    background-color: #E1306C;
+    border-color: #E1306C;
+    color: white;
+}

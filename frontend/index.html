@@ -1,89 +1,42 @@
-<!DOCTYPE html> 
-<html lang="vi">
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>DỰ ÁN WEB</title>
-    <meta charset ="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/main.css">
-
+    <title>GYM-Manager</title>
+    <link rel="stylesheet" href="./css/components/footer.css">
+    <link rel="stylesheet" href="./css/components/header.css">
+    <link rel="stylesheet" href="./css/components/menu.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <div class="wrapper-main">
-        <div class="header">
-            <p>THE BOX POWER GYM - THAY ĐỔI SỨC KHỎE CỦA CHÍNH BẠN </p>
-        </div>
-        <div class = "header-content">
-            <div class="logo">
-                <img src="img/logo.jpg" alt = "Ảnh logo" >
-            </div>
-            <form class="search-form" action="timkiem.html" method="get"> 
-                <input type="text" name="search" placeholder="Tìm kiếm..." required>
-            </form>
-            <div class="contact">
-                <img src="img/dienthoai.jpg" alt="Icon liên lạc">
-                <div class="contact-text">
-                <p>Hỗ trợ khách hàng</p>
-                <span>0978684764</span>
-                </div>
-            </div>
-            <div class="sign-in">
-                <button type="submit" onclick="window.location.href='page/dangnhap.html'">Đăng nhập</button>
-            </div>
-        </div>
-        <div class="menu">  
-            <nav class="menu-box">
-                <ul>
-                    <li class="item-menu active"><a href="index.html">TRANG CHỦ</a></li>
-                    <li class="item-menu"><a href="page/goidangki.html">GÓI DỊCH VỤ</a></li>
-                    <li class="item-menu"><a href="page/khachhang.html">KHÁCH HÀNG</a></li>
-                    <li class="item-menu"><a href="page/thietbi.html">THIẾT BỊ</a></li>
-                    <li class="item-menu"><a href="page/sanpham.html">SẢN PHẨM</a></li>
-                    <li class="item-menu"><a href="page/thongke.html">THỐNG KÊ</a></li>
-                </ul>
-            </nav>
-        </div>
-                
-        <div class="main">
-            
-            <div class="content">
-                <div class="main-content">
-                    <div class="album">
-                        <button class="prev" onclick="changeSlide(-1)">❮</button>
-                        <div class="slider-container">
-                            <div class="slider-track" id="slider-track">
-                                <img src="img/home1.jpg" alt="Hình 1">
-                                <img src="img/home2.jpg" alt="Hình 2">
-                                <img src="img/home3.jpg" alt="Hình 3">
-                                <img src="img/home4.jpg" alt="Hình 4">
-                            </div>
-                        </div>
-                        <button class="next" onclick="changeSlide(1)">❯</button>
-                      </div>
-                      
-                <div class="text">
-                    <p>Chào mừng bạn đến với THE BOX POWER GYM - nơi giúp bạn chinh phục giới hạn bản thân và nâng cao sức khỏe! Chúng tôi cung cấp không gian tập luyện hiện đại, đa dạng bộ môn từ gym, cardio đến huấn luyện cá nhân. Hãy lựa chọn hành trình phù hợp và cùng chúng tôi xây dựng một lối sống năng động, mạnh mẽ!</p>
-                </div>                    
-                </div>
-            </div>
-        </div>
-        <div class="footer">
-            <div class="footer-content">
-                <p>THE BOX POWER GYM</p> 
-                <p>Chào mừng bạn đến với The Box Power Gym, nơi giúp bạn đạt được vóc dáng mong muốn và nâng cao thể lực với hệ thống thiết bị hiện đại, huấn luyện viên chuyên nghiệp và môi trường tập luyện năng động. Hãy tham gia ngay hôm nay để trải nghiệm dịch vụ tốt nhất và chinh phục giới hạn của chính mình! </p>
-
-            </div>
-            <div class="footer-contact">
-                &copy; 2025 The Box Power Gym 
-                <p><i class="fa-solid fa-location-dot"></i> Địa chỉ: 43 Nguyễn Lương Bằng, Hòa Khánh Bắc, Liên Chiểu, Đà Nẵng</p>
-                <p><i class="fa-solid fa-phone"></i> Điện thoại: 0978684764</p>
-                <p><i class="fa-solid fa-envelope"></i> Email: TheBoxPowerGym@gmail.com </p>
-            </div>
-        </div>
+    <div id="header-container"></div>
+    <div id="menu-container"></div>
+    <div class="main">
+        <p>Nội dung ở đây</p>
     </div>
-    <script src="js/album.js" type="module"></script>
+    <div id="footer-container"></div>
+    <script>
+        // Load header
+        fetch('components/header.html')
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById('header-container').innerHTML = data;
+            });
+        // Load menu
+        fetch('components/menu.html')  // Nhúng menu từ file menu.html
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById('menu-container').innerHTML = data;
+            });
 
+        // Load footer
+        fetch('components/footer.html')
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+            });
+    </script>
 </body>
 </html>
-
