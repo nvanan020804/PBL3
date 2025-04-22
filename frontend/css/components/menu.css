@@ -46,7 +46,7 @@
 }
 
 .menu-items li a:hover {
-    color: #f39c12;
+    color: #DA2128;
 }
 
 /* Phần button đăng nhập */
@@ -58,13 +58,14 @@
     width: 100%; /* Button chiếm hết chiều rộng của phần menu-right */
     padding: 10px;
     font-size: 16px;
-    background-color: #28a745; /* Màu xanh lá cây */
+    background-color: #e71300; /* Màu xanh lá cây */
     color: white;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
 .login-btn:hover {
-    background-color: #218838; /* Màu xanh đậm khi hover */
+    background-color: #f46767; /* Màu xanh đậm khi hover */
 }
