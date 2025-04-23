@@ -1,64 +1,55 @@
-/* Menu container */
+
 .menu-box {
     display: flex;
-    justify-content: space-between; /* Chia không gian đều */
-    align-items: center; /* Căn giữa theo chiều dọc */
+    justify-content: space-between;
+    align-items: center;
     background-color: #000000;
     padding: 10px;
 }
-
-/* Phần chứa logo */
 .menu-left {
-    flex: 1; /* Phần này chiếm 1 phần không gian */
-    display: flex; /* Dùng flex để căn giữa logo */
-    justify-content: center; /* Căn giữa theo chiều ngang */
-    align-items: center; /* Căn giữa theo chiều dọc */
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .menu-left .menu-image {
-    max-width: 100%; /* Đảm bảo ảnh không vượt quá chiều rộng của phần menu */
-    height: auto; /* Giữ tỷ lệ ảnh */
+    max-width: 100%;
+    height: auto;
 }
 .menu-image {
-    width: 200px; /* hoặc 80px tùy kích thước mong muốn */
-    height: auto; /* giữ tỉ lệ gốc */
+    width: 200px;
+    height: auto;
     object-fit: contain;
 }
-
-/* Các mục menu */
 .menu-items {
     display: flex;
-    justify-content: space-evenly; /* Căn đều các mục menu */
-    flex: 2; /* Chiếm 2/3 của 90% chiều rộng */
+    justify-content: space-evenly; 
+    flex: 2; 
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
-
 .menu-items li {
     display: inline;
 }
-
 .menu-items li a {
     color: white;
     text-decoration: none;
     font-size: 18px;
 }
-
 .menu-items li a:hover {
     color: #DA2128;
 }
-
-/* Phần button đăng nhập */
 .menu-right {
-    flex: 0.5; /* Button chiếm 10% chiều rộng */
+    flex: 0.5; 
 }
 
 .login-btn {
-    width: 100%; /* Button chiếm hết chiều rộng của phần menu-right */
+    width: 100%;
     padding: 10px;
     font-size: 16px;
-    background-color: #e71300; /* Màu xanh lá cây */
+    background-color: #e71300; 
     color: white;
     border: none;
     border-radius: 5px;
@@ -67,5 +58,5 @@
 }
 
 .login-btn:hover {
-    background-color: #f46767; /* Màu xanh đậm khi hover */
+    background-color: #f46767;
 }

@@ -1,19 +1,64 @@
 .footer {
-    display:flex;
+    display: flex;
     flex-direction: row;
-    align-items: flex-start;
     justify-content: center;
-    background-color: #0e0d0dcb;
-    gap: 50px;
-    text-align: center;
-    color: orange;
-    border-radius: 5px;
-    font-size: 18px;
+    align-items: flex-start;
+    background-color: #cc0d0d; 
+    color: #FFFFFF;
+    font-size: 20px;
+    padding: 40px 30px;
+    gap: 120px;
+    text-align: left;
     width: 100%;
+    font-family: Arial, sans-serif;
+    font-weight: 300;
     box-sizing: border-box;
 }
+
 .footer-content, .footer-contact {
-    max-width: 600px;
-    text-align: justify;
-    font-size: 15px;   
+    max-width: 500px;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.footer .footer-content h3, .footer .footer-contact h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.footer .footer-content p, .footer .footer-contact p {
+    margin-bottom: 15px;
+    font-size: 16px;
+    line-height: 1.6;
+    transition: all 0.3s ease;
+}
+
+.footer .footer-contact a {
+    color: #FFFFFF;
+    text-decoration: none;
+    transition: color 0.3s ease; 
+}
+
+.footer .footer-contact a:hover {
+    color: #FFDD00;
+}
+
+.footer .footer-contact i.fa-phone {
+    color: #28a745;
+    font-size: 20px;
+}
+
+.footer .footer-contact i.fa-location-dot {
+    color: #3080d0;
+    font-size: 20px;
+}
+
+.footer .footer-contact i.fa-envelope {
+    color: #FFD700;
+    font-size: 20px;
+}
+.footer .footer-contact i {
+    margin-right: 10px;
 }
