@@ -170,3 +170,78 @@ section {
     background-color: #DA2128;
     color: white;
 }
+
+.sticky {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+/* Equipment Section Styles */
+.thietbit {
+    padding: 50px 0;
+    background-color: #161414;
+}
+
+.gioithieu {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.gioithieu h2 {
+    color: #DA2128;
+    font-family: 'Oswald', sans-serif;
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.gioithieu p {
+    color: #ebe9e9;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.thietbi {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.thietbi-item {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.thietbi-item img {
+    width: 500px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.thietbi-item img:hover {
+    transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+    .thietbi-item img {
+        width: 100%;
+        height: 250px;
+    }
+    
+    .gioithieu h2 {
+        font-size: 28px;
+    }
+    
+    .gioithieu p {
+        font-size: 16px;
+        padding: 0 20px;
+    }
+}

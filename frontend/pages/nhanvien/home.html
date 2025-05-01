@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ</title>
+    <link rel="stylesheet" href="../css/menu.css">
+
+    <link 
+</head>
+<body>
+    <!-- Menu sẽ được load động -->
+    <div id="menu-container"></div>
+    
+    <main class="main-content">
+        <section class="hero">
+            <h1>Chào mừng đến với Gym Management</h1>
+            <p>Hệ thống quản lý phòng gym hiện đại</p>
+        </section>
+
+        <section class="features">
+            <h2>Các tính năng nổi bật</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Quản lý thành viên</h3>
+                    <p>Theo dõi thông tin và tiến độ của các thành viên</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Lịch tập</h3>
+                    <p>Quản lý lịch tập và đặt lịch dễ dàng</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Thống kê</h3>
+                    <p>Báo cáo và phân tích dữ liệu chi tiết</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Load menu
+        fetch('../components/menu.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('menu-container').innerHTML = html;
+                
+                // Kiểm tra và set quyền
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (user) {
+                    document.body.setAttribute('data-role', user.phanQuyen);
+                }
+                
+                // Set active menu
+                const currentPage = window.location.pathname.split('/').pop();
+                const menuItems = document.querySelectorAll('.menu a');
+                menuItems.forEach(item => {
+                    if (item.getAttribute('href') === currentPage) {
+                        item.classList.add('active');
+                    }
+                });
+            });
+
+        // Hàm đăng xuất
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html> 

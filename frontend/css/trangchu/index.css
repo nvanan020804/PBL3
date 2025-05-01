@@ -1,0 +1,179 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+section {
+    width: 100%;
+    box-sizing: border-box;
+}
+.img-introduce {
+    width: 100%;
+    overflow: hidden;
+}
+.img-introduce img {
+    max-width: 100%;
+}
+.goi-introduce {
+    max-height: 1000px;
+    height: 100%;
+}
+.goi-content {
+    padding: 30px 00;
+}
+.goi-title {
+    display: inline-block;
+    margin-top: 20px;
+    margin-left: 150px;
+    color: #DA2128;
+    font-family: Oswald, sans-serif;
+    font-weight: bold;
+}
+.goi-title p {
+    font-size: 18px;
+}
+.goitap {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    margin-left: 50px;
+    padding: 20px ;
+    background-color: white;
+  }
+  
+.goi {
+    flex: 1 1 250px;
+    max-width: 300px;
+    background-color: #FAFAFA;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+  
+.goi:hover {
+    transform: translateY(-5px);
+}
+  
+.goi img {
+    width: 100%;
+    height: 70%;
+    object-fit: cover;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+  
+.goi p {
+    margin: 2px 8px; /* Khoảng cách trên dưới của đoạn văn */
+    font-size: 16px; /* Kích thước chữ */
+    color: #DA2128; /* Màu chữ đỏ */
+    font-family: Montserrat, sans-serif; /* Font chữ */
+    font-weight:800; /* Độ đậm của chữ */
+}
+.about-us {
+    background-color: #000000;
+    padding: 50px 0;
+    margin-bottom: 0; /* thêm khoảng cách để footer không bị dính */
+}
+
+.about-title {
+    display: inline-block;
+    margin: 50px;
+    margin-left: 150px;
+    color: white;
+    font-family: Oswald, sans-serif;
+}
+.album {
+    max-width: 1075px;
+    max-height: 500px;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+}
+.album-slide {
+    display: flex;
+    gap: 20px;
+    flex-wrap: nowrap;
+    height: 100%;
+    width: max-content;
+    transition: transform 0.5s ease-in-out; 
+}
+.album .img {
+    width: 250px;
+    height: 400px;
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+.album .img:hover {
+    transform: scale(1.05);
+}
+.album .img.active {
+    transform: scale(1.05);
+    z-index: 1;
+}
+.album .img img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    display: block;
+}
+.album .about {
+    height: 100px;
+    padding: 10px;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f9f9f9;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.nav-arrow {
+    display: none;
+}
+.nav-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+    margin: 20px auto;
+}
+
+.nav-bar .tab {
+    padding: 5px 89px;
+    margin: 0;
+    border-left: none;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #1e1c1c;
+    white-space: nowrap;    
+}
+
+.nav-bar .tab:first-child {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+.nav-bar .tab:last-child {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.nav-bar .tab.active {
+    background-color: #DA2128;
+    color: white;
+}
+
+.sticky {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+}

@@ -1,91 +1,67 @@
 package PBL3.backend.model;
 
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "GOIDICHVU")
+@Table(name = "goidichvu")
 public class GoiDichVu {
 
     @Id
-    @Column(name = "idGOI")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idGOI;
+    @Column(name = "idGOI")
+    private int id;
 
-    @Column(name = "nameGOI", nullable = false)
-    private String nameGOI;
+    @Column(name = "nameGOI", nullable = false, length = 100)
+    private String tenGoi;
 
-    @Column(name = "priceGOI", nullable = false)
-    private int priceGOI;
+    @Column(name = "priceGOI", nullable = false, precision = 10, scale = 2)
+    private BigDecimal gia;
 
-    @Column(name = "aboutGOI", nullable = false)
-    private String aboutGOI;
+    @Column(name = "aboutGOI", columnDefinition = "TEXT")
+    private String moTa;
 
     @Column(name = "timeGOI", nullable = false)
-    private int timeGOI;
-
-    @OneToMany(mappedBy = "goiDichVu", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<KhachHang> khachHangs;
+    private int thoiGian;
 
     // Getters and Setters
-
-    public int getIdGOI() {
-        return idGOI;
+    public int getId() {
+        return id;
     }
 
-    public void setIdGOI(int idGOI) {
-        this.idGOI = idGOI;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public String getNameGOI() {
-        return nameGOI;
+    public String getTenGoi() {
+        return tenGoi;
     }
 
-    public void setNameGOI(String nameGOI) {
-        this.nameGOI = nameGOI;
+    public void setTenGoi(String tenGoi) {
+        this.tenGoi = tenGoi;
     }
 
-    public int getPriceGOI() {
-        return priceGOI;
+    public BigDecimal getGia() {
+        return gia;
     }
 
-    public void setPriceGOI(int priceGOI) {
-        this.priceGOI = priceGOI;
+    public void setGia(BigDecimal gia) {
+        this.gia = gia;
     }
 
-    public String getAboutGOI() {
-        return aboutGOI;
+    public String getMoTa() {
+        return moTa;
     }
 
-    public void setAboutGOI(String aboutGOI) {
-        this.aboutGOI = aboutGOI;
+    public void setMoTa(String moTa) {
+        this.moTa = moTa;
     }
 
-    public int getTimeGOI() {
-        return timeGOI;
+    public int getThoiGian() {
+        return thoiGian;
     }
 
-    public void setTimeGOI(int timeGOI) {
-        this.timeGOI = timeGOI;
-    }
-
-    public List<KhachHang> getKhachHangs() {
-        return khachHangs;
-    }
-
-    public void setKhachHangs(List<KhachHang> khachHangs) {
-        this.khachHangs = khachHangs;
+    public void setThoiGian(int thoiGian) {
+        this.thoiGian = thoiGian;
     }
 }

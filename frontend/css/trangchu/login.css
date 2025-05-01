@@ -1,0 +1,214 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #000000;
+}
+
+.login-container {
+    position: relative;
+    width: 380px;
+    height: 420px;
+    background: #1c1c1c;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.login-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 380px;
+    height: 420px;
+    background: linear-gradient(0deg, transparent, #ff0000, #ff0000);
+    transform-origin: bottom right;
+    animation: animate 6s linear infinite;
+}
+
+.login-container::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 380px;
+    height: 420px;
+    background: linear-gradient(0deg, transparent, #ff0000, #ff0000);
+    transform-origin: bottom right;
+    animation: animate 6s linear infinite;
+    animation-delay: -3s;
+}
+
+
+@keyframes animate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.login-form {
+    position: absolute;
+    inset: 2px;
+    border-radius: 8px;
+    background: #28292d;
+    z-index: 10;
+    padding: 50px 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.login-form h2 {
+    color: #ff0000;
+    font-weight: 500;
+    text-align: center;
+    letter-spacing: 0.1em;
+    margin-bottom: 35px;
+}
+
+.input-box {
+    position: relative;
+    width: 300px;
+    margin-top: 35px;
+}
+
+.input-box input {
+    /* Thiết lập vị trí tương đối cho input */
+    position: relative;
+    /* Chiều rộng bằng 100% của container */
+    width: 100%;
+    /* Padding: trên 20px, trái phải 10px, dưới 10px */
+    padding: 20px 10px 10px;
+    /* Nền trong suốt */
+    background: transparent;
+    /* Không có viền */
+    border: none;
+    /* Không có outline khi focus */
+    outline: none;
+    /* Màu chữ trắng */
+    color: #ffffff;
+    /* Cỡ chữ bằng với font-size mặc định */
+    font-size: 1em;
+    /* Khoảng cách giữa các ký tự */
+    letter-spacing: 0.05em;
+    /* Đặt z-index để input nằm trên các phần tử khác */
+    z-index: 10;
+}
+
+.input-box span {
+    position: absolute;
+    left: 0;
+    padding: 20px 0px 10px;
+    font-size: 1em;
+    color: #8f8f8f;
+    pointer-events: none;
+    letter-spacing: 0.05em;
+    transition: 0.5s;
+}
+
+.input-box input:valid ~ span,
+.input-box input:focus ~ span {
+    color: #ff0000;
+    transform: translateX(0px) translateY(-34px);
+    font-size: 0.75em;
+}
+
+.input-box i {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: #ff0000;
+    border-radius: 4px;
+    transition: 0.5s;
+    pointer-events: none;
+    z-index: 9;
+}
+
+.input-box input:valid ~ i,
+.input-box input:focus ~ i {
+    height: 44px;
+}
+
+.links {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+}
+
+.links a {
+    margin: 10px 0;
+    font-size: 0.75em;
+    color: #8f8f8f;
+    text-decoration: none;
+}
+
+.links a:hover {
+    color: #ff0000;
+}
+
+input[type="submit"] {
+    border: none;
+    outline: none;
+    background: #ff0000;
+    padding: 15px;
+    width: 40%;
+  
+    margin-top: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #ffffff;
+}
+
+input[type="submit"]:active {
+    opacity: 0.8;
+}
+
+.exit-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 20;
+}
+
+.exit-button::before,
+.exit-button::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background-color: #ff0000;
+    top: 50%;
+    left: 50%;
+    transition: background-color 0.3s;
+}
+
+.exit-button::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.exit-button::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.exit-button:hover::before,
+.exit-button:hover::after {
+    background-color: #ffffff;
+} 
