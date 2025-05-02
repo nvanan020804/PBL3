@@ -30,7 +30,23 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             } else if (data.phanQuyen === 'nhanvien') {
                 window.location.href = '../nhanvien/home.html';
             } else if (data.phanQuyen === 'khachhang') {
-                window.location.href = '../khachhang/home.html';
+                if (data.phanQuyen === 'khachhang') {
+                    // Gọi API lấy thông tin khách hàng
+                    fetch(`http://localhost:8080/api/khachhang/${data.idLienKet}`)
+                        .then(res => res.json())
+                        .then(khachhang => {
+                            // Lưu thông tin khách hàng vào localStorage
+                            localStorage.setItem('khachhang', JSON.stringify(khachhang));
+                            // Lưu idKhachHang vào user object để các chức năng khác dùng
+                            let user = JSON.parse(localStorage.getItem('user'));
+                            user.id = khachhang.idKhachHang;
+                            localStorage.setItem('user', JSON.stringify(user));
+                            window.location.href = '../khachhang/home.html';
+                        })
+                        .catch(() => {
+                            alert('Không tìm thấy thông tin khách hàng!');
+                        });
+                }
             } else {
                 alert('Bạn không có quyền truy cập!');
             }

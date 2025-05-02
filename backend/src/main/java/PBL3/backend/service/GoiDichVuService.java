@@ -1,5 +1,6 @@
 package PBL3.backend.service;
 
+import PBL3.backend.dto.GoiDichVuDTO;
 import PBL3.backend.model.GoiDichVu;
 import PBL3.backend.repository.GoiDichVuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,18 +23,24 @@ public class GoiDichVuService {
         return repository.findById(id);
     }
 
-    public GoiDichVu taoMoiGoiDichVu(GoiDichVu goiDichVu) {
+    public GoiDichVu taoMoiGoiDichVu(GoiDichVuDTO dto) {
+        GoiDichVu goiDichVu = new GoiDichVu();
+        chuyenDoiDtoSangEntity(dto, goiDichVu);
         return repository.save(goiDichVu);
     }
 
-    public GoiDichVu capNhatGoiDichVu(int id, GoiDichVu goiDichVuCapNhat) {
-        return repository.findById(id).map(goiDichVuHienTai -> {
-            goiDichVuHienTai.setTenGoi(goiDichVuCapNhat.getTenGoi());
-            goiDichVuHienTai.setGia(goiDichVuCapNhat.getGia());
-            goiDichVuHienTai.setMoTa(goiDichVuCapNhat.getMoTa());
-            goiDichVuHienTai.setThoiGian(goiDichVuCapNhat.getThoiGian());
-            return repository.save(goiDichVuHienTai);
-        }).orElseThrow(() -> new RuntimeException("Không tìm thấy gói dịch vụ"));
+    public GoiDichVu capNhatGoiDichVu(int id, GoiDichVuDTO dto) {
+        return repository.findById(id).map(goiDichVu -> {
+            chuyenDoiDtoSangEntity(dto, goiDichVu);
+            return repository.save(goiDichVu);
+        }).orElseThrow(() -> new RuntimeException("Không tìm thấy gói dịch vụ với ID: " + id));
+    }
+
+    private void chuyenDoiDtoSangEntity(GoiDichVuDTO dto, GoiDichVu entity) {
+        entity.setTenGoi(dto.getTenGoi());
+        entity.setGia(dto.getGia());
+        entity.setMoTa(dto.getMoTa());
+        entity.setThoiGian(dto.getThoiGian());
     }
 
     public void xoaGoiDichVu(int id) {
