@@ -1,5 +1,6 @@
 package PBL3.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,5 +43,6 @@ public class NhanVien {
     private Account account;
     
     @OneToMany(mappedBy = "nhanVien")
+    @JsonManagedReference(value = "nhanvien-hoadon")
     private List<HoaDon> hoaDons;
 }

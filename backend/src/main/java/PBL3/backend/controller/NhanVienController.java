@@ -1,105 +1,106 @@
 package PBL3.backend.controller;
 
-import PBL3.backend.model.NhanVien;
+import PBL3.backend.dto.request.NhanVienRequest;
+import PBL3.backend.dto.request.NhanVienWithAccountRequest;
+import PBL3.backend.dto.response.ApiResponse;
+import PBL3.backend.dto.response.NhanVienResponse;
+import PBL3.backend.service.NhanVienMapper;
 import PBL3.backend.service.NhanVienService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/nhan-vien")
-@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500", "http://127.0.0.1:5503", "http://localhost:5503"})
+@CrossOrigin(origins = {"*"})
 public class NhanVienController {
 
     @Autowired
     private NhanVienService nhanVienService;
+    
+    @Autowired
+    private NhanVienMapper nhanVienMapper;
 
     @GetMapping
-    public List<NhanVien> layTatCaNhanVien() {
-        return nhanVienService.layTatCaNhanVien();
+    public ResponseEntity<ApiResponse<List<NhanVienResponse>>> layTatCaNhanVien() {
+        return ResponseEntity.ok(
+            ApiResponse.success(nhanVienMapper.toResponseList(nhanVienService.layTatCaNhanVien()))
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> layNhanVienTheoId(@PathVariable int id) {
+    public ResponseEntity<ApiResponse<NhanVienResponse>> layNhanVienTheoId(@PathVariable int id) {
         return nhanVienService.layNhanVienTheoId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(nhanVien -> ResponseEntity.ok(ApiResponse.success(nhanVienMapper.toResponse(nhanVien))))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ApiResponse.error("Không tìm thấy nhân viên với ID: " + id)));
     }
 
     @PostMapping
-    public ResponseEntity<?> taoNhanVien(@RequestBody Map<String, Object> request) {
-        try {
-            String tenNhanVien = (String) request.get("tenNhanVien");
-            Integer tuoi = request.get("tuoi") != null ? (Integer) request.get("tuoi") : null;
-            String soDienThoai = (String) request.get("soDienThoai");
-            String cccd = (String) request.get("cccd");
-            String email = (String) request.get("email");
-            String viTri = (String) request.get("viTri");
-            
-            if (tenNhanVien == null) {
-                return ResponseEntity.badRequest().body("Tên nhân viên không được để trống");
-            }
-            
-            NhanVien nhanVien = nhanVienService.taoNhanVien(tenNhanVien, tuoi, soDienThoai, cccd, email, viTri);
-            return ResponseEntity.ok(nhanVien);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
-        }
+    public ResponseEntity<ApiResponse<NhanVienResponse>> taoNhanVien(@Valid @RequestBody NhanVienRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            ApiResponse.success(
+                "Tạo nhân viên thành công",
+                nhanVienMapper.toResponse(
+                    nhanVienService.taoNhanVien(request.getTenNhanVien(), 
+                                             request.getTuoi(),
+                                             request.getSoDienThoai1(),
+                                             request.getCccd(),
+                                             request.getEmail(),
+                                             request.getViTri())
+                )
+            )
+        );
     }
 
     @PostMapping("/tai-khoan")
-    public ResponseEntity<?> taoNhanVienVaTaiKhoan(@RequestBody Map<String, Object> request) {
-        try {
-            String tenNhanVien = (String) request.get("tenNhanVien");
-            Integer tuoi = request.get("tuoi") != null ? (Integer) request.get("tuoi") : null;
-            String soDienThoai = (String) request.get("soDienThoai");
-            String cccd = (String) request.get("cccd");
-            String email = (String) request.get("email");
-            String viTri = (String) request.get("viTri");
-            String tenDangNhap = (String) request.get("tenDangNhap");
-            String matKhau = (String) request.get("matKhau");
-            String phanQuyen = (String) request.get("phanQuyen");
-            
-            if (tenNhanVien == null || tenDangNhap == null || matKhau == null || phanQuyen == null) {
-                return ResponseEntity.badRequest().body("Thiếu thông tin bắt buộc");
-            }
-            
-            NhanVien nhanVien = nhanVienService.taoNhanVienVaTaiKhoan(
-                tenNhanVien, tuoi, soDienThoai, cccd, email, viTri, tenDangNhap, matKhau, phanQuyen
-            );
-            return ResponseEntity.ok(nhanVien);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
-        }
+    public ResponseEntity<ApiResponse<NhanVienResponse>> taoNhanVienVaTaiKhoan(
+            @Valid @RequestBody NhanVienWithAccountRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            ApiResponse.success(
+                "Tạo nhân viên và tài khoản thành công",
+                nhanVienMapper.toResponse(
+                    nhanVienService.taoNhanVienVaTaiKhoan(
+                        request.getTenNhanVien(), 
+                        request.getTuoi(), 
+                        request.getSoDienThoai1(), 
+                        request.getCccd(), 
+                        request.getEmail(), 
+                        request.getViTri(), 
+                        request.getTenDangNhap(), 
+                        request.getMatKhau(), 
+                        request.getPhanQuyen()
+                    )
+                )
+            )
+        );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> capNhatNhanVien(@PathVariable int id, @RequestBody Map<String, Object> request) {
-        try {
-            String tenNhanVien = (String) request.get("tenNhanVien");
-            Integer tuoi = request.get("tuoi") != null ? (Integer) request.get("tuoi") : null;
-            String soDienThoai = (String) request.get("soDienThoai");
-            String cccd = (String) request.get("cccd");
-            String email = (String) request.get("email");
-            String viTri = (String) request.get("viTri");
-            
-            NhanVien nhanVien = nhanVienService.capNhatNhanVien(id, tenNhanVien, tuoi, soDienThoai, cccd, email, viTri);
-            return ResponseEntity.ok(nhanVien);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
-        }
+    public ResponseEntity<ApiResponse<NhanVienResponse>> capNhatNhanVien(
+            @PathVariable int id, 
+            @Valid @RequestBody NhanVienRequest request) {
+        return ResponseEntity.ok(
+            ApiResponse.success(
+                "Cập nhật nhân viên thành công",
+                nhanVienMapper.toResponse(
+                    nhanVienService.capNhatNhanVien(
+                        id, request.getTenNhanVien(), request.getTuoi(),
+                        request.getSoDienThoai1(), request.getCccd(),
+                        request.getEmail(), request.getViTri()
+                    )
+                )
+            )
+        );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> xoaNhanVien(@PathVariable int id) {
-        try {
-            nhanVienService.xoaNhanVien(id);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
-        }
+    public ResponseEntity<ApiResponse<Void>> xoaNhanVien(@PathVariable int id) {
+        nhanVienService.xoaNhanVien(id);
+        return ResponseEntity.ok(ApiResponse.success("Xóa nhân viên thành công", null));
     }
 }

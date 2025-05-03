@@ -1,5 +1,6 @@
 package PBL3.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,10 +23,12 @@ public class HoaDonChiTiet {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idHoaDon", nullable = false)
+    @JsonBackReference(value = "hoadon-chitiet")
     private HoaDon hoaDon;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idSanPham", nullable = false)
+    @JsonBackReference(value = "sanpham-chitiet")
     private SanPham sanPham;
     
     @Column(name = "soLuong", nullable = false)

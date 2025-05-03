@@ -1,5 +1,7 @@
 package PBL3.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,10 +26,12 @@ public class HoaDon {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idDangKy", nullable = false)
+    @JsonBackReference(value = "dangky-hoadon")
     private DangKy dangKy;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idNhanVien", nullable = false)
+    @JsonBackReference(value = "nhanvien-hoadon")
     private NhanVien nhanVien;
     
     @Column(name = "thoiGianTao", nullable = false)
@@ -37,5 +41,6 @@ public class HoaDon {
     private String trangThai;
     
     @OneToMany(mappedBy = "hoaDon", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "hoadon-chitiet")
     private List<HoaDonChiTiet> chiTietList = new ArrayList<>();
 }
