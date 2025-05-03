@@ -1,88 +1,45 @@
 package PBL3.backend.model;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
+@Getter
+@Setter
 @Entity
-@Table(name = "DANGKY")
+@Table(name = "dangky")
+@NoArgsConstructor
+@AllArgsConstructor
 public class DangKy {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idDANGKY")
+    @Column(name = "idDangKy")
     private int idDangKy;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idGOI", referencedColumnName = "idGOI")
+    @JoinColumn(name = "idGOI", nullable = false)
     private GoiDichVu goiDichVu;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idKHACHHANG", referencedColumnName = "idKHACHHANG")
+    @JoinColumn(name = "idKhachHang", nullable = false)
     private KhachHang khachHang;
 
-    @Column(name = "dayDANGKY")
-    private LocalDate dayDangKy;
+    @Column(name = "ngayBatDau", nullable = false)
+    private LocalDate ngayBatDau;
 
-    @Column(name = "statusGOI")
-    private byte statusGoi;
+    @Column(name = "trangThai", nullable = false, length = 50)
+    private String trangThai;
 
-    // Constructors
-    public DangKy() {}
-
-    public DangKy(GoiDichVu goiDichVu, KhachHang khachHang, LocalDate dayDangKy, byte statusGoi) {
-        this.goiDichVu = goiDichVu;
-        this.khachHang = khachHang;
-        this.dayDangKy = dayDangKy;
-        this.statusGoi = statusGoi;
-    }
-
-    // Getters và Setters
-    public int getIdDangKy() {
-        return idDangKy;
-    }
-
-    public void setIdDangKy(int idDangKy) {
-        this.idDangKy = idDangKy;
-    }
-
-    public GoiDichVu getGoiDichVu() {
-        return goiDichVu;
-    }
-
-    public void setGoiDichVu(GoiDichVu goiDichVu) {
-        this.goiDichVu = goiDichVu;
-    }
-
-    public KhachHang getKhachHang() {
-        return khachHang;
-    }
-
-    public void setKhachHang(KhachHang khachHang) {
-        this.khachHang = khachHang;
-    }
-
-    public LocalDate getDayDangKy() {
-        return dayDangKy;
-    }
-
-    public void setDayDangKy(LocalDate dayDangKy) {
-        this.dayDangKy = dayDangKy;
-    }
-
-    public byte getStatusGoi() {
-        return statusGoi;
-    }
-
-    public void setStatusGoi(byte statusGoi) {
-        this.statusGoi = statusGoi;
-    }
+    @Column(name = "gioTap")
+    private Integer gioTap;
+    
+    @OneToMany(mappedBy = "dangKy", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HoaDon> hoaDons = new ArrayList<>();
 }

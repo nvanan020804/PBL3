@@ -1,47 +1,40 @@
 package PBL3.backend.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Entity
 @Table(name = "accounts")
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Account {
     @Id
-    private int idACC;
-
-    @Column(name = "userACC")
-    private String userACC;
-
-    @Column(name = "passACC")
-    private String passACC;
-
-    @Column(name = "roleACC")
-    private String roleACC;
-    // Getters & Setters
-
-    public String getUserACC() {
-        return userACC;
-    }
-
-    public void setUserACC(String userACC) {
-        this.userACC = userACC;
-    }
-
-    public String getPassACC() {
-        return passACC;
-    }
-
-    public void setPassACC(String passACC) {
-        this.passACC = passACC;
-    }
-
-    public String getRoleACC() {
-        return roleACC;
-    }
-
-    public void setRoleACC(String roleACC) {
-        this.roleACC = roleACC;
-    }
+    @Column(name = "ten_dang_nhap")
+    private String tenDangNhap;
+    
+    @Column(name = "mat_khau")
+    private String matKhau;
+    
+    @Column(name = "phan_quyen")
+    private String phanQuyen;
+    
+    @Column(name = "id_lien_ket")
+    private Integer idLienKet;
+    
+    // OneToOne relationship with KhachHang when phanQuyen is "khachhang"
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_lien_ket", referencedColumnName = "idKhachHang", insertable = false, updatable = false)
+    private KhachHang khachHang;
+    
+    // OneToOne relationship with NhanVien when phanQuyen is "nhanvien" or "admin"
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_lien_ket", referencedColumnName = "idNhanVien", insertable = false, updatable = false)
+    private NhanVien nhanVien;
 }
+

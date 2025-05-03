@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GYM-Manager</title>
+    <link rel="stylesheet" href="../../css/admin/home.css" />
+    <link rel="stylesheet" href="../../css/admin/dichvu.css" />
+    <link rel="stylesheet" href="../../css/components/footer.css" />
+    <link rel="stylesheet" href="../../css/components/header.css" />
+    <link rel="stylesheet" href="../../css/components/menu.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div id="header-container"></div>
+    <div id="menu-container"></div>
+    <div class="main">
+        <div class="dichvu-container">
+            <h1>QUẢN LÝ DỊCH VỤ</h1>
+            
+            <!-- Form thêm/sửa gói dịch vụ -->
+            <div class="form-container">
+                <h2>Thêm/Sửa Gói Dịch Vụ</h2>
+                <form id="dichvu-form">
+                    <input type="hidden" id="dichvu-id">
+                    
+                    <!-- Vùng hiển thị lỗi -->
+                    <div id="error-container" class="error-container"></div>
+                    
+                    <div class="form-group">
+                        <label for="ten-goi">Tên gói:</label>
+                        <input type="text" id="ten-goi" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gia">Giá:</label>
+                        <input type="number" id="gia" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="thoi-han">Thời hạn (tháng):</label>
+                        <input type="number" id="thoi-han" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="mo-ta">Mô tả:</label>
+                        <textarea id="mo-ta" rows="4" required></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn-save">Lưu</button>
+                        <button type="button" class="btn-cancel">Hủy</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Bảng danh sách gói dịch vụ -->
+            <div class="table-container">
+                <h2>Danh Sách Gói Dịch Vụ</h2>
+                <table id="dichvu-table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên gói</th>
+                            <th>Giá</th>
+                            <th>Thời hạn</th>
+                            <th>Mô tả</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dữ liệu sẽ được thêm vào bằng JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="footer-container"></div>
+    <script src="../../js/components/loadComponents.js"></script>
+    <script src="../../js/components/menuScroll.js"></script>
+    <script src="../../js/components/navbar.js"></script>
+    <script src="../../js/trangchu/menu.js"></script>
+    <script src="../../js/admin/dichvu.js"></script>
+  </body>
+</html>
