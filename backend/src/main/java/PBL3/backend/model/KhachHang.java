@@ -11,6 +11,7 @@ import lombok.Setter;
 public class KhachHang {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idKhachHang")
     private int idKhachHang;
 
     private String tenKhachHang;
@@ -20,4 +21,4 @@ public class KhachHang {
     private String email;
     private Integer gioTap;
     private String trangThai;
-} 
+}
