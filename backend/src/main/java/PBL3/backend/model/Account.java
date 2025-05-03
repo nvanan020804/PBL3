@@ -1,15 +1,11 @@
 package PBL3.backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 @Table(name = "accounts")
 @Entity
@@ -30,5 +26,15 @@ public class Account {
     
     @Column(name = "id_lien_ket")
     private Integer idLienKet;
+    
+    // OneToOne relationship with KhachHang when phanQuyen is "khachhang"
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_lien_ket", referencedColumnName = "idKhachHang", insertable = false, updatable = false)
+    private KhachHang khachHang;
+    
+    // OneToOne relationship with NhanVien when phanQuyen is "nhanvien" or "admin"
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_lien_ket", referencedColumnName = "idNhanVien", insertable = false, updatable = false)
+    private NhanVien nhanVien;
 }
 

@@ -1,10 +1,21 @@
 package PBL3.backend.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "goidichvu")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class GoiDichVu {
 
     @Id
@@ -23,45 +34,7 @@ public class GoiDichVu {
 
     @Column(name = "timeGOI", nullable = false)
     private int thoiGian;
-
-    // Getters and Setters
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getTenGoi() {
-        return tenGoi;
-    }
-
-    public void setTenGoi(String tenGoi) {
-        this.tenGoi = tenGoi;
-    }
-
-    public BigDecimal getGia() {
-        return gia;
-    }
-
-    public void setGia(BigDecimal gia) {
-        this.gia = gia;
-    }
-
-    public String getMoTa() {
-        return moTa;
-    }
-
-    public void setMoTa(String moTa) {
-        this.moTa = moTa;
-    }
-
-    public int getThoiGian() {
-        return thoiGian;
-    }
-
-    public void setThoiGian(int thoiGian) {
-        this.thoiGian = thoiGian;
-    }
+    
+    @OneToMany(mappedBy = "goiDichVu", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DangKy> dangKyList = new ArrayList<>();
 }

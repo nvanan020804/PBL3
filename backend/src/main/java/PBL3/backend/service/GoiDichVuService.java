@@ -13,37 +13,37 @@ import java.util.Optional;
 public class GoiDichVuService {
 
     @Autowired
-    private GoiDichVuRepository repository;
+    private GoiDichVuRepository goiDichVuRepository;
 
     public List<GoiDichVu> layTatCaGoiDichVu() {
-        return repository.findAll();
+        return goiDichVuRepository.findAll();
     }
 
     public Optional<GoiDichVu> layGoiDichVuTheoId(int id) {
-        return repository.findById(id);
+        return goiDichVuRepository.findById(id);
     }
 
-    public GoiDichVu taoMoiGoiDichVu(GoiDichVuDTO dto) {
+    public GoiDichVu taoGoiDichVu(GoiDichVuDTO goiDichVuDTO) {
         GoiDichVu goiDichVu = new GoiDichVu();
-        chuyenDoiDtoSangEntity(dto, goiDichVu);
-        return repository.save(goiDichVu);
+        goiDichVu.setTenGoi(goiDichVuDTO.getTenGoi());
+        goiDichVu.setGia(goiDichVuDTO.getGia()); // Already BigDecimal in DTO
+        goiDichVu.setMoTa(goiDichVuDTO.getMoTa());
+        goiDichVu.setThoiGian(goiDichVuDTO.getThoiGian());
+        return goiDichVuRepository.save(goiDichVu);
     }
 
-    public GoiDichVu capNhatGoiDichVu(int id, GoiDichVuDTO dto) {
-        return repository.findById(id).map(goiDichVu -> {
-            chuyenDoiDtoSangEntity(dto, goiDichVu);
-            return repository.save(goiDichVu);
-        }).orElseThrow(() -> new RuntimeException("Không tìm thấy gói dịch vụ với ID: " + id));
-    }
-
-    private void chuyenDoiDtoSangEntity(GoiDichVuDTO dto, GoiDichVu entity) {
-        entity.setTenGoi(dto.getTenGoi());
-        entity.setGia(dto.getGia());
-        entity.setMoTa(dto.getMoTa());
-        entity.setThoiGian(dto.getThoiGian());
+    public GoiDichVu capNhatGoiDichVu(int id, GoiDichVuDTO goiDichVuDTO) {
+        GoiDichVu goiDichVu = goiDichVuRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy gói dịch vụ với ID: " + id));
+        
+        goiDichVu.setTenGoi(goiDichVuDTO.getTenGoi());
+        goiDichVu.setGia(goiDichVuDTO.getGia()); // Already BigDecimal in DTO
+        goiDichVu.setMoTa(goiDichVuDTO.getMoTa());
+        goiDichVu.setThoiGian(goiDichVuDTO.getThoiGian());
+        return goiDichVuRepository.save(goiDichVu);
     }
 
     public void xoaGoiDichVu(int id) {
-        repository.deleteById(id);
+        goiDichVuRepository.deleteById(id);
     }
 }

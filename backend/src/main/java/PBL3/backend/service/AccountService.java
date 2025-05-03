@@ -28,6 +28,13 @@ public class AccountService {
         
         if (account.getMatKhau().equals(matKhau)) {
             logger.info("Password matches for user: {}", tenDangNhap);
+            // Load associated entity based on role
+            if ("khachhang".equals(account.getPhanQuyen()) && account.getIdLienKet() != null) {
+                account.getKhachHang(); // This will trigger lazy loading of the customer
+            } else if (("nhanvien".equals(account.getPhanQuyen()) || "admin".equals(account.getPhanQuyen())) 
+                    && account.getIdLienKet() != null) {
+                account.getNhanVien(); // This will trigger lazy loading of the staff
+            }
             return account;
         }
         

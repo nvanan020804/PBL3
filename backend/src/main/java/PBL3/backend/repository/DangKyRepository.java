@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface DangKyRepository extends JpaRepository<DangKy, Integer> {
-    @Query("SELECT d FROM DangKy d WHERE d.idKhachHang = :idKhachHang AND d.trangThai = 'Đang hoạt động' ORDER BY d.ngayBatDau DESC")
+    
+    @Query("SELECT d FROM DangKy d WHERE d.khachHang.idKhachHang = :idKhachHang AND d.trangThai = 'Đang hoạt động'")
     Optional<DangKy> findGoiHienTaiByKhachHang(@Param("idKhachHang") int idKhachHang);
 }

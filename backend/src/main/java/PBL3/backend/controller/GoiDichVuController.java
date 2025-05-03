@@ -49,7 +49,7 @@ public class GoiDichVuController {
      */
     @PostMapping
     public ResponseEntity<?> taoMoiGoiDichVu(@Valid @RequestBody GoiDichVuDTO goiDichVuDTO) {
-        GoiDichVu goiDichVu = service.taoMoiGoiDichVu(goiDichVuDTO);
+        GoiDichVu goiDichVu = service.taoGoiDichVu(goiDichVuDTO);
         return ResponseEntity.ok(goiDichVu);
     }
 
