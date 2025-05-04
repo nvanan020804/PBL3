@@ -1,4 +1,4 @@
-package PBL3.backend.service;
+package PBL3.backend.service.mapper;
 
 import PBL3.backend.dto.request.KhachHangRequest;
 import PBL3.backend.dto.response.KhachHangResponse;

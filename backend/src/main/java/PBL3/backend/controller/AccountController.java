@@ -4,7 +4,7 @@ import PBL3.backend.dto.request.LoginRequest;
 import PBL3.backend.dto.response.AccountResponse;
 import PBL3.backend.dto.response.ApiResponse;
 import PBL3.backend.model.Account;
-import PBL3.backend.service.AccountMapper;
+import PBL3.backend.service.mapper.AccountMapper;
 import PBL3.backend.service.AccountService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://127.0.0.1:5502", "http://localhost:5500", "http://localhost:5502", "http://127.0.0.1:5503"}, allowCredentials = "false")
+@CrossOrigin(origins = {"*"}, allowCredentials = "false")
 public class AccountController {
     private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 

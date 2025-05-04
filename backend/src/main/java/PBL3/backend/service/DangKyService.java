@@ -1,5 +1,5 @@
 package PBL3.backend.service;
-import PBL3.backend.dto.DangKyDTO;
+import PBL3.backend.dto.request.DangKyRequest;
 import PBL3.backend.model.DangKy;
 import PBL3.backend.model.KhachHang;
 import PBL3.backend.model.GoiDichVu;
@@ -23,21 +23,22 @@ public class DangKyService {
     @Autowired
     private GoiDichVuRepository goiDichVuRepository;
 
-    public DangKy taoDangKy(DangKyDTO dangKyDTO) {
+    public DangKy taoDangKy(DangKyRequest dangKyRequest) {
         DangKy dangKy = new DangKy();
         
         // Get KhachHang and GoiDichVu entities instead of just IDs
-        KhachHang khachHang = khachHangRepository.findById(dangKyDTO.getIdKhachHang())
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + dangKyDTO.getIdKhachHang()));
+        KhachHang khachHang = khachHangRepository.findById(dangKyRequest.getIdKhachHang())
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + dangKyRequest.getIdKhachHang()));
         
-        GoiDichVu goiDichVu = goiDichVuRepository.findById(dangKyDTO.getIdGOI())
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy gói dịch vụ với ID: " + dangKyDTO.getIdGOI()));
+        GoiDichVu goiDichVu = goiDichVuRepository.findById(dangKyRequest.getIdGOI())
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy gói dịch vụ với ID: " + dangKyRequest.getIdGOI()));
         
         // Set entity references instead of just IDs
         dangKy.setKhachHang(khachHang);
         dangKy.setGoiDichVu(goiDichVu);
-        dangKy.setNgayBatDau(dangKyDTO.getNgayBatDau());
-        dangKy.setTrangThai("Đang hoạt động");
+        dangKy.setNgayBatDau(dangKyRequest.getNgayBatDau());
+        dangKy.setTrangThai(dangKyRequest.getTrangThai() != null ? dangKyRequest.getTrangThai() : "Đang hoạt động");
+        dangKy.setGioTap(dangKyRequest.getGioTap());
         
         DangKy saved = dangKyRepository.save(dangKy);
 

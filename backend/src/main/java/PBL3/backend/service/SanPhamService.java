@@ -7,6 +7,7 @@ import PBL3.backend.model.PhanLoaiSanPham;
 import PBL3.backend.model.SanPham;
 import PBL3.backend.repository.PhanLoaiSanPhamRepository;
 import PBL3.backend.repository.SanPhamRepository;
+import PBL3.backend.service.mapper.SanPhamMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

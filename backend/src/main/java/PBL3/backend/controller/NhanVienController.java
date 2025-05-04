@@ -4,7 +4,7 @@ import PBL3.backend.dto.request.NhanVienRequest;
 import PBL3.backend.dto.request.NhanVienWithAccountRequest;
 import PBL3.backend.dto.response.ApiResponse;
 import PBL3.backend.dto.response.NhanVienResponse;
-import PBL3.backend.service.NhanVienMapper;
+import PBL3.backend.service.mapper.NhanVienMapper;
 import PBL3.backend.service.NhanVienService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
