@@ -5,8 +5,14 @@ async function layDanhSachGoiDichVu() {
         if (!response.ok) {
             throw new Error('Không thể lấy dữ liệu từ server');
         }
-        const data = await response.json();
-        hienThiDanhSachGoiDichVu(data);
+        const apiResponse = await response.json();
+        
+        // Kiểm tra nếu response có cấu trúc ApiResponse
+        if (apiResponse.success) {
+            hienThiDanhSachGoiDichVu(apiResponse.data);
+        } else {
+            throw new Error(apiResponse.message || 'Không thể lấy danh sách gói dịch vụ');
+        }
     } catch (error) {
         console.error('Lỗi:', error);
         alert('Có lỗi xảy ra khi lấy danh sách gói dịch vụ');
@@ -19,16 +25,23 @@ function hienThiDanhSachGoiDichVu(danhSachGoi) {
     tbody.innerHTML = ''; // Xóa dữ liệu cũ
 
     danhSachGoi.forEach((goi, index) => {
+        // Hỗ trợ cả hai định dạng tên trường (backend vs frontend)
+        const tenGoi = goi.tenGoi || goi.namegoi;
+        const gia = goi.gia || goi.pricegoi;
+        const thoiGian = goi.thoiGian || goi.timegoi;
+        const moTa = goi.moTa || goi.aboutgoi;
+        const id = goi.id || goi.idgoi;
+
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${index + 1}</td>
-            <td>${goi.tenGoi}</td>
-            <td>${formatCurrency(goi.gia)}</td>
-            <td>${goi.thoiGian} tháng</td>
-            <td>${goi.moTa}</td>
+            <td>${tenGoi}</td>
+            <td>${formatCurrency(gia)}</td>
+            <td>${thoiGian} tháng</td>
+            <td>${moTa}</td>
             <td>
-                <button onclick="suaGoiDichVu(${goi.id})" class="btn-edit">Sửa</button>
-                <button onclick="xoaGoiDichVu(${goi.id})" class="btn-delete">Xóa</button>
+                <button onclick="suaGoiDichVu(${id})" class="btn-edit">Sửa</button>
+                <button onclick="xoaGoiDichVu(${id})" class="btn-delete">Xóa</button>
             </td>
         `;
         tbody.appendChild(row);
@@ -133,12 +146,12 @@ async function suaGoiDichVu(id) {
         }
         const goi = await response.json();
         
-        // Điền thông tin vào form
-        document.getElementById('dichvu-id').value = goi.id;
-        document.getElementById('ten-goi').value = goi.tenGoi;
-        document.getElementById('gia').value = goi.gia;
-        document.getElementById('thoi-han').value = goi.thoiGian;
-        document.getElementById('mo-ta').value = goi.moTa;
+        // Điền thông tin vào form, hỗ trợ cả hai định dạng tên trường
+        document.getElementById('dichvu-id').value = goi.id || goi.idgoi;
+        document.getElementById('ten-goi').value = goi.tenGoi || goi.namegoi;
+        document.getElementById('gia').value = goi.gia || goi.pricegoi;
+        document.getElementById('thoi-han').value = goi.thoiGian || goi.timegoi;
+        document.getElementById('mo-ta').value = goi.moTa || goi.aboutgoi;
 
     } catch (error) {
         console.error('Lỗi:', error);

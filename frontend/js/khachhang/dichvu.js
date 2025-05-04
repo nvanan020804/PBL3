@@ -7,7 +7,8 @@ async function layDanhSachGoiDichVu() {
             throw new Error('Không thể lấy dữ liệu từ server');
         }
         const data = await response.json();
-        hienThiDanhSachGoiDichVu(data);
+        console.log('Dữ liệu từ API:', data); // Log để debug
+        hienThiDanhSachGoiDichVu(data.data || data); // Hỗ trợ cả 2 cách đóng gói dữ liệu
     } catch (error) {
         console.error('Lỗi:', error);
         alert('Có lỗi xảy ra khi lấy danh sách gói dịch vụ');
@@ -21,14 +22,21 @@ function hienThiDanhSachGoiDichVu(danhSachGoi) {
 
     danhSachGoi.forEach((goi, index) => {
         const row = document.createElement('tr');
+        // Sử dụng cả 2 khả năng đặt tên của API để tránh lỗi
+        const tenGoi = goi.tenGoi || goi.namegoi;
+        const gia = goi.gia || goi.pricegoi;
+        const thoiGian = goi.thoiGian || goi.timegoi;
+        const moTa = goi.moTa || goi.aboutgoi;
+        const id = goi.id || goi.idgoi;
+        
         row.innerHTML = `
             <td>${index + 1}</td>
-            <td>${goi.tenGoi}</td>
-            <td>${formatCurrency(goi.gia)}</td>
-            <td>${goi.thoiGian} tháng</td>
-            <td>${goi.moTa}</td>
+            <td>${tenGoi}</td>
+            <td>${formatCurrency(gia)}</td>
+            <td>${thoiGian} tháng</td>
+            <td>${moTa}</td>
             <td>
-                <button onclick="dangKyGoi(${goi.id})" class="btn-register">Đăng ký</button>
+                <button onclick="dangKyGoi(${id})" class="btn-register">Đăng ký</button>
             </td>
         `;
         tbody.appendChild(row);
@@ -52,12 +60,26 @@ async function dangKyGoi(idGoi) {
         return;
     }
 
-    // Ẩn bảng dịch vụ, hiện form đăng ký
-    document.querySelector('.dichvu-container').style.display = 'none';
-    document.getElementById('form-dang-ky').style.display = 'block';
-
-    // Lưu lại idGoi để dùng khi xác nhận
-    window._idGoiDangKy = idGoi;
+    try {
+        // Lấy thông tin chi tiết về gói dịch vụ từ API
+        const response = await fetch(`http://localhost:8080/api/goi-dich-vu/${idGoi}`);
+        if (!response.ok) {
+            throw new Error('Không thể lấy thông tin gói dịch vụ');
+        }
+        const goiDichVu = await response.json();
+        
+        // Lưu thông tin gói để sử dụng khi đăng ký
+        window._idGoiDangKy = idGoi;
+        window._tenGoiDangKy = goiDichVu.tenGoi || goiDichVu.namegoi;
+        window._thoiGianGoiDangKy = goiDichVu.thoiGian || goiDichVu.timegoi;
+        
+        // Ẩn bảng dịch vụ, hiện form đăng ký
+        document.querySelector('.dichvu-container').style.display = 'none';
+        document.getElementById('form-dang-ky').style.display = 'block';
+    } catch (error) {
+        console.error('Lỗi:', error);
+        alert('Có lỗi xảy ra khi lấy thông tin gói dịch vụ');
+    }
 }
 
 // Load danh sách khi trang được tải
@@ -70,16 +92,21 @@ document.getElementById('dangky-form').addEventListener('submit', async function
     const tenGoi = window._tenGoiDangKy;
     const user = JSON.parse(localStorage.getItem('user'));
     const ngayBatDau = new Date().toISOString().split('T')[0];
-    const ngayKetThuc = new Date(ngayBatDau).setMonth(new Date(ngayBatDau).getMonth() + window._thoiGianGoiDangKy);
+    const ngayKetThuc = new Date(ngayBatDau);
+    ngayKetThuc.setMonth(ngayKetThuc.getMonth() + (window._thoiGianGoiDangKy || 1));
+    const ngayKetThucStr = ngayKetThuc.toISOString().split('T')[0];
 
+    // Dựa vào log Hibernate, đảm bảo trường khớp với backend
     const dangKy = {
-        idGOI: idGoi,
-        idKhachHang: user.id,
-        ngayBatDau,
-        gioTap: gioTap // Nếu không muốn lưu giờ tập thì bỏ dòng này luôn
+        idgoi: idGoi, // Sử dụng tên trường của backend
+        id_khach_hang: user.id,
+        ngay_bat_dau: ngayBatDau,
+        gio_tap: gioTap,
+        trang_thai: "Đang sử dụng"
     };
 
     try {
+        console.log('Dữ liệu đăng ký:', JSON.stringify(dangKy)); // Log để debug
         const response = await fetch('http://localhost:8080/api/dang-ky', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -87,6 +114,8 @@ document.getElementById('dangky-form').addEventListener('submit', async function
         });
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Lỗi từ server:', errorText);
             throw new Error('Không thể đăng ký gói dịch vụ');
         }
 
@@ -101,11 +130,16 @@ document.getElementById('dangky-form').addEventListener('submit', async function
             <p><b>Tên gói:</b> ${tenGoi}</p>
             <p><b>Giờ tập:</b> ${gioTap}</p>
             <p><b>Ngày bắt đầu:</b> ${ngayBatDau}</p>
-            <p><b>Ngày kết thúc:</b> ${ngayKetThuc}</p>
+            <p><b>Ngày kết thúc:</b> ${ngayKetThucStr}</p>
         `;
+
+        // Làm mới trang sau 3 giây
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
     } catch (error) {
         console.error('Lỗi:', error);
-        alert('Có lỗi xảy ra khi đăng ký gói dịch vụ');
+        alert('Có lỗi xảy ra khi đăng ký gói dịch vụ: ' + error.message);
     }
 });
 
