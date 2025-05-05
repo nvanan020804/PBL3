@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DoanhThuRepository extends JpaRepository<DoanhThu, Integer> {
+    DoanhThu findByThoiGian(String thoiGian);
 }

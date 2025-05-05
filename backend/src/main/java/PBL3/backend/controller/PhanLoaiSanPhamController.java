@@ -3,67 +3,82 @@ package PBL3.backend.controller;
 import PBL3.backend.model.PhanLoaiSanPham;
 import PBL3.backend.service.PhanLoaiSanPhamService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/danh-muc")
-@CrossOrigin(origins = {"*"})
+@RequestMapping("/api/danhmuc")
+@CrossOrigin(origins = "*")
 public class PhanLoaiSanPhamController {
 
+    private final PhanLoaiSanPhamService phanLoaiSanPhamService;
+
     @Autowired
-    private PhanLoaiSanPhamService phanLoaiSanPhamService;
+    public PhanLoaiSanPhamController(PhanLoaiSanPhamService phanLoaiSanPhamService) {
+        this.phanLoaiSanPhamService = phanLoaiSanPhamService;
+    }
 
     @GetMapping
-    public List<PhanLoaiSanPham> layTatCaDanhMuc() {
-        return phanLoaiSanPhamService.layTatCaPhanLoai();
+    public ResponseEntity<List<PhanLoaiSanPham>> getAllPhanLoaiSanPham() {
+        List<PhanLoaiSanPham> danhMucList = phanLoaiSanPhamService.getAllPhanLoaiSanPham();
+        return new ResponseEntity<>(danhMucList, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> layDanhMucTheoId(@PathVariable int id) {
-        return phanLoaiSanPhamService.layPhanLoaiTheoId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<PhanLoaiSanPham> getPhanLoaiSanPhamById(@PathVariable int id) {
+        return phanLoaiSanPhamService.getPhanLoaiSanPhamById(id)
+                .map(danhMuc -> new ResponseEntity<>(danhMuc, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/name/{tenDanhMuc}")
+    public ResponseEntity<PhanLoaiSanPham> getPhanLoaiSanPhamByName(@PathVariable String tenDanhMuc) {
+        PhanLoaiSanPham danhMuc = phanLoaiSanPhamService.getPhanLoaiSanPhamByTen(tenDanhMuc);
+        if (danhMuc != null) {
+            return new ResponseEntity<>(danhMuc, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping
-    public ResponseEntity<?> taoDanhMuc(@RequestBody Map<String, String> request) {
-        String tenDanhMuc = request.get("tenDanhMuc");
-        
-        if (tenDanhMuc == null || tenDanhMuc.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Tên danh mục không được để trống");
+    public ResponseEntity<?> createPhanLoaiSanPham(@RequestBody PhanLoaiSanPham phanLoaiSanPham) {
+        try {
+            PhanLoaiSanPham newDanhMuc = phanLoaiSanPhamService.createPhanLoaiSanPham(phanLoaiSanPham);
+            return new ResponseEntity<>(newDanhMuc, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
-        
-        PhanLoaiSanPham danhMuc = phanLoaiSanPhamService.taoPhanLoai(tenDanhMuc);
-        return ResponseEntity.ok(danhMuc);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> capNhatDanhMuc(@PathVariable int id, @RequestBody Map<String, String> request) {
-        String tenDanhMuc = request.get("tenDanhMuc");
-        
-        if (tenDanhMuc == null || tenDanhMuc.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Tên danh mục không được để trống");
-        }
-        
+    public ResponseEntity<?> updatePhanLoaiSanPham(@PathVariable int id, @RequestBody PhanLoaiSanPham phanLoaiSanPhamDetails) {
         try {
-            PhanLoaiSanPham danhMuc = phanLoaiSanPhamService.capNhatPhanLoai(id, tenDanhMuc);
-            return ResponseEntity.ok(danhMuc);
+            PhanLoaiSanPham updatedDanhMuc = phanLoaiSanPhamService.updatePhanLoaiSanPham(id, phanLoaiSanPhamDetails);
+            return new ResponseEntity<>(updatedDanhMuc, HttpStatus.OK);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> xoaDanhMuc(@PathVariable int id) {
+    public ResponseEntity<?> deletePhanLoaiSanPham(@PathVariable int id) {
         try {
-            phanLoaiSanPhamService.xoaPhanLoai(id);
-            return ResponseEntity.ok().build();
+            phanLoaiSanPhamService.deletePhanLoaiSanPham(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 }

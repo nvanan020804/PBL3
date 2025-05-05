@@ -1,80 +1,84 @@
 package PBL3.backend.controller;
 
-import PBL3.backend.dto.request.GoiDichVuRequest;
-import PBL3.backend.dto.response.ApiResponse;
 import PBL3.backend.model.GoiDichVu;
 import PBL3.backend.service.GoiDichVuService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-/**
- * Controller xử lý các request liên quan đến gói dịch vụ
- */
 @RestController
-@RequestMapping("/api/goi-dich-vu")
-@CrossOrigin(origins = {"*"})
+@RequestMapping("/api/goidichvu")
+@CrossOrigin(origins = "*")
 public class GoiDichVuController {
 
+    private final GoiDichVuService goiDichVuService;
+
     @Autowired
-    private GoiDichVuService service;
+    public GoiDichVuController(GoiDichVuService goiDichVuService) {
+        this.goiDichVuService = goiDichVuService;
+    }
 
-    /**
-     * Lấy danh sách tất cả gói dịch vụ
-     * @return Danh sách gói dịch vụ
-     */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<GoiDichVu>>> layTatCaGoiDichVu() {
-        List<GoiDichVu> danhSachGoi = service.layTatCaGoiDichVu();
-        return ResponseEntity.ok(ApiResponse.success("Lấy danh sách gói dịch vụ thành công", danhSachGoi));
+    public ResponseEntity<List<GoiDichVu>> getAllGoiDichVu() {
+        List<GoiDichVu> goiDichVuList = goiDichVuService.getAllGoiDichVu();
+        return new ResponseEntity<>(goiDichVuList, HttpStatus.OK);
     }
 
-    /**
-     * Lấy thông tin gói dịch vụ theo ID
-     * @param id ID của gói dịch vụ
-     * @return Thông tin gói dịch vụ nếu tìm thấy, 404 nếu không tìm thấy
-     */
     @GetMapping("/{id}")
-    public ResponseEntity<?> layGoiDichVuTheoId(@PathVariable int id) {
-        return service.layGoiDichVuTheoId(id)
-                .map(goiDichVu -> ResponseEntity.ok(ApiResponse.success("Tìm thấy gói dịch vụ", goiDichVu)))
-                .orElse(ResponseEntity.ok(ApiResponse.error("Không tìm thấy gói dịch vụ với id: " + id)));
+    public ResponseEntity<GoiDichVu> getGoiDichVuById(@PathVariable int id) {
+        return goiDichVuService.getGoiDichVuById(id)
+                .map(goiDichVu -> new ResponseEntity<>(goiDichVu, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    /**
-     * Tạo mới một gói dịch vụ
-     * @param goiDichVuRequest Thông tin gói dịch vụ mới
-     * @return Gói dịch vụ đã được tạo
-     */
+    @GetMapping("/name/{tenGoi}")
+    public ResponseEntity<GoiDichVu> getGoiDichVuByName(@PathVariable String tenGoi) {
+        GoiDichVu goiDichVu = goiDichVuService.getGoiDichVuByTen(tenGoi);
+        if (goiDichVu != null) {
+            return new ResponseEntity<>(goiDichVu, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping
-    public ResponseEntity<ApiResponse<GoiDichVu>> taoMoiGoiDichVu(@Valid @RequestBody GoiDichVuRequest goiDichVuRequest) {
-        GoiDichVu goiDichVu = service.taoGoiDichVu(goiDichVuRequest);
-        return ResponseEntity.ok(ApiResponse.success("Tạo gói dịch vụ thành công", goiDichVu));
+    public ResponseEntity<?> createGoiDichVu(@RequestBody GoiDichVu goiDichVu) {
+        try {
+            GoiDichVu newGoiDichVu = goiDichVuService.createGoiDichVu(goiDichVu);
+            return new ResponseEntity<>(newGoiDichVu, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
 
-    /**
-     * Cập nhật thông tin gói dịch vụ
-     * @param id ID của gói dịch vụ cần cập nhật
-     * @param goiDichVuRequest Thông tin cập nhật
-     * @return Gói dịch vụ đã được cập nhật
-     */
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<GoiDichVu>> capNhatGoiDichVu(@PathVariable int id, @Valid @RequestBody GoiDichVuRequest goiDichVuRequest) {
-        GoiDichVu goiDichVu = service.capNhatGoiDichVu(id, goiDichVuRequest);
-        return ResponseEntity.ok(ApiResponse.success("Cập nhật gói dịch vụ thành công", goiDichVu));
+    public ResponseEntity<?> updateGoiDichVu(@PathVariable int id, @RequestBody GoiDichVu goiDichVuDetails) {
+        try {
+            GoiDichVu updatedGoiDichVu = goiDichVuService.updateGoiDichVu(id, goiDichVuDetails);
+            return new ResponseEntity<>(updatedGoiDichVu, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
 
-    /**
-     * Xóa gói dịch vụ
-     * @param id ID của gói dịch vụ cần xóa
-     * @return Thông báo xóa thành công
-     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> xoaGoiDichVu(@PathVariable int id) {
-        service.xoaGoiDichVu(id);
-        return ResponseEntity.ok(ApiResponse.success("Xóa gói dịch vụ thành công", null));
+    public ResponseEntity<?> deleteGoiDichVu(@PathVariable int id) {
+        try {
+            goiDichVuService.deleteGoiDichVu(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
 }

@@ -43,11 +43,11 @@ public class KhachHang {
     @Column(name = "email", length = 100)
     private String email;
     
-    @Column(name = "gioTap", length = 100)
-    private String gioTap;
-    
     @Column(name = "trangThai", length = 50)
     private String trangThai;
+    
+    @Column(name = "gioTap", length = 50)
+    private String gioTap;
 
     @OneToOne(mappedBy = "khachHang")
     @JsonIgnore

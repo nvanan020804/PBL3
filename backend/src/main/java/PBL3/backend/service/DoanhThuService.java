@@ -7,100 +7,117 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class DoanhThuService {
 
+    private final DoanhThuRepository doanhThuRepository;
+
     @Autowired
-    private DoanhThuRepository doanhThuRepository;
-    
-    public List<DoanhThu> layTatCaDoanhThu() {
+    public DoanhThuService(DoanhThuRepository doanhThuRepository) {
+        this.doanhThuRepository = doanhThuRepository;
+    }
+
+    public List<DoanhThu> getAllDoanhThu() {
         return doanhThuRepository.findAll();
     }
-    
-    public Optional<DoanhThu> layDoanhThuTheoId(int id) {
+
+    public Optional<DoanhThu> getDoanhThuById(int id) {
         return doanhThuRepository.findById(id);
     }
-    
-    @Transactional
-    public DoanhThu taoDoanhThuMoi(String thoiGian, BigDecimal tongThu, BigDecimal tongChi) {
-        DoanhThu doanhThu = new DoanhThu();
-        doanhThu.setThoiGian(thoiGian);
-        doanhThu.setTongThu(tongThu != null ? tongThu : BigDecimal.ZERO);
-        doanhThu.setTongChi(tongChi != null ? tongChi : BigDecimal.ZERO);
-        return doanhThuRepository.save(doanhThu);
+
+    public DoanhThu getDoanhThuByThoiGian(String thoiGian) {
+        return doanhThuRepository.findByThoiGian(thoiGian);
     }
-    
+
     @Transactional
-    public DoanhThu taoDoanhThuTheoThang(int thang, int nam, BigDecimal tongThu, BigDecimal tongChi) {
-        String thoiGian = String.format("%02d/%d", thang, nam);
-        return taoDoanhThuMoi(thoiGian, tongThu, tongChi);
-    }
-    
-    @Transactional
-    public DoanhThu capNhatDoanhThu(int id, BigDecimal tongThu, BigDecimal tongChi) {
-        DoanhThu doanhThu = doanhThuRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy doanh thu với ID: " + id));
-        
-        if (tongThu != null) {
-            doanhThu.setTongThu(tongThu);
+    public DoanhThu createDoanhThu(DoanhThu doanhThu) {
+        // Kiểm tra đã tồn tại thời gian này chưa
+        if (doanhThuRepository.findByThoiGian(doanhThu.getThoiGian()) != null) {
+            throw new RuntimeException("Doanh thu cho thời gian này đã tồn tại");
         }
         
-        if (tongChi != null) {
-            doanhThu.setTongChi(tongChi);
+        // Thiết lập giá trị mặc định nếu chưa có
+        if (doanhThu.getTongChi() == null) {
+            doanhThu.setTongChi(BigDecimal.ZERO);
+        }
+        
+        if (doanhThu.getTongThu() == null) {
+            doanhThu.setTongThu(BigDecimal.ZERO);
         }
         
         return doanhThuRepository.save(doanhThu);
     }
-    
+
     @Transactional
-    public DoanhThu themThuNhap(int id, BigDecimal soTien) {
-        if (soTien == null || soTien.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Số tiền phải lớn hơn 0");
+    public DoanhThu updateDoanhThu(int id, DoanhThu doanhThuDetails) {
+        DoanhThu doanhThu = doanhThuRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy doanh thu với ID: " + id));
+        
+        // Cập nhật thông tin
+        if (doanhThuDetails.getThoiGian() != null) {
+            // Kiểm tra trùng thời gian
+            DoanhThu existingDoanhThu = doanhThuRepository.findByThoiGian(doanhThuDetails.getThoiGian());
+            if (existingDoanhThu != null && existingDoanhThu.getIdDoanhThu() != id) {
+                throw new RuntimeException("Doanh thu cho thời gian này đã tồn tại");
+            }
+            doanhThu.setThoiGian(doanhThuDetails.getThoiGian());
         }
         
-        DoanhThu doanhThu = doanhThuRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy doanh thu với ID: " + id));
+        if (doanhThuDetails.getTongChi() != null) {
+            doanhThu.setTongChi(doanhThuDetails.getTongChi());
+        }
         
+        if (doanhThuDetails.getTongThu() != null) {
+            doanhThu.setTongThu(doanhThuDetails.getTongThu());
+        }
+        
+        return doanhThuRepository.save(doanhThu);
+    }
+
+    @Transactional
+    public void deleteDoanhThu(int id) {
+        DoanhThu doanhThu = doanhThuRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy doanh thu với ID: " + id));
+        
+        doanhThuRepository.deleteById(id);
+    }
+    
+    @Transactional
+    public DoanhThu updateTongThu(int id, BigDecimal tongThuMoi) {
+        DoanhThu doanhThu = doanhThuRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy doanh thu với ID: " + id));
+            
+        doanhThu.setTongThu(tongThuMoi);
+        return doanhThuRepository.save(doanhThu);
+    }
+    
+    @Transactional
+    public DoanhThu updateTongChi(int id, BigDecimal tongChiMoi) {
+        DoanhThu doanhThu = doanhThuRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy doanh thu với ID: " + id));
+            
+        doanhThu.setTongChi(tongChiMoi);
+        return doanhThuRepository.save(doanhThu);
+    }
+    
+    @Transactional
+    public DoanhThu addTongThu(int id, BigDecimal soTien) {
+        DoanhThu doanhThu = doanhThuRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy doanh thu với ID: " + id));
+            
         doanhThu.setTongThu(doanhThu.getTongThu().add(soTien));
         return doanhThuRepository.save(doanhThu);
     }
     
     @Transactional
-    public DoanhThu themChiPhi(int id, BigDecimal soTien) {
-        if (soTien == null || soTien.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Số tiền phải lớn hơn 0");
-        }
-        
+    public DoanhThu addTongChi(int id, BigDecimal soTien) {
         DoanhThu doanhThu = doanhThuRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy doanh thu với ID: " + id));
-        
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy doanh thu với ID: " + id));
+            
         doanhThu.setTongChi(doanhThu.getTongChi().add(soTien));
         return doanhThuRepository.save(doanhThu);
-    }
-    
-    @Transactional
-    public BigDecimal tinhLoiNhuanTheoDoanhThu(int id) {
-        DoanhThu doanhThu = doanhThuRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy doanh thu với ID: " + id));
-        
-        return doanhThu.getTongThu().subtract(doanhThu.getTongChi());
-    }
-    
-    @Transactional
-    public DoanhThu layHoacTaoDoanhThuThangHienTai() {
-        LocalDate ngayHienTai = LocalDate.now();
-        String thoiGian = String.format("%02d/%d", ngayHienTai.getMonthValue(), ngayHienTai.getYear());
-        
-        // Find existing revenue record for current month
-        Optional<DoanhThu> doanhThu = doanhThuRepository.findAll().stream()
-                .filter(dt -> dt.getThoiGian().equals(thoiGian))
-                .findFirst();
-        
-        return doanhThu.orElseGet(() -> taoDoanhThuMoi(thoiGian, BigDecimal.ZERO, BigDecimal.ZERO));
     }
 }

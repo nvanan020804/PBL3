@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PhanLoaiSanPhamRepository extends JpaRepository<PhanLoaiSanPham, Integer> {
+    PhanLoaiSanPham findByTenDanhMuc(String tenDanhMuc);
 }

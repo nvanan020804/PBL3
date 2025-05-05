@@ -3,112 +3,97 @@ package PBL3.backend.controller;
 import PBL3.backend.model.ThietBi;
 import PBL3.backend.service.ThietBiService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/thiet-bi")
-@CrossOrigin(origins = {"*"})
+@RequestMapping("/api/thietbi")
+@CrossOrigin(origins = "*")
 public class ThietBiController {
 
+    private final ThietBiService thietBiService;
+
     @Autowired
-    private ThietBiService thietBiService;
+    public ThietBiController(ThietBiService thietBiService) {
+        this.thietBiService = thietBiService;
+    }
 
     @GetMapping
-    public List<ThietBi> layTatCaThietBi() {
-        return thietBiService.layTatCaThietBi();
+    public ResponseEntity<List<ThietBi>> getAllThietBi() {
+        List<ThietBi> thietBiList = thietBiService.getAllThietBi();
+        return new ResponseEntity<>(thietBiList, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> layThietBiTheoId(@PathVariable int id) {
-        return thietBiService.layThietBiTheoId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ThietBi> getThietBiById(@PathVariable int id) {
+        return thietBiService.getThietBiById(id)
+                .map(thietBi -> new ResponseEntity<>(thietBi, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/trangthai/{trangThai}")
+    public ResponseEntity<List<ThietBi>> getThietBiByTrangThai(@PathVariable String trangThai) {
+        List<ThietBi> thietBiList = thietBiService.getThietBiByTrangThai(trangThai);
+        return new ResponseEntity<>(thietBiList, HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<?> taoThietBi(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> createThietBi(@RequestBody ThietBi thietBi) {
         try {
-            String tenThietBi = (String) request.get("tenThietBi");
-            String congDung = (String) request.get("congDung");
-            
-            LocalDate ngayNhap = null;
-            if (request.get("ngayNhap") != null) {
-                ngayNhap = LocalDate.parse((String) request.get("ngayNhap"));
-            }
-            
-            BigDecimal giaTien = null;
-            if (request.get("giaTien") != null) {
-                giaTien = new BigDecimal(request.get("giaTien").toString());
-            }
-            
-            String trangThai = (String) request.get("trangThai");
-            
-            if (tenThietBi == null) {
-                return ResponseEntity.badRequest().body("Tên thiết bị không được để trống");
-            }
-            
-            ThietBi thietBi = thietBiService.taoThietBi(tenThietBi, congDung, ngayNhap, giaTien, trangThai);
-            return ResponseEntity.ok(thietBi);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+            ThietBi newThietBi = thietBiService.createThietBi(thietBi);
+            return new ResponseEntity<>(newThietBi, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> capNhatThietBi(@PathVariable int id, @RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> updateThietBi(@PathVariable int id, @RequestBody ThietBi thietBiDetails) {
         try {
-            String tenThietBi = (String) request.get("tenThietBi");
-            String congDung = (String) request.get("congDung");
-            
-            LocalDate ngayNhap = null;
-            if (request.get("ngayNhap") != null) {
-                ngayNhap = LocalDate.parse((String) request.get("ngayNhap"));
-            }
-            
-            BigDecimal giaTien = null;
-            if (request.get("giaTien") != null) {
-                giaTien = new BigDecimal(request.get("giaTien").toString());
-            }
-            
-            String trangThai = (String) request.get("trangThai");
-            
-            ThietBi thietBi = thietBiService.capNhatThietBi(id, tenThietBi, congDung, ngayNhap, giaTien, trangThai);
-            return ResponseEntity.ok(thietBi);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
-        }
-    }
-
-    @PutMapping("/{id}/trang-thai")
-    public ResponseEntity<?> capNhatTrangThai(@PathVariable int id, @RequestBody Map<String, String> request) {
-        String trangThai = request.get("trangThai");
-        
-        if (trangThai == null) {
-            return ResponseEntity.badRequest().body("Trạng thái không được để trống");
-        }
-        
-        try {
-            ThietBi thietBi = thietBiService.capNhatTrangThaiThietBi(id, trangThai);
-            return ResponseEntity.ok(thietBi);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+            ThietBi updatedThietBi = thietBiService.updateThietBi(id, thietBiDetails);
+            return new ResponseEntity<>(updatedThietBi, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> xoaThietBi(@PathVariable int id) {
+    public ResponseEntity<?> deleteThietBi(@PathVariable int id) {
         try {
-            thietBiService.xoaThietBi(id);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+            thietBiService.deleteThietBi(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/{id}/trangthai")
+    public ResponseEntity<?> updateTrangThai(@PathVariable int id, @RequestBody Map<String, String> trangThaiMap) {
+        try {
+            String trangThai = trangThaiMap.get("trangThai");
+            if (trangThai == null || trangThai.isEmpty()) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Trạng thái không được để trống");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+            
+            ThietBi updatedThietBi = thietBiService.updateTrangThaiThietBi(id, trangThai);
+            return new ResponseEntity<>(updatedThietBi, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 }

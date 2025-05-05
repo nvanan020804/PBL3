@@ -3,46 +3,82 @@ package PBL3.backend.controller;
 import PBL3.backend.model.HoaDonChiTiet;
 import PBL3.backend.service.HoaDonChiTietService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/hoa-don-chi-tiet")
-@CrossOrigin(origins = {"*"})
+@RequestMapping("/api/hoadonchitiet")
+@CrossOrigin(origins = "*")
 public class HoaDonChiTietController {
 
-    @Autowired
-    private HoaDonChiTietService hoaDonChiTietService;
+    private final HoaDonChiTietService hoaDonChiTietService;
 
-    @GetMapping("/hoa-don/{idHoaDon}")
-    public List<HoaDonChiTiet> layChiTietTheoHoaDon(@PathVariable int idHoaDon) {
-        return hoaDonChiTietService.layChiTietTheoHoaDon(idHoaDon);
+    @Autowired
+    public HoaDonChiTietController(HoaDonChiTietService hoaDonChiTietService) {
+        this.hoaDonChiTietService = hoaDonChiTietService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<HoaDonChiTiet>> getAllHoaDonChiTiet() {
+        List<HoaDonChiTiet> hoaDonChiTietList = hoaDonChiTietService.getAllHoaDonChiTiet();
+        return new ResponseEntity<>(hoaDonChiTietList, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<HoaDonChiTiet> getHoaDonChiTietById(@PathVariable int id) {
+        return hoaDonChiTietService.getHoaDonChiTietById(id)
+                .map(hoaDonChiTiet -> new ResponseEntity<>(hoaDonChiTiet, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/hoadon/{idHoaDon}")
+    public ResponseEntity<List<HoaDonChiTiet>> getChiTietByHoaDon(@PathVariable int idHoaDon) {
+        try {
+            List<HoaDonChiTiet> hoaDonChiTietList = hoaDonChiTietService.getChiTietByHoaDon(idHoaDon);
+            return new ResponseEntity<>(hoaDonChiTietList, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping
-    public ResponseEntity<?> themSanPhamVaoHoaDon(@RequestBody Map<String, Integer> request) {
-        Integer idHoaDon = request.get("idHoaDon");
-        Integer idSanPham = request.get("idSanPham");
-        Integer soLuong = request.get("soLuong");
-        
-        if (idHoaDon == null || idSanPham == null || soLuong == null) {
-            return ResponseEntity.badRequest().body("Thiếu thông tin: idHoaDon, idSanPham hoặc soLuong");
-        }
-        
+    public ResponseEntity<?> createHoaDonChiTiet(@RequestBody HoaDonChiTiet hoaDonChiTiet) {
         try {
-            HoaDonChiTiet chiTiet = hoaDonChiTietService.themSanPhamVaoHoaDon(idHoaDon, idSanPham, soLuong);
-            return ResponseEntity.ok(chiTiet);
+            HoaDonChiTiet newHoaDonChiTiet = hoaDonChiTietService.createHoaDonChiTiet(hoaDonChiTiet);
+            return new ResponseEntity<>(newHoaDonChiTiet, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateHoaDonChiTiet(@PathVariable int id, @RequestBody HoaDonChiTiet hoaDonChiTietDetails) {
+        try {
+            HoaDonChiTiet updatedHoaDonChiTiet = hoaDonChiTietService.updateHoaDonChiTiet(id, hoaDonChiTietDetails);
+            return new ResponseEntity<>(updatedHoaDonChiTiet, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> xoaChiTietHoaDon(@PathVariable int id) {
-        hoaDonChiTietService.xoaChiTietHoaDon(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> deleteHoaDonChiTiet(@PathVariable int id) {
+        try {
+            hoaDonChiTietService.deleteHoaDonChiTiet(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
 }

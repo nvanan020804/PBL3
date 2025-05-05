@@ -3,139 +3,159 @@ package PBL3.backend.controller;
 import PBL3.backend.model.DoanhThu;
 import PBL3.backend.service.DoanhThuService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/doanh-thu")
-@CrossOrigin(origins = {"*"})
+@RequestMapping("/api/doanhthu")
+@CrossOrigin(origins = "*")
 public class DoanhThuController {
 
+    private final DoanhThuService doanhThuService;
+
     @Autowired
-    private DoanhThuService doanhThuService;
+    public DoanhThuController(DoanhThuService doanhThuService) {
+        this.doanhThuService = doanhThuService;
+    }
 
     @GetMapping
-    public List<DoanhThu> layTatCaDoanhThu() {
-        return doanhThuService.layTatCaDoanhThu();
+    public ResponseEntity<List<DoanhThu>> getAllDoanhThu() {
+        List<DoanhThu> doanhThuList = doanhThuService.getAllDoanhThu();
+        return new ResponseEntity<>(doanhThuList, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> layDoanhThuTheoId(@PathVariable int id) {
-        return doanhThuService.layDoanhThuTheoId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<DoanhThu> getDoanhThuById(@PathVariable int id) {
+        return doanhThuService.getDoanhThuById(id)
+                .map(doanhThu -> new ResponseEntity<>(doanhThu, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/hien-tai")
-    public DoanhThu layDoanhThuHienTai() {
-        return doanhThuService.layHoacTaoDoanhThuThangHienTai();
-    }
-
-    @PostMapping
-    public ResponseEntity<?> taoDoanhThuMoi(@RequestBody Map<String, Object> request) {
-        try {
-            String thoiGian = (String) request.get("thoiGian");
-            BigDecimal tongThu = null;
-            if (request.get("tongThu") != null) {
-                tongThu = new BigDecimal(request.get("tongThu").toString());
-            }
-            
-            BigDecimal tongChi = null;
-            if (request.get("tongChi") != null) {
-                tongChi = new BigDecimal(request.get("tongChi").toString());
-            }
-            
-            if (thoiGian == null) {
-                return ResponseEntity.badRequest().body("Thời gian không được để trống");
-            }
-            
-            DoanhThu doanhThu = doanhThuService.taoDoanhThuMoi(thoiGian, tongThu, tongChi);
-            return ResponseEntity.ok(doanhThu);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+    @GetMapping("/thoigian/{thoiGian}")
+    public ResponseEntity<DoanhThu> getDoanhThuByThoiGian(@PathVariable String thoiGian) {
+        DoanhThu doanhThu = doanhThuService.getDoanhThuByThoiGian(thoiGian);
+        if (doanhThu != null) {
+            return new ResponseEntity<>(doanhThu, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @PostMapping("/thang")
-    public ResponseEntity<?> taoDoanhThuTheoThang(@RequestBody Map<String, Object> request) {
+    @PostMapping
+    public ResponseEntity<?> createDoanhThu(@RequestBody DoanhThu doanhThu) {
         try {
-            Integer thang = (Integer) request.get("thang");
-            Integer nam = (Integer) request.get("nam");
-            
-            BigDecimal tongThu = null;
-            if (request.get("tongThu") != null) {
-                tongThu = new BigDecimal(request.get("tongThu").toString());
-            }
-            
-            BigDecimal tongChi = null;
-            if (request.get("tongChi") != null) {
-                tongChi = new BigDecimal(request.get("tongChi").toString());
-            }
-            
-            if (thang == null || nam == null) {
-                return ResponseEntity.badRequest().body("Tháng và năm không được để trống");
-            }
-            
-            DoanhThu doanhThu = doanhThuService.taoDoanhThuTheoThang(thang, nam, tongThu, tongChi);
-            return ResponseEntity.ok(doanhThu);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+            DoanhThu newDoanhThu = doanhThuService.createDoanhThu(doanhThu);
+            return new ResponseEntity<>(newDoanhThu, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> capNhatDoanhThu(@PathVariable int id, @RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> updateDoanhThu(@PathVariable int id, @RequestBody DoanhThu doanhThuDetails) {
         try {
-            BigDecimal tongThu = null;
-            if (request.get("tongThu") != null) {
-                tongThu = new BigDecimal(request.get("tongThu").toString());
+            DoanhThu updatedDoanhThu = doanhThuService.updateDoanhThu(id, doanhThuDetails);
+            return new ResponseEntity<>(updatedDoanhThu, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteDoanhThu(@PathVariable int id) {
+        try {
+            doanhThuService.deleteDoanhThu(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/{id}/tongthu")
+    public ResponseEntity<?> updateTongThu(@PathVariable int id, @RequestBody Map<String, BigDecimal> tongThuMap) {
+        try {
+            BigDecimal tongThuMoi = tongThuMap.get("tongThu");
+            if (tongThuMoi == null) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Tổng thu không được để trống");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
             
-            BigDecimal tongChi = null;
-            if (request.get("tongChi") != null) {
-                tongChi = new BigDecimal(request.get("tongChi").toString());
+            DoanhThu updatedDoanhThu = doanhThuService.updateTongThu(id, tongThuMoi);
+            return new ResponseEntity<>(updatedDoanhThu, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/{id}/tongchi")
+    public ResponseEntity<?> updateTongChi(@PathVariable int id, @RequestBody Map<String, BigDecimal> tongChiMap) {
+        try {
+            BigDecimal tongChiMoi = tongChiMap.get("tongChi");
+            if (tongChiMoi == null) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Tổng chi không được để trống");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
             
-            DoanhThu doanhThu = doanhThuService.capNhatDoanhThu(id, tongThu, tongChi);
-            return ResponseEntity.ok(doanhThu);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+            DoanhThu updatedDoanhThu = doanhThuService.updateTongChi(id, tongChiMoi);
+            return new ResponseEntity<>(updatedDoanhThu, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
-    @PostMapping("/{id}/thu")
-    public ResponseEntity<?> themThuNhap(@PathVariable int id, @RequestBody Map<String, Object> request) {
+    @PutMapping("/{id}/themthu")
+    public ResponseEntity<?> addTongThu(@PathVariable int id, @RequestBody Map<String, BigDecimal> soTienMap) {
         try {
-            BigDecimal soTien = new BigDecimal(request.get("soTien").toString());
-            DoanhThu doanhThu = doanhThuService.themThuNhap(id, soTien);
-            return ResponseEntity.ok(doanhThu);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+            BigDecimal soTien = soTienMap.get("soTien");
+            if (soTien == null || soTien.compareTo(BigDecimal.ZERO) <= 0) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Số tiền phải lớn hơn 0");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+            
+            DoanhThu updatedDoanhThu = doanhThuService.addTongThu(id, soTien);
+            return new ResponseEntity<>(updatedDoanhThu, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
-    @PostMapping("/{id}/chi")
-    public ResponseEntity<?> themChiPhi(@PathVariable int id, @RequestBody Map<String, Object> request) {
+    @PutMapping("/{id}/themchi")
+    public ResponseEntity<?> addTongChi(@PathVariable int id, @RequestBody Map<String, BigDecimal> soTienMap) {
         try {
-            BigDecimal soTien = new BigDecimal(request.get("soTien").toString());
-            DoanhThu doanhThu = doanhThuService.themChiPhi(id, soTien);
-            return ResponseEntity.ok(doanhThu);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
-        }
-    }
-
-    @GetMapping("/{id}/loi-nhuan")
-    public ResponseEntity<?> tinhLoiNhuan(@PathVariable int id) {
-        try {
-            BigDecimal loiNhuan = doanhThuService.tinhLoiNhuanTheoDoanhThu(id);
-            return ResponseEntity.ok(Map.of("loiNhuan", loiNhuan));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+            BigDecimal soTien = soTienMap.get("soTien");
+            if (soTien == null || soTien.compareTo(BigDecimal.ZERO) <= 0) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Số tiền phải lớn hơn 0");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+            
+            DoanhThu updatedDoanhThu = doanhThuService.addTongChi(id, soTien);
+            return new ResponseEntity<>(updatedDoanhThu, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 }

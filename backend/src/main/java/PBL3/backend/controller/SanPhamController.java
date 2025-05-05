@@ -1,81 +1,132 @@
 package PBL3.backend.controller;
 
-import PBL3.backend.dto.request.SanPhamRequest;
-import PBL3.backend.dto.response.ApiResponse;
-import PBL3.backend.dto.response.SanPhamResponse;
+import PBL3.backend.model.SanPham;
 import PBL3.backend.service.SanPhamService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/san-pham")
-@CrossOrigin(origins = {"*"})
+@RequestMapping("/api/sanpham")
+@CrossOrigin(origins = "*")
 public class SanPhamController {
 
+    private final SanPhamService sanPhamService;
+
     @Autowired
-    private SanPhamService sanPhamService;
+    public SanPhamController(SanPhamService sanPhamService) {
+        this.sanPhamService = sanPhamService;
+    }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<SanPhamResponse>>> layTatCaSanPham() {
-        return ResponseEntity.ok(
-            ApiResponse.success(sanPhamService.layTatCaSanPhamResponse())
-        );
+    public ResponseEntity<List<SanPham>> getAllSanPham() {
+        List<SanPham> sanPhamList = sanPhamService.getAllSanPham();
+        return new ResponseEntity<>(sanPhamList, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<SanPhamResponse>> laySanPhamTheoId(@PathVariable int id) {
-        return sanPhamService.laySanPhamTheoIdResponse(id)
-                .map(response -> ResponseEntity.ok(ApiResponse.success(response)))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(ApiResponse.error("Không tìm thấy sản phẩm với ID: " + id)));
+    public ResponseEntity<SanPham> getSanPhamById(@PathVariable int id) {
+        return sanPhamService.getSanPhamById(id)
+                .map(sanPham -> new ResponseEntity<>(sanPham, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/danh-muc/{idDanhMuc}")
-    public ResponseEntity<ApiResponse<List<SanPhamResponse>>> laySanPhamTheoDanhMuc(@PathVariable int idDanhMuc) {
-        return ResponseEntity.ok(
-            ApiResponse.success(sanPhamService.laySanPhamTheoDanhMucResponse(idDanhMuc))
-        );
+    @GetMapping("/danhmuc/{idDanhMuc}")
+    public ResponseEntity<List<SanPham>> getSanPhamByDanhMuc(@PathVariable int idDanhMuc) {
+        try {
+            List<SanPham> sanPhamList = sanPhamService.getSanPhamByDanhMuc(idDanhMuc);
+            return new ResponseEntity<>(sanPhamList, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/name/{tenSanPham}")
+    public ResponseEntity<SanPham> getSanPhamByTen(@PathVariable String tenSanPham) {
+        SanPham sanPham = sanPhamService.getSanPhamByTen(tenSanPham);
+        if (sanPham != null) {
+            return new ResponseEntity<>(sanPham, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<SanPhamResponse>> taoSanPham(@Valid @RequestBody SanPhamRequest request) {
-        SanPhamResponse response = sanPhamService.taoSanPhamResponse(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponse.success("Tạo sản phẩm thành công", response));
+    public ResponseEntity<?> createSanPham(@RequestBody SanPham sanPham) {
+        try {
+            SanPham newSanPham = sanPhamService.createSanPham(sanPham);
+            return new ResponseEntity<>(newSanPham, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<SanPhamResponse>> capNhatSanPham(
-            @PathVariable int id, 
-            @Valid @RequestBody SanPhamRequest request) {
-        SanPhamResponse response = sanPhamService.capNhatSanPhamResponse(id, request);
-        return ResponseEntity.ok(
-            ApiResponse.success("Cập nhật sản phẩm thành công", response)
-        );
-    }
-
-    @PutMapping("/{id}/so-luong")
-    public ResponseEntity<ApiResponse<SanPhamResponse>> capNhatSoLuong(
-            @PathVariable int id, 
-            @RequestBody SanPhamRequest request) {
-        if (request.getSoLuong() == null) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Thiếu thông tin số lượng"));
+    public ResponseEntity<?> updateSanPham(@PathVariable int id, @RequestBody SanPham sanPhamDetails) {
+        try {
+            SanPham updatedSanPham = sanPhamService.updateSanPham(id, sanPhamDetails);
+            return new ResponseEntity<>(updatedSanPham, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
-        
-        SanPhamResponse response = sanPhamService.capNhatSoLuongSanPhamResponse(id, request.getSoLuong());
-        return ResponseEntity.ok(
-            ApiResponse.success("Cập nhật số lượng thành công", response)
-        );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> xoaSanPham(@PathVariable int id) {
-        sanPhamService.xoaSanPham(id);
-        return ResponseEntity.ok(ApiResponse.success("Xóa sản phẩm thành công", null));
+    public ResponseEntity<?> deleteSanPham(@PathVariable int id) {
+        try {
+            sanPhamService.deleteSanPham(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/{id}/soluong")
+    public ResponseEntity<?> updateSoLuong(@PathVariable int id, @RequestBody Map<String, Integer> soLuongMap) {
+        try {
+            Integer soLuongMoi = soLuongMap.get("soLuong");
+            if (soLuongMoi == null) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Số lượng không được để trống");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+            
+            SanPham updatedSanPham = sanPhamService.updateSanPhamSoLuong(id, soLuongMoi);
+            return new ResponseEntity<>(updatedSanPham, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/{id}/nhaphang")
+    public ResponseEntity<?> nhapHang(@PathVariable int id, @RequestBody Map<String, Integer> soLuongMap) {
+        try {
+            Integer soLuongThem = soLuongMap.get("soLuongThem");
+            if (soLuongThem == null || soLuongThem <= 0) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Số lượng thêm phải lớn hơn 0");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+            
+            SanPham updatedSanPham = sanPhamService.addSanPhamSoLuong(id, soLuongThem);
+            return new ResponseEntity<>(updatedSanPham, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
 }

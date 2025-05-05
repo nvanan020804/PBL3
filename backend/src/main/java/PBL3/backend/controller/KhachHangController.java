@@ -1,29 +1,94 @@
 package PBL3.backend.controller;
 
-import PBL3.backend.dto.response.ApiResponse;
 import PBL3.backend.model.KhachHang;
 import PBL3.backend.service.KhachHangService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @RestController
-@RequestMapping({"api/khachhang", "api/khach-hang"})
-@CrossOrigin(origins = {"*"})
+@RequestMapping("/api/khachhang")
+@CrossOrigin(origins = "*")
 public class KhachHangController {
+
+    private final KhachHangService khachHangService;
+
     @Autowired
-    private KhachHangService khachHangService;
+    public KhachHangController(KhachHangService khachHangService) {
+        this.khachHangService = khachHangService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<KhachHang>> getAllKhachHang() {
+        List<KhachHang> khachHangList = khachHangService.getAllKhachHang();
+        return new ResponseEntity<>(khachHangList, HttpStatus.OK);
+    }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<KhachHang>> layKhachHangTheoId(@PathVariable int id) {
-        return khachHangService.layKhachHangTheoId(id)
-                .map(khachHang -> ResponseEntity.ok(new ApiResponse<>(true, "Lấy thông tin khách hàng thành công", khachHang)))
-                .orElse(ResponseEntity.ok(new ApiResponse<>(false, "Không tìm thấy thông tin khách hàng", null)));
+    public ResponseEntity<KhachHang> getKhachHangById(@PathVariable int id) {
+        return khachHangService.getKhachHangById(id)
+                .map(khachHang -> new ResponseEntity<>(khachHang, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    
-    // Endpoint hỗ trợ khi gọi không có ID
-    @GetMapping
-    public ResponseEntity<ApiResponse<String>> layTatCaKhachHang() {
-        return ResponseEntity.ok(new ApiResponse<>(true, "Chức năng đang được phát triển", null));
+
+    @GetMapping("/phone/{soDienThoai}")
+    public ResponseEntity<KhachHang> getKhachHangBySoDienThoai(@PathVariable String soDienThoai) {
+        KhachHang khachHang = khachHangService.getKhachHangBySoDienThoai(soDienThoai);
+        if (khachHang != null) {
+            return new ResponseEntity<>(khachHang, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<KhachHang> getKhachHangByEmail(@PathVariable String email) {
+        KhachHang khachHang = khachHangService.getKhachHangByEmail(email);
+        if (khachHang != null) {
+            return new ResponseEntity<>(khachHang, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createKhachHang(@RequestBody KhachHang khachHang) {
+        try {
+            KhachHang newKhachHang = khachHangService.createKhachHang(khachHang);
+            return new ResponseEntity<>(newKhachHang, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateKhachHang(@PathVariable int id, @RequestBody KhachHang khachHangDetails) {
+        try {
+            KhachHang updatedKhachHang = khachHangService.updateKhachHang(id, khachHangDetails);
+            return new ResponseEntity<>(updatedKhachHang, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteKhachHang(@PathVariable int id) {
+        try {
+            khachHangService.deleteKhachHang(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
 }

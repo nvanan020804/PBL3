@@ -12,41 +12,62 @@ import java.util.Optional;
 @Service
 public class PhanLoaiSanPhamService {
 
+    private final PhanLoaiSanPhamRepository phanLoaiSanPhamRepository;
+
     @Autowired
-    private PhanLoaiSanPhamRepository phanLoaiSanPhamRepository;
-    
-    public List<PhanLoaiSanPham> layTatCaPhanLoai() {
+    public PhanLoaiSanPhamService(PhanLoaiSanPhamRepository phanLoaiSanPhamRepository) {
+        this.phanLoaiSanPhamRepository = phanLoaiSanPhamRepository;
+    }
+
+    public List<PhanLoaiSanPham> getAllPhanLoaiSanPham() {
         return phanLoaiSanPhamRepository.findAll();
     }
-    
-    public Optional<PhanLoaiSanPham> layPhanLoaiTheoId(int id) {
+
+    public Optional<PhanLoaiSanPham> getPhanLoaiSanPhamById(int id) {
         return phanLoaiSanPhamRepository.findById(id);
     }
-    
-    @Transactional
-    public PhanLoaiSanPham taoPhanLoai(String tenDanhMuc) {
-        PhanLoaiSanPham danhMuc = new PhanLoaiSanPham();
-        danhMuc.setTenDanhMuc(tenDanhMuc);
-        return phanLoaiSanPhamRepository.save(danhMuc);
+
+    public PhanLoaiSanPham getPhanLoaiSanPhamByTen(String tenDanhMuc) {
+        return phanLoaiSanPhamRepository.findByTenDanhMuc(tenDanhMuc);
     }
-    
+
     @Transactional
-    public PhanLoaiSanPham capNhatPhanLoai(int id, String tenDanhMuc) {
-        PhanLoaiSanPham danhMuc = phanLoaiSanPhamRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục với ID: " + id));
+    public PhanLoaiSanPham createPhanLoaiSanPham(PhanLoaiSanPham phanLoaiSanPham) {
+        // Kiểm tra trùng tên danh mục
+        if (phanLoaiSanPhamRepository.findByTenDanhMuc(phanLoaiSanPham.getTenDanhMuc()) != null) {
+            throw new RuntimeException("Danh mục với tên này đã tồn tại");
+        }
         
-        danhMuc.setTenDanhMuc(tenDanhMuc);
-        return phanLoaiSanPhamRepository.save(danhMuc);
+        return phanLoaiSanPhamRepository.save(phanLoaiSanPham);
     }
-    
+
     @Transactional
-    public void xoaPhanLoai(int id) {
-        PhanLoaiSanPham danhMuc = phanLoaiSanPhamRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục với ID: " + id));
+    public PhanLoaiSanPham updatePhanLoaiSanPham(int id, PhanLoaiSanPham phanLoaiSanPhamDetails) {
+        PhanLoaiSanPham phanLoaiSanPham = phanLoaiSanPhamRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục với ID: " + id));
         
-        // Check if the category has any products
-        if (!danhMuc.getSanPhamList().isEmpty()) {
-            throw new RuntimeException("Không thể xóa danh mục này vì có sản phẩm đang sử dụng");
+        // Kiểm tra trùng tên với danh mục khác
+        if (phanLoaiSanPhamDetails.getTenDanhMuc() != null) {
+            PhanLoaiSanPham existingDanhMuc = phanLoaiSanPhamRepository.findByTenDanhMuc(phanLoaiSanPhamDetails.getTenDanhMuc());
+            if (existingDanhMuc != null && existingDanhMuc.getIdDanhMuc() != id) {
+                throw new RuntimeException("Danh mục với tên này đã tồn tại");
+            }
+        }
+        
+        // Cập nhật thông tin
+        phanLoaiSanPham.setTenDanhMuc(phanLoaiSanPhamDetails.getTenDanhMuc());
+        
+        return phanLoaiSanPhamRepository.save(phanLoaiSanPham);
+    }
+
+    @Transactional
+    public void deletePhanLoaiSanPham(int id) {
+        PhanLoaiSanPham phanLoaiSanPham = phanLoaiSanPhamRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục với ID: " + id));
+            
+        // Kiểm tra liên kết với các sản phẩm trước khi xóa
+        if (!phanLoaiSanPham.getSanPhamList().isEmpty()) {
+            throw new RuntimeException("Không thể xóa danh mục đã có sản phẩm");
         }
         
         phanLoaiSanPhamRepository.deleteById(id);

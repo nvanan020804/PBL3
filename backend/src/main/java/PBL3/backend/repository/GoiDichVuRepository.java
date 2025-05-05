@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GoiDichVuRepository extends JpaRepository<GoiDichVu, Integer> {
+    GoiDichVu findByTenGoi(String tenGoi);
 }
