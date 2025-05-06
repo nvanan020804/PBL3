@@ -1,5 +1,6 @@
 package PBL3.backend.controller;
 
+import PBL3.backend.dto.response.NhanVienResponse;
 import PBL3.backend.model.NhanVien;
 import PBL3.backend.service.NhanVienService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,15 @@ public class NhanVienController {
     }
 
     @GetMapping
-    public ResponseEntity<List<NhanVien>> getAllNhanVien() {
-        List<NhanVien> nhanVienList = nhanVienService.getAllNhanVien();
-        return new ResponseEntity<>(nhanVienList, HttpStatus.OK);
+    public ResponseEntity<?> getAllNhanVien() {
+        try {
+            List<NhanVienResponse> nhanVienList = nhanVienService.getAllNhanVien();
+            return new ResponseEntity<>(nhanVienList, HttpStatus.OK);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Không thể lấy danh sách nhân viên: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/{id}")

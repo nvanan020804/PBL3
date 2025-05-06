@@ -1,9 +1,6 @@
 package PBL3.backend.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,9 +16,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIdentityInfo(
-  generator = ObjectIdGenerators.PropertyGenerator.class, 
-  property = "idKhachHang")
 public class KhachHang {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,14 +40,11 @@ public class KhachHang {
     @Column(name = "trangThai", length = 50)
     private String trangThai;
     
-    @Column(name = "gioTap", length = 50)
-    private String gioTap;
-
     @OneToOne(mappedBy = "khachHang")
     @JsonIgnore
     private Account account;
     
     @OneToMany(mappedBy = "khachHang", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "khachhang-dangky")
+    @JsonIgnore
     private List<DangKy> dangKyList = new ArrayList<>();
 }

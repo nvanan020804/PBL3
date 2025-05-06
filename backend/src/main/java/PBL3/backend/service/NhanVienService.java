@@ -1,8 +1,12 @@
 package PBL3.backend.service;
 
 import PBL3.backend.model.NhanVien;
+import PBL3.backend.model.Account;
+import PBL3.backend.dto.response.NhanVienResponse;
 import PBL3.backend.repository.NhanVienRepository;
+import PBL3.backend.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,14 +17,31 @@ import java.util.Optional;
 public class NhanVienService {
 
     private final NhanVienRepository nhanVienRepository;
+    private final AccountRepository accountRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public NhanVienService(NhanVienRepository nhanVienRepository) {
+    public NhanVienService(NhanVienRepository nhanVienRepository, AccountRepository accountRepository, JdbcTemplate jdbcTemplate) {
         this.nhanVienRepository = nhanVienRepository;
+        this.accountRepository = accountRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<NhanVien> getAllNhanVien() {
-        return nhanVienRepository.findAll();
+    public List<NhanVienResponse> getAllNhanVien() {
+        // Sử dụng JdbcTemplate để truy vấn SQL trực tiếp
+        String sql = "SELECT id_nhan_vien, ten_nhan_vien, tuoi, so_dien_thoai1, cccd, email, vi_tri FROM nhanvien";
+        
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            NhanVienResponse nhanVien = new NhanVienResponse();
+            nhanVien.setIdNhanVien(rs.getInt("id_nhan_vien"));
+            nhanVien.setTenNhanVien(rs.getString("ten_nhan_vien"));
+            nhanVien.setTuoi(rs.getObject("tuoi") != null ? rs.getInt("tuoi") : null);
+            nhanVien.setSoDienThoai1(rs.getString("so_dien_thoai1"));
+            nhanVien.setCccd(rs.getString("cccd"));
+            nhanVien.setEmail(rs.getString("email"));
+            nhanVien.setViTri(rs.getString("vi_tri"));
+            return nhanVien;
+        });
     }
 
     public Optional<NhanVien> getNhanVienById(int id) {
@@ -46,7 +67,43 @@ public class NhanVienService {
             throw new RuntimeException("Email đã được đăng ký");
         }
         
-        return nhanVienRepository.save(nhanVien);
+        // Lưu nhân viên để lấy ID
+        NhanVien savedNhanVien = nhanVienRepository.save(nhanVien);
+        
+        // Tạo tài khoản tự động cho nhân viên
+        try {
+            String username = "nhanvien" + savedNhanVien.getIdNhanVien();
+            String password = "123456";
+            
+            // Kiểm tra xem tên đăng nhập đã tồn tại chưa
+            Account existingAccount = accountRepository.findByTenDangNhap(username);
+            if (existingAccount != null) {
+                // Nếu username đã tồn tại, tạo username mới với số ngẫu nhiên
+                int randomSuffix = (int)(Math.random() * 1000);
+                username = "nhanvien" + savedNhanVien.getIdNhanVien() + randomSuffix;
+                
+                // Kiểm tra lại một lần nữa để đảm bảo
+                existingAccount = accountRepository.findByTenDangNhap(username);
+                if (existingAccount != null) {
+                    throw new RuntimeException("Không thể tạo tên đăng nhập duy nhất");
+                }
+            }
+            
+            // Tạo đối tượng Account và lưu trực tiếp
+            Account account = new Account();
+            account.setTenDangNhap(username);
+            account.setMatKhau(password);
+            account.setPhanQuyen("nhanvien"); // Mặc định là nhanvien, có thể thay đổi thành admin sau
+            account.setIdLienKet(savedNhanVien.getIdNhanVien());
+            
+            accountRepository.save(account);
+            System.out.println("Đã tạo tài khoản tự động cho nhân viên: " + username);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Không thể tạo tài khoản tự động cho nhân viên: " + e.getMessage());
+        }
+        
+        return savedNhanVien;
     }
 
     @Transactional

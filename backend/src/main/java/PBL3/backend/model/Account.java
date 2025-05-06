@@ -1,5 +1,6 @@
 package PBL3.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,11 +31,13 @@ public class Account {
     // OneToOne relationship with KhachHang when phanQuyen is "khachhang"
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_lien_ket", referencedColumnName = "idKhachHang", insertable = false, updatable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "account", "dangKyList"})
     private KhachHang khachHang;
     
     // OneToOne relationship with NhanVien when phanQuyen is "nhanvien" or "admin"
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_lien_ket", referencedColumnName = "idNhanVien", insertable = false, updatable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "account"})
     private NhanVien nhanVien;
 }
 

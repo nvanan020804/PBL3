@@ -1,5 +1,6 @@
 package PBL3.backend.controller;
 
+import PBL3.backend.dto.response.KhachHangResponse;
 import PBL3.backend.model.KhachHang;
 import PBL3.backend.service.KhachHangService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,15 @@ public class KhachHangController {
     }
 
     @GetMapping
-    public ResponseEntity<List<KhachHang>> getAllKhachHang() {
-        List<KhachHang> khachHangList = khachHangService.getAllKhachHang();
-        return new ResponseEntity<>(khachHangList, HttpStatus.OK);
+    public ResponseEntity<?> getAllKhachHang() {
+        try {
+            List<KhachHangResponse> khachHangList = khachHangService.getAllKhachHang();
+            return new ResponseEntity<>(khachHangList, HttpStatus.OK);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Không thể lấy danh sách khách hàng: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/{id}")

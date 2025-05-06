@@ -22,7 +22,6 @@ public class KhachHangMapper {
         khachHang.setSoDienThoai(request.getSoDienThoai());
         khachHang.setCccd(request.getCccd());
         khachHang.setEmail(request.getEmail());
-        khachHang.setGioTap(request.getGioTap());
         khachHang.setTrangThai(request.getTrangThai());
         
         return khachHang;
@@ -40,7 +39,6 @@ public class KhachHangMapper {
         response.setSoDienThoai(entity.getSoDienThoai());
         response.setCccd(entity.getCccd());
         response.setEmail(entity.getEmail());
-        response.setGioTap(entity.getGioTap());
         response.setTrangThai(entity.getTrangThai());
         
         return response;

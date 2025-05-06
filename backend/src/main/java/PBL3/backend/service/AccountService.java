@@ -87,7 +87,12 @@ public class AccountService {
 
     @Transactional
     public Account createCustomerAccount(KhachHang khachHang, String username, String password) {
-        // Lưu khách hàng để lấy ID
+        // Kiểm tra xem tên đăng nhập đã tồn tại chưa
+        if (accountRepository.findByTenDangNhap(username) != null) {
+            throw new RuntimeException("Tên đăng nhập đã tồn tại");
+        }
+        
+        // Lưu khách hàng để lấy ID - không kiểm tra trùng lặp thông tin
         khachHang = khachHangRepository.save(khachHang);
         
         // Tạo tài khoản cho khách hàng
@@ -102,6 +107,11 @@ public class AccountService {
 
     @Transactional
     public Account createStaffAccount(NhanVien nhanVien, String username, String password, String role) {
+        // Kiểm tra xem tên đăng nhập đã tồn tại chưa
+        if (accountRepository.findByTenDangNhap(username) != null) {
+            throw new RuntimeException("Tên đăng nhập đã tồn tại");
+        }
+        
         // Lưu nhân viên để lấy ID
         nhanVien = nhanVienRepository.save(nhanVien);
         
