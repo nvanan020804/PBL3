@@ -1,4 +1,3 @@
-
 .menu-box {
     display: flex;
     justify-content: space-between;
@@ -42,21 +41,63 @@
     color: #DA2128;
 }
 .menu-right {
-    flex: 0.5; 
+    flex: 0.5;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    list-style: none;
+}
+
+#login-button,
+#logout-button {
+    display: none;
+}
+
+#login-button.active,
+#logout-button.active {
+    display: flex;
 }
 
 .login-btn {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    background-color: #e71300; 
-    color: white;
-    border: none;
-    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    background-color: #DA2128;
+    border-radius: 4px;
+    transition: all 0.3s ease;
     cursor: pointer;
-    transition: background-color 0.3s;
+    margin-right: 10px;
+}
+
+.login-btn:last-child {
+    margin-right: 0;
 }
 
 .login-btn:hover {
-    background-color: #f46767;
+    background-color: #b31b21;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.login-btn a {
+    color: white;
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.login-btn:hover a {
+    color: white;
+}
+
+#logout-button {
+    background-color: #757575;
+}
+
+#logout-button:hover {
+    background-color: #616161;
 }

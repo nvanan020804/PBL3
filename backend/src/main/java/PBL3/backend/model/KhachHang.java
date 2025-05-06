@@ -1,94 +1,50 @@
 package PBL3.backend.model;
 
-import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "KHACHHANG")
+@Table(name = "khachhang")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class KhachHang {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idKHACHHANG;
+    @Column(name = "idKhachHang")
+    private int idKhachHang;
 
-    private String nameKHACHHANG;
-    private LocalDate bdKHACHHANG;
-    private String sdtKHACHHANG;
-    private String cccdKHACHHANG;
-    private String emailKHACHHANG;
-
-    @ManyToOne
-    @JoinColumn(name = "idGOI") // FK trỏ tới bảng GOIDICHVU
-    @JsonBackReference
-    private GoiDichVu goiDichVu;
-
-    public KhachHang() {
-    }
-
-    // Getters và Setters
-
-    public int getIdKHACHHANG() {
-        return idKHACHHANG;
-    }
-
-    public void setIdKHACHHANG(int idKHACHHANG) {
-        this.idKHACHHANG = idKHACHHANG;
-    }
-
-    public String getNameKHACHHANG() {
-        return nameKHACHHANG;
-    }
-
-    public void setNameKHACHHANG(String nameKHACHHANG) {
-        this.nameKHACHHANG = nameKHACHHANG;
-    }
-
-    public LocalDate getBdKHACHHANG() {
-        return bdKHACHHANG;
-    }
-
-    public void setBdKHACHHANG(LocalDate bdKHACHHANG) {
-        this.bdKHACHHANG = bdKHACHHANG;
-    }
-
-    public String getSdtKHACHHANG() {
-        return sdtKHACHHANG;
-    }
-
-    public void setSdtKHACHHANG(String sdtKHACHHANG) {
-        this.sdtKHACHHANG = sdtKHACHHANG;
-    }
-
-    public String getCccdKHACHHANG() {
-        return cccdKHACHHANG;
-    }
-
-    public void setCccdKHACHHANG(String cccdKHACHHANG) {
-        this.cccdKHACHHANG = cccdKHACHHANG;
-    }
-
-    public String getEmailKHACHHANG() {
-        return emailKHACHHANG;
-    }
-
-    public void setEmailKHACHHANG(String emailKHACHHANG) {
-        this.emailKHACHHANG = emailKHACHHANG;
-    }
-
-    public GoiDichVu getGoiDichVu() {
-        return goiDichVu;
-    }
-
-    public void setGoiDichVu(GoiDichVu goiDichVu) {
-        this.goiDichVu = goiDichVu;
-    }
+    @Column(name = "tenKhachHang", nullable = false, length = 100)
+    private String tenKhachHang;
+    
+    @Column(name = "namSinh")
+    private Integer namSinh;
+    
+    @Column(name = "soDienThoai", length = 20)
+    private String soDienThoai;
+    
+    @Column(name = "cccd", length = 20)
+    private String cccd;
+    
+    @Column(name = "email", length = 100)
+    private String email;
+    
+    @Column(name = "trangThai", length = 50)
+    private String trangThai;
+    
+    @OneToOne(mappedBy = "khachHang")
+    @JsonIgnore
+    private Account account;
+    
+    @OneToMany(mappedBy = "khachHang", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<DangKy> dangKyList = new ArrayList<>();
 }
