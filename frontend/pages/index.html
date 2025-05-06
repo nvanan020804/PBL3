@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GYM-Manager</title>
-    <link rel="stylesheet" href="./css/pages/index.css">
-    <link rel="stylesheet" href="./css/components/footer.css">
-    <link rel="stylesheet" href="./css/components/header.css">
-    <link rel="stylesheet" href="./css/components/menu.css">
+    <link rel="stylesheet" href="../css/pages/index.css">
+    <link rel="stylesheet" href="../css/components/footer.css">
+    <link rel="stylesheet" href="../css/components/header.css">
+    <link rel="stylesheet" href="../css/components/menu.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -18,9 +17,9 @@
     <div id="menu-container"></div>
     <div class="main">
         <section class="img-introduce">
-            <img src="./assets/img/home1.jpg" alt="ảnh giới thiệu gói tập">
+            <img src="../assets/img/home1.jpg" alt="ảnh giới thiệu gói tập">
         </section>
-    
+
         <section class="goi-introduce">
             <div class="goi-content">
                <div class="goi-title">
@@ -29,17 +28,17 @@
                </div>
                <div class="goitap">
                     <div class="goi">
-                        <img src="./assets/img/goithang1.jpeg">
+                        <img src="../assets/img/goithang1.jpeg">
                         <p>Gói 1 tháng / người</p>
                         <p>Giá: 300.000đ</p>
                     </div>
                     <div class="goi">
-                        <img src="./assets/img/goithang2.jpg">
+                        <img src="../assets/img/goithang2.jpg">
                         <p>Gói 3 tháng / người</p>
                         <p>Giá: 750.000đ</p>
                     </div>
                     <div class="goi">
-                        <img src="./assets/img/goithang3.jpg">
+                        <img src="../assets/img/goithang3.jpg">
                         <p>Gói 6 tháng / người</p>
                         <p>Giá: 1.200.000đ</p>
                     </div>
@@ -56,42 +55,42 @@
                     <div class="nav-arrow left" id="prev-arrow"></div>
                     <div class="album-slide">
                         <div class="img">
-                            <img src="./assets/img/album1.jpg" alt="">
+                            <img src="../assets/img/album1.jpg" alt="">
                             <div class="about">
                                 <h5>THƯ GIÃN, SỨC KHỎE</h5>
                                 <p>Phòng gym là nơi giúp bạn giảm căng thẳng và nâng cao sức khỏe toàn diện.</p>
                             </div>
                         </div>
                         <div class="img">
-                            <img src="./assets/img/album2.jpg" alt="">
+                            <img src="../assets/img/album2.jpg" alt="">
                             <div class="about">
                                 <h5>THÕA MÃN ĐAM MÊ</h5>
                                 <p>Rèn luyện mỗi ngày để theo đuổi đam mê và vượt qua giới hạn bản thân.</p>
                             </div>
                         </div>
                         <div class="img">
-                            <img src="./assets/img/album3.jpg" alt="">
+                            <img src="../assets/img/album3.jpg" alt="">
                             <div class="about">
                                 <h5>HOÀN THIỆN VÓC DÁNG</h5>
                                 <p>Tập luyện đều đặn để cải thiện vóc dáng, nâng cao sự tự tin mỗi ngày.</p>
                             </div>
                         </div>
                         <div class="img">
-                            <img src="./assets/img/album4.jpg" alt="">
+                            <img src="../assets/img/album4.jpg" alt="">
                             <div class="about">
                                 <h5>VƯỢT QUA GIỚI HẠN</h5>
                                 <p>Không ngại khó khăn, bạn sẽ chạm đến sức mạnh thật sự trong chính mình.</p>
                             </div>
                         </div>
                         <div class="img">
-                            <img src="./assets/img/album5.jpg" alt="">
+                            <img src="../assets/img/album5.jpg" alt="">
                             <div class="about">
                                 <h5>RÈN LUYỆN SỨC KHỎE</h5>
                                 <p>Tập luyện đều đặn giúp cơ thể dẻo dai và duy trì sức khỏe mỗi ngày.</p>
                             </div>
                         </div>
                         <div class="img">
-                            <img src="./assets/img/album6.png" alt="">
+                            <img src="../assets/img/album6.png" alt="">
                             <div class="about">
                                 <h5>TÌM KIẾM NIỀM VUI</h5>
                                 <p>Phòng gym là nơi bạn tìm thấy sự hứng khởi và niềm vui trong từng buổi tập.</p>
@@ -112,7 +111,12 @@
         </section>
     </div>
     <div id="footer-container"></div>
-    <script src="js/utils/loadComponents.js"></script>
-    <script src="js/components/navbar.js"></script>
+    <script src="../js/utils/loadComponents.js"></script>
+    <script src="../js/components/navbar.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          handleStickyMenu("menu-container");
+        });
+      </script>
 </body>
 </html>
