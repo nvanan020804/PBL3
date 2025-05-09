@@ -70,18 +70,28 @@ public class DangKyService {
         KhachHang khachHang = khachHangRepository.findById(dangKy.getKhachHang().getIdKhachHang())
             .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + dangKy.getKhachHang().getIdKhachHang()));
         
+        // Kiểm tra xem khách hàng đã có đăng ký đang hoạt động chưa
+        List<DangKy> activeRegistrations = dangKyRepository.findActiveByKhachHangId(khachHang.getIdKhachHang());
+        if (!activeRegistrations.isEmpty()) {
+            throw new RuntimeException("Khách hàng đã có đăng ký đang hoạt động");
+        }
+        
         // Thiết lập thông tin mặc định
         if (dangKy.getNgayBatDau() == null) {
             dangKy.setNgayBatDau(LocalDate.now());
         }
         
         if (dangKy.getTrangThai() == null) {
-            dangKy.setTrangThai("pending"); // hoặc "active" tùy theo logic nghiệp vụ
+            dangKy.setTrangThai("Đang hoạt động");
         }
         
         // Lưu đăng ký
         dangKy.setGoiDichVu(goiDichVu);
         dangKy.setKhachHang(khachHang);
+        
+        // Cập nhật trạng thái khách hàng thành đang hoạt động
+        khachHang.setTrangThai("Đang hoạt động");
+        khachHangRepository.save(khachHang);
         
         return dangKyRepository.save(dangKy);
     }
@@ -125,7 +135,7 @@ public class DangKyService {
         DangKy dangKy = dangKyRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy đăng ký với ID: " + id));
             
-        dangKy.setTrangThai("active");
+        dangKy.setTrangThai("Đang hoạt động");
         return dangKyRepository.save(dangKy);
     }
     
@@ -134,7 +144,7 @@ public class DangKyService {
         DangKy dangKy = dangKyRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy đăng ký với ID: " + id));
             
-        dangKy.setTrangThai("cancelled");
+        dangKy.setTrangThai("Hết hạn");
         return dangKyRepository.save(dangKy);
     }
 }

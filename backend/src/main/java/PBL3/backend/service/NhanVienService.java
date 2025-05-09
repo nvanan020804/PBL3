@@ -6,6 +6,7 @@ import PBL3.backend.dto.response.NhanVienResponse;
 import PBL3.backend.repository.NhanVienRepository;
 import PBL3.backend.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,12 +20,14 @@ public class NhanVienService {
     private final NhanVienRepository nhanVienRepository;
     private final AccountRepository accountRepository;
     private final JdbcTemplate jdbcTemplate;
+    private final KhachHangService khachHangService;
 
     @Autowired
-    public NhanVienService(NhanVienRepository nhanVienRepository, AccountRepository accountRepository, JdbcTemplate jdbcTemplate) {
+    public NhanVienService(NhanVienRepository nhanVienRepository, AccountRepository accountRepository, JdbcTemplate jdbcTemplate, @Lazy KhachHangService khachHangService) {
         this.nhanVienRepository = nhanVienRepository;
         this.accountRepository = accountRepository;
         this.jdbcTemplate = jdbcTemplate;
+        this.khachHangService = khachHangService;
     }
 
     public List<NhanVienResponse> getAllNhanVien() {
@@ -56,15 +59,36 @@ public class NhanVienService {
         return nhanVienRepository.findByEmail(email);
     }
 
+    public NhanVien getNhanVienByCccd(String cccd) {
+        return nhanVienRepository.findByCccd(cccd);
+    }
+
     @Transactional
     public NhanVien createNhanVien(NhanVien nhanVien) {
-        // Kiểm tra nhân viên đã tồn tại chưa (theo số điện thoại hoặc email)
+        // Kiểm tra nhân viên đã tồn tại chưa (theo số điện thoại, email hoặc CCCD)
         if (nhanVienRepository.findBySoDienThoai1(nhanVien.getSoDienThoai1()) != null) {
             throw new RuntimeException("Số điện thoại đã được đăng ký");
         }
         
         if (nhanVien.getEmail() != null && nhanVienRepository.findByEmail(nhanVien.getEmail()) != null) {
             throw new RuntimeException("Email đã được đăng ký");
+        }
+        
+        if (nhanVien.getCccd() != null && nhanVienRepository.findByCccd(nhanVien.getCccd()) != null) {
+            throw new RuntimeException("CCCD đã được đăng ký");
+        }
+        
+        // Kiểm tra thông tin trùng lặp với bảng khách hàng
+        if (khachHangService.getKhachHangBySoDienThoai(nhanVien.getSoDienThoai1()) != null) {
+            throw new RuntimeException("Số điện thoại đã được đăng ký cho khách hàng");
+        }
+        
+        if (nhanVien.getEmail() != null && khachHangService.getKhachHangByEmail(nhanVien.getEmail()) != null) {
+            throw new RuntimeException("Email đã được đăng ký cho khách hàng");
+        }
+        
+        if (nhanVien.getCccd() != null && khachHangService.getKhachHangByCccd(nhanVien.getCccd()) != null) {
+            throw new RuntimeException("CCCD đã được đăng ký cho khách hàng");
         }
         
         // Lưu nhân viên để lấy ID

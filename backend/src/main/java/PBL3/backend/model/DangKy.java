@@ -41,8 +41,8 @@ public class DangKy {
     @Column(name = "trangThai", nullable = false, length = 50)
     private String trangThai;
 
-    @Column(name = "gioTap")
-    private Integer gioTap;
+    @Column(name = "gio_tap", length = 50)
+    private String gioTap;
     
     @OneToMany(mappedBy = "dangKy", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "dangky-hoadon")

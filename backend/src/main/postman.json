@@ -153,6 +153,30 @@
           "response": []
         },
         {
+          "name": "Tìm kiếm khách hàng theo tên đăng nhập",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/khachhang/search?query=username&searchBy=username",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "khachhang", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "username"
+                },
+                {
+                  "key": "searchBy",
+                  "value": "username"
+                }
+              ]
+            },
+            "description": "Tìm kiếm khách hàng theo tên đăng nhập"
+          },
+          "response": []
+        },
+        {
           "name": "Tạo khách hàng mới",
           "request": {
             "method": "POST",
@@ -1431,3 +1455,6 @@
     }
   ]
 }
+
+
+

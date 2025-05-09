@@ -27,5 +27,5 @@ public class DangKyRequest {
     @Pattern(regexp = "^(Đang hoạt động|Hết hạn|Chưa kích hoạt)$", message = "Trạng thái phải là một trong: Đang hoạt động, Hết hạn, Chưa kích hoạt")
     private String trangThai;
     
-    private Integer gioTap;
+    private String gioTap;
 }

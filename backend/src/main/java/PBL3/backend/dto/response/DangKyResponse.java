@@ -18,6 +18,9 @@ public class DangKyResponse {
     private int idGOI;
     private String tenGoi;
     private LocalDate ngayBatDau;
+    private LocalDate ngayKetThuc;  // Thêm trường ngày kết thúc
     private String trangThai;
-    private Integer gioTap;
+    private String gioTap;
+    private double gia;  // Thêm trường giá tiền
+    private int thoiHan; // Thêm trường thời hạn (tháng)
 }

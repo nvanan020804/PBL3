@@ -20,13 +20,15 @@ public class KhachHangService {
     private final AccountRepository accountRepository;
     private final JdbcTemplate jdbcTemplate;
     private final AccountService accountService;
+    private final NhanVienService nhanVienService;
 
     @Autowired
-    public KhachHangService(KhachHangRepository khachHangRepository, AccountRepository accountRepository, JdbcTemplate jdbcTemplate, AccountService accountService) {
+    public KhachHangService(KhachHangRepository khachHangRepository, AccountRepository accountRepository, JdbcTemplate jdbcTemplate, AccountService accountService, NhanVienService nhanVienService) {
         this.khachHangRepository = khachHangRepository;
         this.accountRepository = accountRepository;
         this.jdbcTemplate = jdbcTemplate;
         this.accountService = accountService;
+        this.nhanVienService = nhanVienService;
     }
 
     public List<KhachHangResponse> getAllKhachHang() {
@@ -77,9 +79,22 @@ public class KhachHangService {
             throw new RuntimeException("CCCD đã được đăng ký");
         }
         
+        // Kiểm tra thông tin trùng lặp với bảng nhân viên
+        if (nhanVienService.getNhanVienBySoDienThoai(khachHang.getSoDienThoai()) != null) {
+            throw new RuntimeException("Số điện thoại đã được đăng ký cho nhân viên");
+        }
+        
+        if (khachHang.getEmail() != null && nhanVienService.getNhanVienByEmail(khachHang.getEmail()) != null) {
+            throw new RuntimeException("Email đã được đăng ký cho nhân viên");
+        }
+        
+        if (khachHang.getCccd() != null && nhanVienService.getNhanVienByCccd(khachHang.getCccd()) != null) {
+            throw new RuntimeException("CCCD đã được đăng ký cho nhân viên");
+        }
+        
         // Mặc định trạng thái cho khách hàng mới
         if (khachHang.getTrangThai() == null) {
-            khachHang.setTrangThai("active");
+            khachHang.setTrangThai("Chưa hoạt động");
         }
         
         // Lưu khách hàng để lấy ID
@@ -156,6 +171,14 @@ public class KhachHangService {
     public void deleteKhachHang(int id) {
         KhachHang khachHang = khachHangRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + id));
+        
+        // Kiểm tra trạng thái khách hàng
+        String trangThai = khachHang.getTrangThai();
+        boolean isActive = "Đang hoạt động".equalsIgnoreCase(trangThai);
+        
+        if (isActive) {
+            throw new RuntimeException("Không thể xóa khách hàng đang hoạt động. Vui lòng thay đổi trạng thái thành không hoạt động trước khi xóa.");
+        }
             
         try {
             // Vô hiệu hóa ràng buộc khóa ngoại tạm thời
@@ -181,5 +204,26 @@ public class KhachHangService {
             jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS=1");
             throw new RuntimeException("Không thể xóa khách hàng: " + e.getMessage(), e);
         }
+    }
+
+    public List<KhachHangResponse> searchKhachHangByUsername(String username) {
+        // SQL để tìm kiếm khách hàng theo tên đăng nhập
+        String sql = "SELECT k.id_khach_hang, k.ten_khach_hang, k.nam_sinh, k.so_dien_thoai, " +
+                    "k.cccd, k.email, k.trang_thai " +
+                    "FROM khachhang k " +
+                    "JOIN accounts a ON k.id_khach_hang = a.id_lien_ket " +
+                    "WHERE a.ten_dang_nhap LIKE ? AND a.phan_quyen = 'khachhang'";
+        
+        return jdbcTemplate.query(sql, new Object[]{"%" + username + "%"}, (rs, rowNum) -> {
+            KhachHangResponse khachHang = new KhachHangResponse();
+            khachHang.setIdKhachHang(rs.getInt("id_khach_hang"));
+            khachHang.setTenKhachHang(rs.getString("ten_khach_hang"));
+            khachHang.setNamSinh(rs.getObject("nam_sinh") != null ? rs.getInt("nam_sinh") : null);
+            khachHang.setSoDienThoai(rs.getString("so_dien_thoai"));
+            khachHang.setCccd(rs.getString("cccd"));
+            khachHang.setEmail(rs.getString("email"));
+            khachHang.setTrangThai(rs.getString("trang_thai"));
+            return khachHang;
+        });
     }
 }

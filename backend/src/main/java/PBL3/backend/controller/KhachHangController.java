@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/khachhang")
@@ -96,6 +97,37 @@ public class KhachHangController {
             Map<String, String> response = new HashMap<>();
             response.put("message", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchKhachHang(
+            @RequestParam("q") String query,
+            @RequestParam(value = "includeUsername", defaultValue = "false") boolean includeUsername) {
+        try {
+            List<KhachHangResponse> allKhachHang = khachHangService.getAllKhachHang();
+            List<KhachHangResponse> filteredKhachHang;
+            
+            if (includeUsername) {
+                // Tìm kiếm theo tên đăng nhập khi tham số includeUsername = true
+                filteredKhachHang = khachHangService.searchKhachHangByUsername(query);
+            } else {
+                // Tìm kiếm theo tên, số điện thoại, email hoặc cccd (cách cũ)
+                filteredKhachHang = allKhachHang.stream()
+                    .filter(kh -> 
+                        (kh.getTenKhachHang() != null && kh.getTenKhachHang().toLowerCase().contains(query.toLowerCase())) ||
+                        (kh.getSoDienThoai() != null && kh.getSoDienThoai().contains(query)) ||
+                        (kh.getEmail() != null && kh.getEmail().toLowerCase().contains(query.toLowerCase())) ||
+                        (kh.getCccd() != null && kh.getCccd().contains(query))
+                    )
+                    .collect(Collectors.toList());
+            }
+                
+            return new ResponseEntity<>(filteredKhachHang, HttpStatus.OK);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Lỗi khi tìm kiếm khách hàng: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
