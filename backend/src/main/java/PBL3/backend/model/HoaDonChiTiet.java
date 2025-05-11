@@ -36,4 +36,7 @@ public class HoaDonChiTiet {
     
     @Column(name = "gia", nullable = false, precision = 10, scale = 2)
     private BigDecimal gia;
+    
+    @Column(name = "thanhTien", precision = 10, scale = 2)
+    private BigDecimal thanhTien;
 }

@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,21 @@ public class HoaDon {
     
     @Column(name = "trangThai", nullable = false, length = 50)
     private String trangThai;
+    
+    @Column(name = "tongTien", precision = 10, scale = 2)
+    private BigDecimal tongTien;
+    
+    @Column(name = "giamGia", precision = 10, scale = 2)
+    private BigDecimal giamGia;
+    
+    @Column(name = "thanhToan", precision = 10, scale = 2)
+    private BigDecimal thanhToan;
+    
+    @Column(name = "phuongThuc", length = 50)
+    private String phuongThuc;
+    
+    @Column(name = "trangThaiThanhToan", length = 50)
+    private String trangThaiThanhToan;
     
     @OneToMany(mappedBy = "hoaDon", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "hoadon-chitiet")

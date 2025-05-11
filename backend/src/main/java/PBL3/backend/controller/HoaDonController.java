@@ -115,4 +115,28 @@ public class HoaDonController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
+    
+    @PutMapping("/{id}/mark-as-paid")
+    public ResponseEntity<?> markAsPaid(@PathVariable int id) {
+        try {
+            HoaDon updatedHoaDon = hoaDonService.markAsPaid(id);
+            return new ResponseEntity<>(updatedHoaDon, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    @PutMapping("/{id}/mark-as-unpaid")
+    public ResponseEntity<?> markAsUnpaid(@PathVariable int id) {
+        try {
+            HoaDon updatedHoaDon = hoaDonService.markAsUnpaid(id);
+            return new ResponseEntity<>(updatedHoaDon, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
 }

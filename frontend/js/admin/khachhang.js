@@ -44,8 +44,8 @@ function setupEventListeners() {
         // Ẩn hoặc vô hiệu hóa trường trạng thái khi thêm mới
         document.getElementById('trangThaiContainer').style.display = 'none';
         
-        // Đặt mặc định trạng thái là "Không hoạt động"
-        document.getElementById('trangThai').value = 'false';
+        // Đặt mặc định trạng thái là "Chưa hoạt động"
+        document.getElementById('trangThai').value = 'Chưa hoạt động';
     });
     
     // Sự kiện nút lưu khách hàng
@@ -202,9 +202,7 @@ function displayCustomers(customersToDisplay) {
     
     customersToDisplay.forEach((customer, index) => {
         // Kiểm tra trạng thái và chuyển đổi thành boolean hoặc sử dụng giá trị chuỗi
-        const isActive = customer.trangThai === true || 
-                          customer.trangThai === 'true' || 
-                          customer.trangThai === 'active';
+        const isActive = customer.trangThai === 'Đang hoạt động';
         
         console.log(`Khách hàng ${customer.id} - trạng thái gốc:`, customer.trangThai); // Debug
         console.log(`Khách hàng ${customer.id} - trạng thái đã xử lý:`, isActive); // Debug
