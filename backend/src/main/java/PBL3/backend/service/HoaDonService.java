@@ -58,19 +58,38 @@ public class HoaDonService {
 
     @Transactional
     public HoaDon createHoaDon(HoaDon hoaDon) {
-        // Kiểm tra tồn tại của đăng ký và nhân viên
-        if (hoaDon.getDangKy() == null || hoaDon.getDangKy().getIdDangKy() == 0) {
-            throw new RuntimeException("Đăng ký không hợp lệ");
-        }
-        
+        // Kiểm tra tồn tại của nhân viên (bắt buộc)
         if (hoaDon.getNhanVien() == null || hoaDon.getNhanVien().getIdNhanVien() == 0) {
             throw new RuntimeException("Nhân viên không hợp lệ");
         }
         
-        // Lấy thông tin đầy đủ
-        DangKy dangKy = dangKyRepository.findById(hoaDon.getDangKy().getIdDangKy())
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy đăng ký với ID: " + hoaDon.getDangKy().getIdDangKy()));
+        // Kiểm tra đăng ký (nếu có)
+        if (hoaDon.getDangKy() != null && hoaDon.getDangKy().getIdDangKy() > 0) {
+            // Lấy thông tin đầy đủ của đăng ký
+            DangKy dangKy = dangKyRepository.findById(hoaDon.getDangKy().getIdDangKy())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đăng ký với ID: " + hoaDon.getDangKy().getIdDangKy()));
+            hoaDon.setDangKy(dangKy);
             
+            // Tự động đặt tổng tiền từ giá gói dịch vụ
+            if (dangKy.getGoiDichVu() != null && (hoaDon.getTongTien() == null || hoaDon.getTongTien().compareTo(BigDecimal.ZERO) == 0)) {
+                BigDecimal giaGoi = dangKy.getGoiDichVu().getGia();
+                hoaDon.setTongTien(giaGoi);
+                
+                // Nếu giảm giá là null hoặc 0, đặt thành 0
+                if (hoaDon.getGiamGia() == null || hoaDon.getGiamGia().compareTo(BigDecimal.ZERO) == 0) {
+                    hoaDon.setGiamGia(BigDecimal.ZERO);
+                }
+                
+                // Tính thành tiền = tổng tiền - giảm giá
+                BigDecimal thanhToan = giaGoi.subtract(hoaDon.getGiamGia());
+                hoaDon.setThanhToan(thanhToan.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : thanhToan);
+            }
+        } else {
+            // Nếu không có đăng ký, đặt thành null (hóa đơn mua sản phẩm)
+            hoaDon.setDangKy(null);
+        }
+        
+        // Lấy thông tin đầy đủ nhân viên
         NhanVien nhanVien = nhanVienRepository.findById(hoaDon.getNhanVien().getIdNhanVien())
             .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên với ID: " + hoaDon.getNhanVien().getIdNhanVien()));
         
@@ -80,7 +99,7 @@ public class HoaDonService {
         }
         
         if (hoaDon.getTrangThai() == null) {
-            hoaDon.setTrangThai("pending");
+            hoaDon.setTrangThai("Chờ xử lý");
         }
         
         // Thiết lập trạng thái thanh toán mặc định
@@ -102,11 +121,19 @@ public class HoaDonService {
         }
         
         if (hoaDon.getPhuongThuc() == null) {
-            hoaDon.setPhuongThuc("tiền mặt");
+            hoaDon.setPhuongThuc("tienmat");
+        }
+        
+        // Chuẩn hóa phương thức thanh toán
+        if ("Tiền mặt".equals(hoaDon.getPhuongThuc())) {
+            hoaDon.setPhuongThuc("tienmat");
+        } else if ("Chuyển khoản".equals(hoaDon.getPhuongThuc())) {
+            hoaDon.setPhuongThuc("chuyenkhoan");
+        } else if ("Thẻ tín dụng".equals(hoaDon.getPhuongThuc())) {
+            hoaDon.setPhuongThuc("thetindung");
         }
         
         // Lưu hóa đơn
-        hoaDon.setDangKy(dangKy);
         hoaDon.setNhanVien(nhanVien);
         
         return hoaDonRepository.save(hoaDon);
@@ -161,20 +188,20 @@ public class HoaDonService {
     }
     
     @Transactional
-    public HoaDon completeHoaDon(int id) {
+    public HoaDon hoanThanhHoaDon(int id) {
         HoaDon hoaDon = hoaDonRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + id));
             
-        hoaDon.setTrangThai("completed");
+        hoaDon.setTrangThai("Hoàn thành");
         return hoaDonRepository.save(hoaDon);
     }
     
     @Transactional
-    public HoaDon cancelHoaDon(int id) {
+    public HoaDon huyHoaDon(int id) {
         HoaDon hoaDon = hoaDonRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + id));
             
-        hoaDon.setTrangThai("cancelled");
+        hoaDon.setTrangThai("Hủy");
         return hoaDonRepository.save(hoaDon);
     }
     
@@ -201,7 +228,7 @@ public class HoaDonService {
     }
     
     @Transactional
-    public HoaDon markAsPaid(int id) {
+    public HoaDon daThanhToan(int id) {
         HoaDon hoaDon = hoaDonRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + id));
             
@@ -210,7 +237,7 @@ public class HoaDonService {
     }
     
     @Transactional
-    public HoaDon markAsUnpaid(int id) {
+    public HoaDon chuaThanhToan(int id) {
         HoaDon hoaDon = hoaDonRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + id));
             

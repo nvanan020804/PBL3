@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "khachhang")
@@ -47,4 +48,29 @@ public class KhachHang {
     @OneToMany(mappedBy = "khachHang", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<DangKy> dangKyList = new ArrayList<>();
+    
+    @Transient
+    @JsonProperty("customUsername")
+    private String customUsername;
+    
+    @Transient
+    @JsonProperty("customPassword")
+    private String customPassword;
+    
+    // Additional getters and setters for the transient fields
+    public String getCustomUsername() {
+        return customUsername;
+    }
+    
+    public void setCustomUsername(String customUsername) {
+        this.customUsername = customUsername;
+    }
+    
+    public String getCustomPassword() {
+        return customPassword;
+    }
+    
+    public void setCustomPassword(String customPassword) {
+        this.customPassword = customPassword;
+    }
 }

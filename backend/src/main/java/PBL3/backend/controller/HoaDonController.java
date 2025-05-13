@@ -92,10 +92,10 @@ public class HoaDonController {
         }
     }
 
-    @PutMapping("/{id}/complete")
-    public ResponseEntity<?> completeHoaDon(@PathVariable int id) {
+    @PutMapping("/{id}/hoanthanh")
+    public ResponseEntity<?> hoanThanhHoaDon(@PathVariable int id) {
         try {
-            HoaDon updatedHoaDon = hoaDonService.completeHoaDon(id);
+            HoaDon updatedHoaDon = hoaDonService.hoanThanhHoaDon(id);
             return new ResponseEntity<>(updatedHoaDon, HttpStatus.OK);
         } catch (RuntimeException e) {
             Map<String, String> response = new HashMap<>();
@@ -104,10 +104,10 @@ public class HoaDonController {
         }
     }
 
-    @PutMapping("/{id}/cancel")
-    public ResponseEntity<?> cancelHoaDon(@PathVariable int id) {
+    @PutMapping("/{id}/huy")
+    public ResponseEntity<?> huyHoaDon(@PathVariable int id) {
         try {
-            HoaDon updatedHoaDon = hoaDonService.cancelHoaDon(id);
+            HoaDon updatedHoaDon = hoaDonService.huyHoaDon(id);
             return new ResponseEntity<>(updatedHoaDon, HttpStatus.OK);
         } catch (RuntimeException e) {
             Map<String, String> response = new HashMap<>();
@@ -116,10 +116,10 @@ public class HoaDonController {
         }
     }
     
-    @PutMapping("/{id}/mark-as-paid")
-    public ResponseEntity<?> markAsPaid(@PathVariable int id) {
+    @PutMapping("/{id}/dathanhtoan")
+    public ResponseEntity<?> daThanhToan(@PathVariable int id) {
         try {
-            HoaDon updatedHoaDon = hoaDonService.markAsPaid(id);
+            HoaDon updatedHoaDon = hoaDonService.daThanhToan(id);
             return new ResponseEntity<>(updatedHoaDon, HttpStatus.OK);
         } catch (RuntimeException e) {
             Map<String, String> response = new HashMap<>();
@@ -128,10 +128,10 @@ public class HoaDonController {
         }
     }
     
-    @PutMapping("/{id}/mark-as-unpaid")
-    public ResponseEntity<?> markAsUnpaid(@PathVariable int id) {
+    @PutMapping("/{id}/chuathanhtoan")
+    public ResponseEntity<?> chuaThanhToan(@PathVariable int id) {
         try {
-            HoaDon updatedHoaDon = hoaDonService.markAsUnpaid(id);
+            HoaDon updatedHoaDon = hoaDonService.chuaThanhToan(id);
             return new ResponseEntity<>(updatedHoaDon, HttpStatus.OK);
         } catch (RuntimeException e) {
             Map<String, String> response = new HashMap<>();

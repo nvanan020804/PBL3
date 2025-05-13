@@ -454,11 +454,9 @@ function saveCustomer() {
             return;
         }
         
-        // Thêm thông tin tài khoản vào formData
-        formData.taiKhoan = {
-            tenDangNhap: username,
-            matKhau: password
-        };
+        // Thêm thông tin tài khoản vào formData dưới dạng customUsername và customPassword
+        formData.customUsername = username;
+        formData.customPassword = password;
     }
     
     showLoading(true);

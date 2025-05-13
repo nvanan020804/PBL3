@@ -672,7 +672,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dangKy\": {\n    \"idDangKy\": 1\n  },\n  \"nhanVien\": {\n    \"idNhanVien\": 1\n  },\n  \"ngayTao\": \"2025-05-04\",\n  \"tongTien\": 1000000,\n  \"trangThai\": \"Đã thanh toán\"\n}"
+              "raw": "{\n  \"dangKy\": {\n    \"idDangKy\": 1\n  },\n  \"nhanVien\": {\n    \"idNhanVien\": 1\n  },\n  \"thoiGianTao\": \"2025-05-11T15:30:00\",\n  \"trangThai\": \"Chờ xử lý\",\n  \"tongTien\": 1500000,\n  \"giamGia\": 50000,\n  \"thanhToan\": 1450000,\n  \"phuongThuc\": \"tiền mặt\",\n  \"trangThaiThanhToan\": \"Đã thanh toán\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/hoadon",
@@ -695,7 +695,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"dangKy\": {\n    \"idDangKy\": 1\n  },\n  \"nhanVien\": {\n    \"idNhanVien\": 1\n  },\n  \"ngayTao\": \"2025-05-04\",\n  \"tongTien\": 1200000,\n  \"trangThai\": \"Đã thanh toán\"\n}"
+              "raw": "{\n  \"dangKy\": {\n    \"idDangKy\": 1\n  },\n  \"nhanVien\": {\n    \"idNhanVien\": 1\n  },\n  \"thoiGianTao\": \"2025-05-11T16:30:00\",\n  \"trangThai\": \"Đã hoàn thành\",\n  \"tongTien\": 1200000,\n  \"giamGia\": 0,\n  \"thanhToan\": 1200000,\n  \"phuongThuc\": \"chuyển khoản\",\n  \"trangThaiThanhToan\": \"Đã thanh toán\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/hoadon/1",
@@ -807,7 +807,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"hoaDon\": {\n    \"idHoaDon\": 1\n  },\n  \"sanPham\": {\n    \"idSanPham\": 1\n  },\n  \"soLuong\": 2,\n  \"gia\": 250000\n}"
+              "raw": "{\n  \"hoaDon\": {\n    \"idHoaDon\": 1\n  },\n  \"sanPham\": {\n    \"idSanPham\": 1\n  },\n  \"soLuong\": 2,\n  \"gia\": 250000,\n  \"thanhTien\": 500000\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/hoadonchitiet",
@@ -830,7 +830,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"hoaDon\": {\n    \"idHoaDon\": 1\n  },\n  \"sanPham\": {\n    \"idSanPham\": 1\n  },\n  \"soLuong\": 3,\n  \"gia\": 250000\n}"
+              "raw": "{\n  \"hoaDon\": {\n    \"idHoaDon\": 1\n  },\n  \"sanPham\": {\n    \"idSanPham\": 1\n  },\n  \"soLuong\": 3,\n  \"gia\": 250000,\n  \"thanhTien\": 750000\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/hoadonchitiet/1",

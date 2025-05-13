@@ -1,3 +1,6 @@
+// Import API functions
+import { HoaDonAPI } from '../../js/utils/api-service.js';
+
 // Khởi tạo biến toàn cục
 let registrations = []; // Mảng lưu danh sách đăng ký
 let currentPage = 1; // Trang hiện tại
@@ -453,6 +456,9 @@ function displayRegistrations(registrationsToDisplay) {
                     <button class="btn btn-sm btn-info edit-btn" data-id="${registration.idDangKy}">
                         <i class="fas fa-edit"></i> Sửa
                     </button>
+                    <button class="btn btn-sm btn-secondary invoice-btn" data-id="${registration.idDangKy}">
+                        <i class="fas fa-file-invoice"></i> Hóa đơn
+                    </button>
                     <button class="btn btn-sm btn-danger delete-btn" data-id="${registration.idDangKy}" data-name="${tenKhachHang}">
                         <i class="fas fa-trash-alt"></i> Xóa
                     </button>
@@ -467,7 +473,7 @@ function displayRegistrations(registrationsToDisplay) {
     attachActionButtonEvents();
 }
 
-// Gắn sự kiện cho các nút hành động (sửa, xóa)
+// Gắn sự kiện cho các nút hành động (sửa, xóa, xem hóa đơn)
 function attachActionButtonEvents() {
     // Gắn sự kiện cho nút sửa
     document.querySelectorAll('.edit-btn').forEach(button => {
@@ -485,6 +491,317 @@ function attachActionButtonEvents() {
             showDeleteConfirmation(registrationId, customerName);
         });
     });
+    
+    // Gắn sự kiện cho nút xem hóa đơn
+    document.querySelectorAll('.invoice-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const registrationId = this.getAttribute('data-id');
+            viewRegistrationInvoices(registrationId);
+        });
+    });
+}
+
+// Hiển thị các hóa đơn của một đăng ký
+async function viewRegistrationInvoices(registrationId) {
+    try {
+        showLoading(true);
+        
+        // Lấy thông tin chi tiết của đăng ký
+        const registration = await getRegistrationById(registrationId);
+        if (!registration) {
+            showError('Không thể tải thông tin đăng ký');
+            return;
+        }
+        
+        // Hiển thị thông tin khách hàng
+        displayInvoiceCustomerInfo(registration);
+        
+        // Hiển thị thông tin gói dịch vụ
+        displayInvoicePackageInfo(registration);
+        
+        // Lấy danh sách hóa đơn của đăng ký
+        const invoices = await HoaDonAPI.getHoaDonByDangKy(registrationId);
+        
+        // Hiển thị danh sách hóa đơn
+        displayInvoiceList(invoices);
+        
+        // Lưu registrationId để sử dụng khi cần tạo hóa đơn mới
+        document.getElementById('createInvoiceBtn').setAttribute('data-id', registrationId);
+        
+        // Gắn sự kiện cho nút tạo hóa đơn mới
+        document.getElementById('createInvoiceBtn').addEventListener('click', function() {
+            const regId = this.getAttribute('data-id');
+            createNewInvoiceForRegistration(regId);
+        });
+        
+        // Hiển thị modal
+        const invoiceModal = new bootstrap.Modal(document.getElementById('invoiceModal'));
+        invoiceModal.show();
+    } catch (error) {
+        console.error('Lỗi khi tải hóa đơn đăng ký:', error);
+        showError('Không thể tải danh sách hóa đơn. Vui lòng thử lại sau.');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Lấy thông tin chi tiết của một đăng ký theo ID
+async function getRegistrationById(registrationId) {
+    try {
+        const response = await fetch(`http://localhost:8080/api/dangky/${registrationId}`);
+        if (!response.ok) {
+            throw new Error('Không thể tải thông tin đăng ký');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Lỗi khi lấy thông tin đăng ký:', error);
+        return null;
+    }
+}
+
+// Hiển thị thông tin khách hàng trong modal hóa đơn
+function displayInvoiceCustomerInfo(registration) {
+    const customerInfo = document.getElementById('invoiceCustomerInfo');
+    if (!registration.khachHang) {
+        customerInfo.innerHTML = '<p class="text-muted">Không có thông tin khách hàng</p>';
+        return;
+    }
+    
+    customerInfo.innerHTML = `
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Tên khách hàng:</dt>
+            <dd class="col-sm-8">${registration.khachHang.ho} ${registration.khachHang.ten}</dd>
+            
+            <dt class="col-sm-4">Số điện thoại:</dt>
+            <dd class="col-sm-8">${registration.khachHang.soDienThoai || 'N/A'}</dd>
+            
+            <dt class="col-sm-4">Email:</dt>
+            <dd class="col-sm-8">${registration.khachHang.email || 'N/A'}</dd>
+        </dl>
+    `;
+}
+
+// Hiển thị thông tin gói dịch vụ trong modal hóa đơn
+function displayInvoicePackageInfo(registration) {
+    const packageInfo = document.getElementById('invoicePackageInfo');
+    if (!registration.goiDichVu) {
+        packageInfo.innerHTML = '<p class="text-muted">Không có thông tin gói dịch vụ</p>';
+        return;
+    }
+    
+    packageInfo.innerHTML = `
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Tên gói:</dt>
+            <dd class="col-sm-8">${registration.goiDichVu.tenGoi}</dd>
+            
+            <dt class="col-sm-4">Giá:</dt>
+            <dd class="col-sm-8">${formatCurrency(registration.goiDichVu.gia)}</dd>
+            
+            <dt class="col-sm-4">Thời hạn:</dt>
+            <dd class="col-sm-8">${registration.goiDichVu.thoiHan} tháng</dd>
+        </dl>
+    `;
+}
+
+// Hiển thị danh sách hóa đơn
+function displayInvoiceList(invoices) {
+    const tableBody = document.getElementById('invoiceTableBody');
+    const noInvoicesElement = document.getElementById('noInvoices');
+    
+    tableBody.innerHTML = '';
+    
+    if (!invoices || invoices.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center">Không có hóa đơn</td></tr>';
+        noInvoicesElement.classList.remove('d-none');
+        return;
+    }
+    
+    noInvoicesElement.classList.add('d-none');
+    
+    invoices.forEach(invoice => {
+        const row = document.createElement('tr');
+        
+        // Xác định class cho trạng thái
+        const statusClass = getStatusClass(invoice.trangThai);
+        const paymentStatusClass = getPaymentStatusClass(invoice.trangThaiThanhToan);
+        
+        row.innerHTML = `
+            <td>${invoice.idHoaDon}</td>
+            <td>${formatDate(invoice.thoiGianTao)}</td>
+            <td>${formatCurrency(invoice.tongTien)}</td>
+            <td><span class="badge ${statusClass}">${invoice.trangThai}</span></td>
+            <td><span class="badge ${paymentStatusClass}">${invoice.trangThaiThanhToan}</span></td>
+            <td>
+                <button class="btn btn-sm btn-info view-invoice-btn" data-id="${invoice.idHoaDon}">
+                    <i class="fas fa-eye"></i> Xem
+                </button>
+                ${invoice.trangThaiThanhToan !== 'Đã thanh toán' ? 
+                    `<button class="btn btn-sm btn-success mark-paid-btn" data-id="${invoice.idHoaDon}">
+                        <i class="fas fa-check"></i> Đã thanh toán
+                    </button>` : ''}
+            </td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
+    
+    // Gắn sự kiện cho các nút
+    attachInvoiceButtonEvents();
+}
+
+// Gắn sự kiện cho các nút trong danh sách hóa đơn
+function attachInvoiceButtonEvents() {
+    // Nút xem chi tiết hóa đơn
+    document.querySelectorAll('.view-invoice-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const invoiceId = this.getAttribute('data-id');
+            viewInvoiceDetails(invoiceId);
+        });
+    });
+    
+    // Nút đánh dấu đã thanh toán
+    document.querySelectorAll('.mark-paid-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const invoiceId = this.getAttribute('data-id');
+            markInvoiceAsPaid(invoiceId);
+        });
+    });
+}
+
+// Mở trang hóa đơn để xem chi tiết hóa đơn
+function viewInvoiceDetails(invoiceId) {
+    // Đóng modal hiện tại
+    bootstrap.Modal.getInstance(document.getElementById('invoiceModal')).hide();
+    
+    // Chuyển hướng đến trang hóa đơn với ID cụ thể
+    window.location.href = `hoadon.html?id=${invoiceId}`;
+}
+
+// Đánh dấu hóa đơn đã thanh toán
+async function markInvoiceAsPaid(invoiceId) {
+    try {
+        showLoading(true);
+        
+        // Gọi API đánh dấu đã thanh toán
+        await HoaDonAPI.daThanhToan(invoiceId);
+        
+        // Hiển thị thông báo
+        showInvoiceSuccess('Đánh dấu đã thanh toán thành công.');
+        
+        // Tải lại danh sách hóa đơn của đăng ký hiện tại
+        const registrationId = document.getElementById('createInvoiceBtn').getAttribute('data-id');
+        const invoices = await HoaDonAPI.getHoaDonByDangKy(registrationId);
+        
+        // Hiển thị lại danh sách hóa đơn
+        displayInvoiceList(invoices);
+    } catch (error) {
+        console.error('Lỗi khi đánh dấu đã thanh toán:', error);
+        showInvoiceError('Không thể đánh dấu đã thanh toán. Vui lòng thử lại sau.');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Tạo hóa đơn mới cho đăng ký
+async function createNewInvoiceForRegistration(registrationId) {
+    try {
+        showLoading(true);
+        
+        // Lấy thông tin đăng ký
+        const registration = await getRegistrationById(registrationId);
+        if (!registration) {
+            showInvoiceError('Không thể tải thông tin đăng ký');
+            return;
+        }
+        
+        // Lấy thông tin nhân viên hiện tại (từ localStorage hoặc session)
+        const staffId = localStorage.getItem('userId') || 1; // Sử dụng ID mặc định nếu không có
+        
+        // Lấy giá của gói dịch vụ
+        const price = registration.goiDichVu?.gia || 0;
+        
+        // Tạo đối tượng dữ liệu hóa đơn
+        const invoiceData = {
+            nhanVien: {
+                idNhanVien: staffId
+            },
+            dangKy: {
+                idDangKy: registrationId
+            },
+            tongTien: price,
+            giamGia: 0,
+            thanhToan: price,
+            phuongThuc: 'tienmat',
+            trangThai: 'Chờ xử lý',
+            trangThaiThanhToan: 'Chưa thanh toán',
+            thoiGianTao: new Date().toISOString()
+        };
+        
+        // Gọi API tạo hóa đơn
+        await HoaDonAPI.createHoaDon(invoiceData);
+        
+        // Hiển thị thông báo thành công
+        showInvoiceSuccess('Tạo hóa đơn mới thành công.');
+        
+        // Tải lại danh sách hóa đơn
+        const invoices = await HoaDonAPI.getHoaDonByDangKy(registrationId);
+        
+        // Hiển thị lại danh sách hóa đơn
+        displayInvoiceList(invoices);
+    } catch (error) {
+        console.error('Lỗi khi tạo hóa đơn mới:', error);
+        showInvoiceError('Không thể tạo hóa đơn mới. Vui lòng thử lại sau.');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Hiển thị thông báo lỗi trong modal hóa đơn
+function showInvoiceError(message) {
+    const alertElement = document.getElementById('invoiceAlertMessage');
+    alertElement.className = 'alert alert-danger alert-dismissible fade show';
+    alertElement.innerHTML = `
+        <i class="fas fa-exclamation-circle me-2"></i> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    alertElement.classList.remove('d-none');
+}
+
+// Hiển thị thông báo thành công trong modal hóa đơn
+function showInvoiceSuccess(message) {
+    const alertElement = document.getElementById('invoiceAlertMessage');
+    alertElement.className = 'alert alert-success alert-dismissible fade show';
+    alertElement.innerHTML = `
+        <i class="fas fa-check-circle me-2"></i> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    alertElement.classList.remove('d-none');
+}
+
+// Lấy class cho trạng thái
+function getStatusClass(status) {
+    switch (status) {
+        case 'Chờ xử lý':
+            return 'bg-warning';
+        case 'Hoàn thành':
+            return 'bg-success';
+        case 'Hủy':
+            return 'bg-danger';
+        default:
+            return 'bg-secondary';
+    }
+}
+
+// Lấy class cho trạng thái thanh toán
+function getPaymentStatusClass(status) {
+    switch (status) {
+        case 'Đã thanh toán':
+            return 'bg-success';
+        case 'Chưa thanh toán':
+            return 'bg-danger';
+        default:
+            return 'bg-secondary';
+    }
 }
 
 // Tìm kiếm khách hàng theo tên đăng nhập
@@ -832,6 +1149,12 @@ function saveRegistration() {
         // Đóng modal
         bootstrap.Modal.getInstance(document.getElementById('registrationModal')).hide();
         
+        // Nếu là thêm mới đăng ký, tự động tạo hóa đơn
+        if (!editMode && data && data.idDangKy) {
+            // Tạo hóa đơn cho đăng ký mới
+            createInvoiceForRegistration(data);
+        }
+        
         showSuccess(editMode ? 'Cập nhật thông tin đăng ký thành công!' : 'Thêm đăng ký mới thành công!');
         
         // Cập nhật danh sách đăng ký
@@ -846,6 +1169,50 @@ function saveRegistration() {
     .finally(() => {
         showLoading(false);
     });
+}
+
+// Tạo hóa đơn tự động cho đăng ký mới
+async function createInvoiceForRegistration(registration) {
+    try {
+        // Lấy thông tin nhân viên hiện tại (từ localStorage hoặc session)
+        const staffId = localStorage.getItem('userId') || 1; // Sử dụng ID mặc định nếu không có
+        
+        // Lấy thông tin giá tiền từ registration
+        let price = 0;
+        if (registration.goiDichVu && registration.goiDichVu.gia) {
+            price = registration.goiDichVu.gia;
+        } else {
+            // Nếu không có thông tin giá trong đối tượng registration, gọi API để lấy thông tin gói dịch vụ
+            const packageResponse = await fetch(`http://localhost:8080/api/goidichvu/${registration.idGOI}`);
+            if (packageResponse.ok) {
+                const packageData = await packageResponse.json();
+                price = packageData.gia || 0;
+            }
+        }
+
+        // Tạo đối tượng dữ liệu hóa đơn
+        const invoiceData = {
+            nhanVien: {
+                idNhanVien: staffId
+            },
+            dangKy: {
+                idDangKy: registration.idDangKy
+            },
+            tongTien: price,
+            giamGia: 0,
+            thanhToan: price,
+            phuongThuc: 'tienmat',
+            trangThai: 'Chờ xử lý',
+            trangThaiThanhToan: 'Chưa thanh toán',
+            thoiGianTao: new Date().toISOString()
+        };
+        
+        // Gọi API tạo hóa đơn
+        const savedInvoice = await HoaDonAPI.createHoaDon(invoiceData);
+        console.log('Đã tạo hóa đơn tự động cho đăng ký:', savedInvoice);
+    } catch (error) {
+        console.error('Lỗi khi tạo hóa đơn tự động:', error);
+    }
 }
 
 // Tìm kiếm đăng ký

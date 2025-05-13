@@ -1,163 +1,355 @@
 /**
- * API Service - Các hàm gọi API từ frontend đến backend
- * Hướng dẫn sử dụng:
- * 1. Import file này vào file JS của bạn
- * 2. Sử dụng các hàm cung cấp để gọi API
+ * API Service cho ứng dụng GYM-Manager
+ * Cung cấp các hàm gọi API để tương tác với backend
  */
 
-// URL cơ sở của API - thay đổi nếu server backend chạy ở địa chỉ khác
-const API_BASE_URL = 'http://localhost:8080/api';
+// Đường dẫn cơ sở API
+const BASE_URL = 'http://localhost:8080/api';
+
+// Biến để kiểm tra và lưu trữ trạng thái kết nối
+let lastConnectionStatus = true;
+let lastConnectionCheck = 0;
 
 /**
- * Gọi API với phương thức GET
- * @param {string} endpoint - Endpoint của API (phần sau /api/)
- * @param {object} params - Các tham số query (không bắt buộc)
- * @returns {Promise} - Promise chứa dữ liệu trả về từ API
+ * Kiểm tra kết nối với server
+ * @returns {Promise<boolean>} - Promise với trạng thái kết nối
  */
-async function fetchGet(endpoint, params = null) {
-    let url = `${API_BASE_URL}/${endpoint}`;
-    
-    // Thêm query params nếu có
-    if (params) {
-        const queryString = new URLSearchParams(params).toString();
-        url = `${url}?${queryString}`;
+const checkConnection = async () => {
+    // Nếu đã kiểm tra trong vòng 30 giây, không kiểm tra lại
+    const now = Date.now();
+    if (now - lastConnectionCheck < 30000) {
+        return lastConnectionStatus;
     }
     
     try {
-        const response = await fetch(url, {
+        // Sử dụng endpoint sanpham thay vì health để kiểm tra kết nối
+        // Vì có thể backend chưa có endpoint health
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        const response = await fetch(`${BASE_URL}/sanpham`, {
+            method: 'GET',
+            signal: controller.signal,
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': getAuthHeader()
+            }
+        });
+        
+        clearTimeout(timeoutId);
+        
+        lastConnectionStatus = response.ok;
+        lastConnectionCheck = now;
+        return response.ok;
+    } catch (error) {
+        console.error('Lỗi kết nối đến server:', error);
+        lastConnectionStatus = false;
+        lastConnectionCheck = now;
+        return false;
+    }
+};
+
+/**
+ * Hàm fetch chung để xử lý các yêu cầu GET
+ * @param {string} endpoint - Điểm cuối API (không bao gồm BASE_URL)
+ * @returns {Promise} - Promise với dữ liệu phản hồi
+ */
+const fetchGet = async (endpoint) => {
+    try {
+        // Kiểm tra kết nối trước
+        const connected = await checkConnection();
+        if (!connected) {
+            throw new Error('Không thể kết nối đến server. Kiểm tra kết nối mạng hoặc server.');
+        }
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 giây timeout
+        
+        const response = await fetch(`${BASE_URL}/${endpoint}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                // Thêm token authorization nếu cần
-                // 'Authorization': `Bearer ${getToken()}`
-            }
+                'Authorization': getAuthHeader()
+            },
+            signal: controller.signal
         });
         
+        clearTimeout(timeoutId);
+        
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            const errorText = await response.text();
+            console.error(`API error: ${response.status} - ${errorText}`);
+            throw new Error(`Lỗi từ server: ${response.status}${errorText ? ' - ' + errorText : ''}`);
         }
         
         return await response.json();
     } catch (error) {
-        console.error('API call error:', error);
+        console.error(`Error fetching ${endpoint}:`, error);
+        // Kiểm tra nếu là lỗi timeout
+        if (error.name === 'AbortError') {
+            throw new Error('Yêu cầu đã hết thời gian chờ. Vui lòng thử lại sau.');
+        }
         throw error;
     }
-}
+};
 
 /**
- * Gọi API với phương thức POST
- * @param {string} endpoint - Endpoint của API (phần sau /api/)
- * @param {object} data - Dữ liệu để gửi trong body của request
- * @returns {Promise} - Promise chứa dữ liệu trả về từ API
+ * Hàm fetch chung để xử lý các yêu cầu POST
+ * @param {string} endpoint - Điểm cuối API (không bao gồm BASE_URL)
+ * @param {Object} data - Dữ liệu để gửi trong thân yêu cầu
+ * @returns {Promise} - Promise với dữ liệu phản hồi
  */
-async function fetchPost(endpoint, data) {
+const fetchPost = async (endpoint, data) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+        // Kiểm tra kết nối trước
+        const connected = await checkConnection();
+        if (!connected) {
+            throw new Error('Không thể kết nối đến server. Kiểm tra kết nối mạng hoặc server.');
+        }
+        
+        // Chuẩn bị JSON và kiểm tra kích thước
+        const jsonData = JSON.stringify(data);
+        const dataSizeMB = new Blob([jsonData]).size / (1024 * 1024);
+        
+        // Log kích thước để debug
+        console.log(`POST request to ${endpoint} - Data size: ${dataSizeMB.toFixed(2)}MB`);
+        
+        // Cảnh báo hoặc từ chối nếu dữ liệu quá lớn
+        if (dataSizeMB > 5) {
+            console.error(`Data size too large (${dataSizeMB.toFixed(2)}MB). Consider reducing image size.`);
+            throw new Error(`Dữ liệu quá lớn (${dataSizeMB.toFixed(2)}MB). Vui lòng giảm kích thước ảnh.`);
+        }
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 giây timeout
+        
+        const response = await fetch(`${BASE_URL}/${endpoint}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // 'Authorization': `Bearer ${getToken()}`
+                'Authorization': getAuthHeader()
             },
-            body: JSON.stringify(data)
+            body: jsonData,
+            signal: controller.signal
         });
         
+        clearTimeout(timeoutId);
+        
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            const errorText = await response.text();
+            console.error(`API error: ${response.status} - ${errorText}`);
+            throw new Error(`Lỗi từ server: ${response.status}${errorText ? ' - ' + errorText : ''}`);
         }
         
         return await response.json();
     } catch (error) {
-        console.error('API call error:', error);
+        console.error(`Error posting to ${endpoint}:`, error);
+        // Kiểm tra nếu là lỗi timeout
+        if (error.name === 'AbortError') {
+            throw new Error('Yêu cầu đã hết thời gian chờ. Vui lòng thử lại sau.');
+        }
         throw error;
     }
-}
+};
 
 /**
- * Gọi API với phương thức PUT
- * @param {string} endpoint - Endpoint của API (phần sau /api/)
- * @param {object} data - Dữ liệu để gửi trong body của request
- * @returns {Promise} - Promise chứa dữ liệu trả về từ API
+ * Hàm fetch chung để xử lý các yêu cầu PUT
+ * @param {string} endpoint - Điểm cuối API (không bao gồm BASE_URL)
+ * @param {Object} data - Dữ liệu để gửi trong thân yêu cầu
+ * @returns {Promise} - Promise với dữ liệu phản hồi
  */
-async function fetchPut(endpoint, data) {
+const fetchPut = async (endpoint, data) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+        // Kiểm tra kết nối trước
+        const connected = await checkConnection();
+        if (!connected) {
+            throw new Error('Không thể kết nối đến server. Kiểm tra kết nối mạng hoặc server.');
+        }
+        
+        // Chuẩn bị JSON và kiểm tra kích thước
+        const jsonData = JSON.stringify(data);
+        const dataSizeMB = new Blob([jsonData]).size / (1024 * 1024);
+        
+        // Log kích thước để debug
+        console.log(`PUT request to ${endpoint} - Data size: ${dataSizeMB.toFixed(2)}MB`);
+        
+        // Cảnh báo hoặc từ chối nếu dữ liệu quá lớn
+        if (dataSizeMB > 5) {
+            console.error(`Data size too large (${dataSizeMB.toFixed(2)}MB). Consider reducing image size.`);
+            throw new Error(`Dữ liệu quá lớn (${dataSizeMB.toFixed(2)}MB). Vui lòng giảm kích thước ảnh.`);
+        }
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 giây timeout
+        
+        const response = await fetch(`${BASE_URL}/${endpoint}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                // 'Authorization': `Bearer ${getToken()}`
+                'Authorization': getAuthHeader()
             },
-            body: JSON.stringify(data)
+            body: jsonData,
+            signal: controller.signal
         });
         
+        clearTimeout(timeoutId);
+        
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            const errorText = await response.text();
+            console.error(`API error: ${response.status} - ${errorText}`);
+            throw new Error(`Lỗi từ server: ${response.status}${errorText ? ' - ' + errorText : ''}`);
         }
         
         return await response.json();
     } catch (error) {
-        console.error('API call error:', error);
+        console.error(`Error updating ${endpoint}:`, error);
+        // Kiểm tra nếu là lỗi timeout
+        if (error.name === 'AbortError') {
+            throw new Error('Yêu cầu đã hết thời gian chờ. Vui lòng thử lại sau.');
+        }
         throw error;
     }
-}
+};
 
 /**
- * Gọi API với phương thức DELETE
- * @param {string} endpoint - Endpoint của API (phần sau /api/)
- * @returns {Promise} - Promise chứa dữ liệu trả về từ API
+ * Hàm fetch chung để xử lý các yêu cầu DELETE
+ * @param {string} endpoint - Điểm cuối API (không bao gồm BASE_URL)
+ * @returns {Promise} - Promise với dữ liệu phản hồi
  */
-async function fetchDelete(endpoint) {
+const fetchDelete = async (endpoint) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+        // Kiểm tra kết nối trước
+        const connected = await checkConnection();
+        if (!connected) {
+            throw new Error('Không thể kết nối đến server. Kiểm tra kết nối mạng hoặc server.');
+        }
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 giây timeout
+        
+        const response = await fetch(`${BASE_URL}/${endpoint}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                // 'Authorization': `Bearer ${getToken()}`
-            }
+                'Authorization': getAuthHeader()
+            },
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         
-        // Trả về null nếu API DELETE không trả về dữ liệu
+        // Nếu DELETE không trả về dữ liệu, trả về thành công
         if (response.status === 204) {
-            return null;
+            return { success: true };
         }
         
         return await response.json();
     } catch (error) {
-        console.error('API call error:', error);
+        console.error(`Error deleting ${endpoint}:`, error);
+        // Kiểm tra nếu là lỗi timeout
+        if (error.name === 'AbortError') {
+            throw new Error('Yêu cầu đã hết thời gian chờ. Vui lòng thử lại sau.');
+        }
         throw error;
     }
-}
+};
 
 /**
- * Các hàm gọi API cụ thể cho Account
+ * Lấy header xác thực từ localStorage
+ * @returns {string} - Header xác thực
  */
-const AccountAPI = {
-    // Lấy danh sách tất cả tài khoản
-    getAllAccounts: () => fetchGet('accounts'),
+const getAuthHeader = () => {
+    const token = localStorage.getItem('token');
+    return token ? `Bearer ${token}` : '';
+};
+
+/**
+ * Các hàm gọi API cụ thể cho Hóa Đơn
+ */
+const HoaDonAPI = {
+    // Lấy tất cả hóa đơn
+    getAllHoaDon: () => fetchGet('hoadon'),
     
-    // Lấy thông tin tài khoản theo username
-    getAccountByUsername: (username) => fetchGet(`accounts/${username}`),
+    // Lấy hóa đơn theo ID
+    getHoaDonById: (id) => fetchGet(`hoadon/${id}`),
     
-    // Tạo tài khoản mới
-    createAccount: (accountData) => fetchPost('accounts', accountData),
+    // Lấy hóa đơn theo ID đăng ký
+    getHoaDonByDangKy: (idDangKy) => fetchGet(`hoadon/dangky/${idDangKy}`),
     
-    // Cập nhật thông tin tài khoản
-    updateAccount: (username, accountData) => fetchPut(`accounts/${username}`, accountData),
+    // Lấy hóa đơn theo ID nhân viên
+    getHoaDonByNhanVien: (idNhanVien) => fetchGet(`hoadon/nhanvien/${idNhanVien}`),
     
-    // Xóa tài khoản
-    deleteAccount: (username) => fetchDelete(`accounts/${username}`),
+    // Tạo hóa đơn mới
+    createHoaDon: (hoaDonData) => fetchPost('hoadon', hoaDonData),
     
-    // Đăng ký tài khoản khách hàng
-    registerCustomer: (registrationData) => fetchPost('accounts/register/customer', registrationData),
+    // Cập nhật hóa đơn
+    updateHoaDon: (id, hoaDonData) => fetchPut(`hoadon/${id}`, hoaDonData),
     
-    // Đăng ký tài khoản nhân viên
-    registerStaff: (registrationData) => fetchPost('accounts/register/staff', registrationData),
+    // Xóa hóa đơn
+    deleteHoaDon: (id) => fetchDelete(`hoadon/${id}`),
     
-    // Đăng nhập
-    login: (username, password) => fetchPost('accounts/login', { username, password })
+    // Đánh dấu hóa đơn đã thanh toán
+    daThanhToan: (id) => fetchPut(`hoadon/${id}/da-thanh-toan`, {}),
+    
+    // Đánh dấu hóa đơn chưa thanh toán
+    chuaThanhToan: (id) => fetchPut(`hoadon/${id}/chua-thanh-toan`, {}),
+    
+    // Hoàn thành hóa đơn
+    hoanThanhHoaDon: (id) => fetchPut(`hoadon/${id}/hoan-thanh`, {}),
+    
+    // Hủy hóa đơn
+    huyHoaDon: (id) => fetchPut(`hoadon/${id}/huy`, {})
+};
+
+/**
+ * Các hàm gọi API cụ thể cho Hóa Đơn Chi Tiết
+ */
+const HoaDonChiTietAPI = {
+    // Lấy tất cả chi tiết hóa đơn
+    getAllHoaDonChiTiet: () => fetchGet('hoadonchitiet'),
+    
+    // Lấy chi tiết hóa đơn theo ID
+    getHoaDonChiTietById: (id) => fetchGet(`hoadonchitiet/${id}`),
+    
+    // Lấy chi tiết hóa đơn theo ID hóa đơn
+    getHoaDonChiTietByHoaDon: (idHoaDon) => fetchGet(`hoadonchitiet/hoadon/${idHoaDon}`),
+    
+    // Tạo chi tiết hóa đơn mới
+    createHoaDonChiTiet: (chiTietData) => fetchPost('hoadonchitiet', chiTietData),
+    
+    // Cập nhật chi tiết hóa đơn
+    updateHoaDonChiTiet: (id, chiTietData) => fetchPut(`hoadonchitiet/${id}`, chiTietData),
+    
+    // Xóa chi tiết hóa đơn
+    deleteHoaDonChiTiet: (id) => fetchDelete(`hoadonchitiet/${id}`)
+};
+
+/**
+ * Các hàm gọi API cụ thể cho Đăng Ký
+ */
+const DangKyAPI = {
+    // Lấy tất cả đăng ký
+    getAllDangKy: () => fetchGet('dangky'),
+    
+    // Lấy đăng ký theo ID
+    getDangKyById: (id) => fetchGet(`dangky/${id}`),
+    
+    // Lấy đăng ký theo ID khách hàng
+    getDangKyByKhachHang: (idKhachHang) => fetchGet(`dangky/khachhang/${idKhachHang}`),
+    
+    // Tạo đăng ký mới
+    createDangKy: (dangKyData) => fetchPost('dangky', dangKyData),
+    
+    // Cập nhật đăng ký
+    updateDangKy: (id, dangKyData) => fetchPut(`dangky/${id}`, dangKyData),
+    
+    // Xóa đăng ký
+    deleteDangKy: (id) => fetchDelete(`dangky/${id}`)
 };
 
 /**
@@ -181,32 +373,76 @@ const GoiDichVuAPI = {
 };
 
 /**
- * Các hàm gọi API cụ thể cho Đăng Ký
+ * Các hàm gọi API cụ thể cho Sản Phẩm
  */
-const DangKyAPI = {
-    // Lấy tất cả đăng ký
-    getAllDangKy: () => fetchGet('dangky'),
+const SanPhamAPI = {
+    // Lấy tất cả sản phẩm
+    getAllSanPham: () => fetchGet('sanpham'),
     
-    // Lấy đăng ký theo ID
-    getDangKyById: (id) => fetchGet(`dangky/${id}`),
+    // Lấy sản phẩm theo ID
+    getSanPhamById: (id) => fetchGet(`sanpham/${id}`),
     
-    // Tạo đăng ký mới
-    createDangKy: (dangKyData) => fetchPost('dangky', dangKyData),
+    // Tạo sản phẩm mới
+    createSanPham: (sanPhamData) => fetchPost('sanpham', sanPhamData),
     
-    // Cập nhật thông tin đăng ký
-    updateDangKy: (id, dangKyData) => fetchPut(`dangky/${id}`, dangKyData),
+    // Cập nhật sản phẩm
+    updateSanPham: (id, sanPhamData) => fetchPut(`sanpham/${id}`, sanPhamData),
     
-    // Xóa đăng ký
-    deleteDangKy: (id) => fetchDelete(`dangky/${id}`)
+    // Xóa sản phẩm
+    deleteSanPham: (id) => fetchDelete(`sanpham/${id}`),
+    
+    // Lấy danh mục cho sản phẩm
+    getDanhMuc: () => fetchGet('danhmuc')
 };
 
-// Export các chức năng gọi API để sử dụng ở các file khác
+/**
+ * Các hàm gọi API cụ thể cho Nhân Viên
+ */
+const StaffAPI = {
+    // Lấy tất cả nhân viên
+    getAllStaff: () => fetchGet('nhanvien'),
+    
+    // Lấy nhân viên theo ID
+    getStaffById: (id) => fetchGet(`nhanvien/${id}`),
+    
+    // Tạo nhân viên mới
+    createStaff: (staffData) => fetchPost('nhanvien', staffData),
+    
+    // Cập nhật nhân viên
+    updateStaff: (id, staffData) => fetchPut(`nhanvien/${id}`, staffData),
+    
+    // Xóa nhân viên
+    deleteStaff: (id) => fetchDelete(`nhanvien/${id}`)
+};
+
+/**
+ * Các hàm gọi API cụ thể cho Khách Hàng
+ */
+const KhachHangAPI = {
+    // Lấy tất cả khách hàng
+    getAllKhachHang: () => fetchGet('khachhang'),
+    
+    // Lấy khách hàng theo ID
+    getKhachHangById: (id) => fetchGet(`khachhang/${id}`),
+    
+    // Tạo khách hàng mới
+    createKhachHang: (khachHangData) => fetchPost('khachhang', khachHangData),
+    
+    // Cập nhật khách hàng
+    updateKhachHang: (id, khachHangData) => fetchPut(`khachhang/${id}`, khachHangData),
+    
+    // Xóa khách hàng
+    deleteKhachHang: (id) => fetchDelete(`khachhang/${id}`)
+};
+
+// Export các modules API
 export {
-    fetchGet,
-    fetchPost,
-    fetchPut,
-    fetchDelete,
-    AccountAPI,
+    HoaDonAPI,
+    HoaDonChiTietAPI,
+    DangKyAPI,
     GoiDichVuAPI,
-    DangKyAPI
+    SanPhamAPI,
+    StaffAPI,
+    KhachHangAPI,
+    checkConnection
 };

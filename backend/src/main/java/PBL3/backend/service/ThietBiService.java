@@ -40,7 +40,7 @@ public class ThietBiService {
         }
         
         if (thietBi.getTrangThai() == null) {
-            thietBi.setTrangThai("active"); // hoặc trạng thái mặc định khác
+            thietBi.setTrangThai("Đang sử dụng"); // Sử dụng trạng thái có dấu để nhất quán với các phần khác
         }
         
         return thietBiRepository.save(thietBi);

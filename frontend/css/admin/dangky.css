@@ -67,6 +67,16 @@
     margin-right: 0;
 }
 
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.action-buttons button {
+    margin-bottom: 5px;
+}
+
 /* Thông tin khách hàng và gói dịch vụ */
 #customerInfo, #packageInfo {
     min-height: 80px;
@@ -123,6 +133,58 @@
 
 .text-danger {
     font-weight: 500;
+}
+
+/* Styles for invoice modal */
+#invoiceModal .modal-lg {
+    max-width: 800px;
+}
+
+#invoiceCustomerInfo, 
+#invoicePackageInfo {
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+#invoiceAlertMessage {
+    margin-bottom: 20px;
+}
+
+/* Badge styles */
+.badge {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.bg-warning {
+    background-color: #ffc107 !important;
+    color: #212529;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+    color: white;
+}
+
+.bg-danger {
+    background-color: #dc3545 !important;
+    color: white;
+}
+
+.bg-secondary {
+    background-color: #6c757d !important;
+    color: white;
+}
+
+/* Override for invoice table */
+#invoiceTableBody td {
+    vertical-align: middle;
+}
+
+/* Mark paid button styling */
+.mark-paid-btn {
+    margin-left: 5px;
 }
 
 /* Responsive */

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản Lý Hóa Đơn - GYM-Manager</title>
+    <link rel="stylesheet" href="../../css/admin/hoadon.css" />
+    <link rel="stylesheet" href="../../css/components/footer.css" />
+    <link rel="stylesheet" href="../../css/components/header.css" />
+    <link rel="stylesheet" href="../../css/components/menu.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+  </head>
+  <body>
+    <div id="header-container"></div>
+    <div id="menu-container"></div>
+    
+    <div class="container mt-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Quản Lý Hóa Đơn</h2>
+        <div>
+          <button class="btn btn-primary" id="addInvoiceBtn">
+            <i class="fas fa-plus"></i> Thêm Hóa Đơn Mới
+          </button>
+          <button class="btn btn-secondary ms-2" id="refreshBtn">
+            <i class="fas fa-sync-alt"></i> Làm Mới
+          </button>
+        </div>
+      </div>
+
+      <!-- Phần Filter và Tìm kiếm -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="input-group">
+            <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm hóa đơn..." />
+            <button class="btn btn-outline-secondary" id="searchBtn" type="button">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="d-flex justify-content-end">
+            <div class="me-2">
+              <select class="form-select" id="statusFilter">
+                <option value="all">Tất cả trạng thái</option>
+                <option value="choxuly">Chờ xử lý</option>
+                <option value="hoanthanh">Hoàn thành</option>
+                <option value="huy">Hủy</option>
+              </select>
+            </div>
+            <div>
+              <select class="form-select" id="paymentStatusFilter">
+                <option value="all">Tất cả trạng thái thanh toán</option>
+                <option value="dathanhtoan">Đã thanh toán</option>
+                <option value="chuathanhtoan">Chưa thanh toán</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert Messages - Đặt bên ngoài các phần tử khác để luôn hiển thị phía trên -->
+      <div id="alertMessage" class="alert d-none" role="alert"></div>
+
+      <!-- Bảng Hóa Đơn -->
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Khách Hàng</th>
+              <th>Nhân Viên</th>
+              <th>Thời Gian Tạo</th>
+              <th>Tổng Tiền</th>
+              <th>Giảm Giá</th>
+              <th>Thanh Toán</th>
+              <th>Phương Thức</th>
+              <th>Trạng Thái</th>
+              <th>Trạng Thái Thanh Toán</th>
+              <th>Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="invoiceTableBody">
+            <!-- Dữ liệu hóa đơn sẽ được thêm ở đây bằng JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Phân Trang -->
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <span id="totalItems">0</span> hóa đơn
+        </div>
+        <nav>
+          <ul class="pagination" id="pagination"></ul>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Modal Thêm/Sửa Hóa Đơn -->
+    <div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="invoiceModalLabel">Thêm Hóa Đơn Mới</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="invoiceForm">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <input type="hidden" id="invoiceType" value="SANPHAM">
+                  <h6 class="mb-3">Hóa đơn mua sản phẩm</h6>
+                </div>
+                <div class="col-md-6">
+                  <label for="idNhanVien" class="form-label">Nhân Viên</label>
+                  <select class="form-select" id="idNhanVien" required>
+                    <!-- Các option sẽ được thêm bằng JavaScript -->
+                  </select>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="tongTien" class="form-label">Tổng Tiền</label>
+                  <input type="number" class="form-control" id="tongTien" step="0.01" readonly />
+                </div>
+                <div class="col-md-6">
+                  <label for="giamGia" class="form-label">Giảm Giá</label>
+                  <input type="number" class="form-control" id="giamGia" step="0.01" value="0" />
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="thanhToan" class="form-label">Số Tiền Thanh Toán</label>
+                  <input type="number" class="form-control" id="thanhToan" step="0.01" readonly />
+                </div>
+                <div class="col-md-6">
+                  <label for="phuongThuc" class="form-label">Phương Thức Thanh Toán</label>
+                  <select class="form-select" id="phuongThuc">
+                    <option value="tienmat">Tiền mặt</option>
+                    <option value="chuyenkhoan">Chuyển khoản</option>
+                    <option value="thenganhang">Thẻ ngân hàng</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="trangThai" class="form-label">Trạng Thái</label>
+                  <select class="form-select" id="trangThai">
+                    <option value="Chờ xử lý">Chờ xử lý</option>
+                    <option value="Hoàn thành">Hoàn thành</option>
+                    <option value="Hủy">Hủy</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="trangThaiThanhToan" class="form-label">Trạng Thái Thanh Toán</label>
+                  <select class="form-select" id="trangThaiThanhToan">
+                    <option value="Đã thanh toán">Đã thanh toán</option>
+                    <option value="Chưa thanh toán">Chưa thanh toán</option>
+                  </select>
+                </div>
+              </div>
+            </form>
+
+            <!-- Chi tiết hóa đơn -->
+            <h5 class="mt-4 mb-3">Chi Tiết Hóa Đơn</h5>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Sản Phẩm/Dịch Vụ</th>
+                    <th>Giá</th>
+                    <th>Số Lượng</th>
+                    <th>Thành Tiền</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="invoiceDetailsTableBody">
+                  <!-- Chi tiết hóa đơn sẽ được thêm ở đây bằng JavaScript -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="d-flex justify-content-start mt-2">
+              <button type="button" class="btn btn-success" id="addItemBtn">
+                <i class="fas fa-plus"></i> Thêm Sản Phẩm/Dịch Vụ
+              </button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            <button type="button" class="btn btn-primary" id="saveInvoiceBtn">Lưu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Thêm Sản Phẩm/Dịch Vụ -->
+    <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="itemModalLabel">Thêm Sản Phẩm/Dịch Vụ</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="itemForm">
+              <div class="mb-3">
+                <label for="itemSanPham" class="form-label">Sản Phẩm/Dịch Vụ</label>
+                <select class="form-select" id="itemSanPham" required>
+                  <!-- Các option sẽ được thêm bằng JavaScript -->
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="itemGia" class="form-label">Giá</label>
+                <input type="number" class="form-control" id="itemGia" readonly />
+              </div>
+              <div class="mb-3">
+                <label for="itemSoLuong" class="form-label">Số Lượng</label>
+                <input type="number" class="form-control" id="itemSoLuong" min="1" value="1" required />
+              </div>
+              <div class="mb-3">
+                <label for="itemThanhTien" class="form-label">Thành Tiền</label>
+                <input type="number" class="form-control" id="itemThanhTien" readonly />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            <button type="button" class="btn btn-primary" id="saveItemBtn">Thêm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Xem Chi Tiết Hóa Đơn -->
+    <div class="modal fade" id="viewInvoiceModal" tabindex="-1" aria-labelledby="viewInvoiceModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="viewInvoiceModalLabel">Chi Tiết Hóa Đơn</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <p><strong>ID Hóa Đơn:</strong> <span id="viewIdHoaDon"></span></p>
+                <p><strong>Khách Hàng:</strong> <span id="viewCustomerName"></span></p>
+                <p><strong>Nhân Viên:</strong> <span id="viewStaffName"></span></p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Thời Gian Tạo:</strong> <span id="viewCreationTime"></span></p>
+                <p><strong>Trạng Thái:</strong> <span id="viewStatus"></span></p>
+                <p><strong>Trạng Thái Thanh Toán:</strong> <span id="viewPaymentStatus"></span></p>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <p><strong>Tổng Tiền:</strong> <span id="viewTongTien"></span></p>
+                <p><strong>Giảm Giá:</strong> <span id="viewGiamGia"></span></p>
+                <p><strong>Thanh Toán:</strong> <span id="viewThanhToan"></span></p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Phương Thức Thanh Toán:</strong> <span id="viewPhuongThuc"></span></p>
+              </div>
+            </div>
+
+            <h5 class="mt-4 mb-3">Danh Sách Sản Phẩm/Dịch Vụ</h5>
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Sản Phẩm/Dịch Vụ</th>
+                    <th>Giá</th>
+                    <th>Số Lượng</th>
+                    <th>Thành Tiền</th>
+                  </tr>
+                </thead>
+                <tbody id="viewDetailsTableBody">
+                  <!-- Chi tiết hóa đơn sẽ được thêm ở đây bằng JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            <div id="viewInvoiceActions"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/components/loadComponents.js"></script>
+    <script src="../../js/admin/hoadon.js" type="module"></script>
+  </body>
+</html>

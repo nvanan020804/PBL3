@@ -25,8 +25,8 @@ public class HoaDon {
     @Column(name = "idHoaDon")
     private int idHoaDon;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idDangKy", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "idDangKy", nullable = true)
     @JsonBackReference(value = "dangky-hoadon")
     private DangKy dangKy;
     

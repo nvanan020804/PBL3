@@ -1,0 +1,198 @@
+/* CSS for Invoice Management Page */
+
+/* Main content styles */
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.container {
+    padding-top: 20px;
+    padding-bottom: 40px;
+}
+
+h2 {
+    color: #343a40;
+    font-family: 'Oswald', sans-serif;
+    margin-bottom: 20px;
+}
+
+/* Alert message styling */
+#alertMessage {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1060;
+    min-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    text-align: center;
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 12px 20px;
+}
+
+/* Table styling */
+.table {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    background-color: #fff;
+}
+
+.table-dark th {
+    background-color: #343a40;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Status badge styles */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status-choxuly {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-hoanthanh {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-huy {
+    background-color: #dc3545;
+    color: white;
+}
+
+.status-dathanhtoan {
+    background-color: #007bff;
+    color: white;
+}
+
+.status-chuathanhtoan {
+    background-color: #f8f9fa;
+    color: #212529;
+    border: 1px solid #dee2e6;
+}
+
+/* Action buttons styling */
+.action-buttons {
+    white-space: nowrap;
+}
+
+.action-buttons .btn {
+    margin-right: 5px;
+    padding: .25rem .5rem;
+}
+
+.action-buttons .btn:last-child {
+    margin-right: 0;
+}
+
+/* Pagination styling */
+.pagination {
+    margin-top: 20px;
+}
+
+.page-item.active .page-link {
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+.page-link {
+    color: #343a40;
+}
+
+/* Form control focus */
+.form-control:focus, .form-select:focus {
+    border-color: #343a40;
+    box-shadow: 0 0 0 0.25rem rgba(52, 58, 64, 0.25);
+}
+
+/* Modal styling */
+.modal-header {
+    background-color: #343a40;
+    color: white;
+}
+
+.modal-title {
+    font-family: 'Oswald', sans-serif;
+}
+
+/* Custom checkbox styling */
+.form-check-input:checked {
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+.btn-primary:hover {
+    background-color: #23272b;
+    border-color: #1d2124;
+}
+
+/* Item list in modal */
+.item-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Delete item button in details */
+.delete-item-btn {
+    cursor: pointer;
+    color: #dc3545;
+}
+
+.delete-item-btn:hover {
+    color: #c82333;
+}
+
+/* Additional wrapper for form sections */
+.form-section {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+}
+
+/* Additional visual separation */
+hr.section-divider {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Style for register section when hidden */
+#registrationSection.d-none {
+    display: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .table-responsive {
+        border: none;
+    }
+    
+    .action-buttons .btn {
+        margin-bottom: 5px;
+        display: block;
+        width: 100%;
+    }
+}

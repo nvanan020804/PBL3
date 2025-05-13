@@ -87,7 +87,7 @@ public class DangKyService {
         
         // Lưu đăng ký
         dangKy.setGoiDichVu(goiDichVu);
-        dangKy.setKhachHang(khachHang);
+        dangKy.setKhachHang(khachHang); 
         
         // Cập nhật trạng thái khách hàng thành đang hoạt động
         khachHang.setTrangThai("Đang hoạt động");

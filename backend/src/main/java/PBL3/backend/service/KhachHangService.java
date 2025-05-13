@@ -100,23 +100,40 @@ public class KhachHangService {
         // Lưu khách hàng để lấy ID
         KhachHang savedKhachHang = khachHangRepository.save(khachHang);
         
-        // Tạo tài khoản tự động cho khách hàng bằng cách tạo một Account trực tiếp
+        // Tạo tài khoản cho khách hàng sử dụng tên đăng nhập từ form
         try {
-            String username = "khachhang" + savedKhachHang.getIdKhachHang();
-            String password = "123456";
+            // Lấy tên đăng nhập và mật khẩu từ dữ liệu đầu vào
+            String username = khachHang.getCustomUsername(); 
+            String password = khachHang.getCustomPassword();
             
-            // Kiểm tra xem tên đăng nhập đã tồn tại chưa
-            Account existingAccount = accountRepository.findByTenDangNhap(username);
-            if (existingAccount != null) {
-                // Nếu username đã tồn tại, tạo username mới với số ngẫu nhiên
-                int randomSuffix = (int)(Math.random() * 1000);
-                username = "khachhang" + savedKhachHang.getIdKhachHang() + randomSuffix;
+            // Nếu không có tên đăng nhập được cung cấp từ form, sử dụng tên mặc định
+            if (username == null || username.trim().isEmpty()) {
+                username = "khachhang" + savedKhachHang.getIdKhachHang();
+                password = "123456"; // Mật khẩu mặc định
                 
-                // Kiểm tra lại một lần nữa để đảm bảo
-                existingAccount = accountRepository.findByTenDangNhap(username);
+                // Kiểm tra xem tên đăng nhập mặc định đã tồn tại chưa
+                Account existingAccount = accountRepository.findByTenDangNhap(username);
                 if (existingAccount != null) {
-                    throw new RuntimeException("Không thể tạo tên đăng nhập duy nhất");
+                    // Nếu username đã tồn tại, tạo username mới với số ngẫu nhiên
+                    int randomSuffix = (int)(Math.random() * 1000);
+                    username = "khachhang" + savedKhachHang.getIdKhachHang() + randomSuffix;
+                    
+                    // Kiểm tra lại một lần nữa để đảm bảo
+                    existingAccount = accountRepository.findByTenDangNhap(username);
+                    if (existingAccount != null) {
+                        throw new RuntimeException("Không thể tạo tên đăng nhập duy nhất");
+                    }
                 }
+                
+                System.out.println("Sử dụng tên đăng nhập mặc định: " + username);
+            } else {
+                // Kiểm tra xem tên đăng nhập từ form đã tồn tại chưa
+                Account existingAccount = accountRepository.findByTenDangNhap(username);
+                if (existingAccount != null) {
+                    throw new RuntimeException("Tên đăng nhập này đã tồn tại, vui lòng chọn tên khác");
+                }
+                
+                System.out.println("Sử dụng tên đăng nhập từ form: " + username);
             }
             
             // Tạo đối tượng Account và lưu trực tiếp
