@@ -392,7 +392,10 @@ const SanPhamAPI = {
     deleteSanPham: (id) => fetchDelete(`sanpham/${id}`),
     
     // Lấy danh mục cho sản phẩm
-    getDanhMuc: () => fetchGet('danhmuc')
+    getDanhMuc: () => fetchGet('danhmuc'),
+    
+    // Tạo danh mục mới
+    createDanhMuc: (danhMucData) => fetchPost('danhmuc', danhMucData)
 };
 
 /**

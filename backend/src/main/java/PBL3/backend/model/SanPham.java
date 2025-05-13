@@ -1,7 +1,6 @@
 package PBL3.backend.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,9 +23,9 @@ public class SanPham {
     @Column(name = "idSanPham")
     private int idSanPham;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)  // Changed LAZY to EAGER to ensure category data is loaded
     @JoinColumn(name = "idDanhMuc", nullable = false)
-    @JsonBackReference(value = "danhmuc-sanpham")
+    @JsonIgnoreProperties("sanPhamList") // Prevents recursive serialization
     private PhanLoaiSanPham danhMuc;
     
     @Column(name = "tenSanPham", nullable = false, length = 100)

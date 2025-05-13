@@ -56,6 +56,19 @@ function setupEventListeners() {
         productModal.show();
     });
     
+    // Sự kiện nút thêm danh mục mới
+    document.getElementById('addMainCategoryBtn').addEventListener('click', function() {
+        // Reset form danh mục
+        resetCategoryForm();
+        
+        // Hiển thị modal danh mục
+        const categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
+        categoryModal.show();
+    });
+    
+    // Sự kiện nút lưu danh mục
+    document.getElementById('saveCategoryBtn').addEventListener('click', saveCategory);
+    
     // Sự kiện nút làm mới
     document.getElementById('refreshBtn').addEventListener('click', function() {
         loadProducts();
@@ -98,12 +111,6 @@ function setupEventListeners() {
         // Mở modal chỉnh sửa với dữ liệu hiện tại
         editProduct(currentProductId);
     });
-    
-    // Sự kiện chẩn đoán kết nối
-    document.getElementById('diagnosticBtn').addEventListener('click', checkBackendConnection);
-    
-    // Sự kiện xuất báo cáo
-    document.getElementById('exportBtn').addEventListener('click', exportReport);
 }
 
 // Tải danh sách sản phẩm từ API
@@ -144,19 +151,8 @@ function loadCategories() {
     showLoading(true);
     
     return new Promise((resolve, reject) => {
-        // URL của API danh mục
-        fetch('http://localhost:8080/api/danhmuc', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Không thể tải danh mục sản phẩm');
-            }
-            return response.json();
-        })
+        // Sử dụng API service để tải danh mục
+        SanPhamAPI.getDanhMuc()
         .then(data => {
             console.log('Dữ liệu danh mục từ API:', data);
             categories = data;
@@ -580,7 +576,13 @@ function saveProduct() {
             })
             .catch(error => {
                 console.error('Lỗi khi cập nhật sản phẩm:', error);
-                showFormError('Không thể cập nhật sản phẩm. ' + (error.message || ''));
+                
+                // Kiểm tra nếu lỗi là sản phẩm đã tồn tại
+                if (isProductNameExists(error)) {
+                    showFormError('Tên sản phẩm đã tồn tại');
+                } else {
+                    showFormError('Không thể cập nhật sản phẩm. ' + (error.message || ''));
+                }
                 showLoading(false);
             });
     } else {
@@ -599,7 +601,11 @@ function saveProduct() {
             })
             .catch(error => {
                 console.error('Lỗi khi thêm sản phẩm:', error);
-                showFormError('Không thể thêm sản phẩm mới. ' + (error.message || ''));
+                if (isProductNameExists(error)) {
+                    showFormError('Tên sản phẩm đã tồn tại');
+                } else {
+                    showFormError('Không thể thêm sản phẩm mới. ' + (error.message || ''));
+                }
                 showLoading(false);
             });
     }
@@ -688,6 +694,14 @@ function clearFormErrors() {
     if (errorDiv) {
         errorDiv.style.display = 'none';
     }
+}
+
+// Kiểm tra lỗi sản phẩm trùng tên
+function isProductNameExists(error) {
+    if (!error || !error.message) return false;
+    
+    // Kiểm tra nếu lỗi có chứa thông báo về sản phẩm đã tồn tại
+    return error.message.includes('Sản phẩm với tên này đã tồn tại');
 }
 
 // Tìm kiếm sản phẩm
@@ -943,4 +957,79 @@ function showLoading(show = true) {
             el.style.display = show ? 'inline-block' : 'none';
         });
     }
+}
+
+// Reset form danh mục
+function resetCategoryForm() {
+    // Reset form
+    document.getElementById('categoryForm').reset();
+    
+    // Xóa thông báo
+    const alertElement = document.getElementById('categoryAlert');
+    alertElement.textContent = '';
+    alertElement.classList.add('d-none');
+    alertElement.classList.remove('alert-success', 'alert-danger');
+}
+
+// Hiển thị thông báo trong form danh mục
+function showCategoryAlert(message, isSuccess) {
+    const alertElement = document.getElementById('categoryAlert');
+    alertElement.textContent = message;
+    alertElement.classList.remove('d-none');
+    
+    if (isSuccess) {
+        alertElement.classList.remove('alert-danger');
+        alertElement.classList.add('alert-success');
+    } else {
+        alertElement.classList.remove('alert-success');
+        alertElement.classList.add('alert-danger');
+    }
+}
+
+// Lưu danh mục mới
+function saveCategory() {
+    // Lấy tên danh mục từ form
+    const tenDanhMuc = document.getElementById('tenDanhMuc').value.trim();
+    
+    // Kiểm tra dữ liệu
+    if (!tenDanhMuc) {
+        showCategoryAlert('Vui lòng nhập tên danh mục', false);
+        return;
+    }
+    
+    // Kiểm tra danh mục đã tồn tại chưa
+    const existingCategory = categories.find(cat => 
+        cat.tenDanhMuc.toLowerCase() === tenDanhMuc.toLowerCase()
+    );
+    
+    if (existingCategory) {
+        showCategoryAlert('Danh mục này đã tồn tại', false);
+        return;
+    }
+    
+    // Hiển thị loading
+    showLoading(true);
+    
+    // Gọi API để tạo danh mục mới
+    SanPhamAPI.createDanhMuc({ tenDanhMuc: tenDanhMuc })
+        .then(response => {
+            console.log('Danh mục mới đã được tạo:', response);
+            showCategoryAlert('Thêm danh mục thành công!', true);
+            
+            // Tải lại danh mục
+            loadCategories().then(() => {
+                showLoading(false);
+                
+                // Timeout ngắn để người dùng thấy thông báo thành công
+                setTimeout(() => {
+                    // Đóng modal
+                    bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
+                }, 1000);
+            });
+        })
+        .catch(error => {
+            console.error('Lỗi khi thêm danh mục:', error);
+            showCategoryAlert('Không thể thêm danh mục. ' + (error.message || ''), false);
+            showLoading(false);
+        });
 }
