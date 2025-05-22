@@ -294,13 +294,13 @@ const HoaDonAPI = {
     deleteHoaDon: (id) => fetchDelete(`hoadon/${id}`),
     
     // Đánh dấu hóa đơn đã thanh toán
-    daThanhToan: (id) => fetchPut(`hoadon/${id}/da-thanh-toan`, {}),
+    daThanhToan: (id) => fetchPut(`hoadon/${id}/dathanhtoan`, {}),
     
     // Đánh dấu hóa đơn chưa thanh toán
-    chuaThanhToan: (id) => fetchPut(`hoadon/${id}/chua-thanh-toan`, {}),
+    chuaThanhToan: (id) => fetchPut(`hoadon/${id}/chuathanhtoan`, {}),
     
     // Hoàn thành hóa đơn
-    hoanThanhHoaDon: (id) => fetchPut(`hoadon/${id}/hoan-thanh`, {}),
+    hoanThanhHoaDon: (id) => fetchPut(`hoadon/${id}/hoanthanh`, {}),
     
     // Hủy hóa đơn
     huyHoaDon: (id) => fetchPut(`hoadon/${id}/huy`, {})
@@ -438,6 +438,35 @@ const KhachHangAPI = {
     deleteKhachHang: (id) => fetchDelete(`khachhang/${id}`)
 };
 
+/**
+ * Các hàm gọi API cụ thể cho Tài khoản
+ */
+const AccountAPI = {
+    // Lấy tất cả tài khoản
+    getAllAccounts: () => fetchGet('accounts'),
+    
+    // Lấy tài khoản theo tên đăng nhập
+    getAccountByUsername: (username) => fetchGet(`accounts/${username}`),
+    
+    // Tạo tài khoản mới
+    createAccount: (accountData) => fetchPost('accounts', accountData),
+    
+    // Đăng ký tài khoản khách hàng
+    registerCustomer: (registrationData) => fetchPost('accounts/register/customer', registrationData),
+    
+    // Đăng ký tài khoản nhân viên
+    registerStaff: (registrationData) => fetchPost('accounts/register/staff', registrationData),
+    
+    // Đăng nhập
+    login: (loginData) => fetchPost('accounts/login', loginData),
+    
+    // Cập nhật tài khoản
+    updateAccount: (username, accountData) => fetchPut(`accounts/${username}`, accountData),
+    
+    // Xóa tài khoản
+    deleteAccount: (username) => fetchDelete(`accounts/${username}`)
+};
+
 // Export các modules API
 export {
     HoaDonAPI,
@@ -447,5 +476,6 @@ export {
     SanPhamAPI,
     StaffAPI,
     KhachHangAPI,
+    AccountAPI,
     checkConnection
 };

@@ -3,13 +3,15 @@
  */
 
 // Import các hàm gọi API từ api-service.js
-import { AccountAPI } from '../../js/utils/api-service.js';
+import { AccountAPI, checkConnection } from '../../js/utils/api-service.js';
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Register customer page loaded');
     const form = document.getElementById('registerForm');
     
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
+        console.log('Form submitted');
         
         // Reset tất cả thông báo lỗi
         resetErrors();
@@ -27,6 +29,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
         
+        console.log('Registration data:', formData);
+        
         // Kiểm tra độ dài mật khẩu
         if (formData.password.length < 6) {
             showError('passwordError', 'Mật khẩu phải có ít nhất 6 ký tự');
@@ -34,8 +38,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
+            // Kiểm tra kết nối trước khi gọi API
+            const connected = await checkConnection();
+            console.log('Connection to server:', connected);
+            
+            if (!connected) {
+                showError('generalError', 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng của bạn.');
+                return;
+            }
+            
             // Gọi API đăng ký tài khoản khách hàng
+            console.log('Calling API to register customer');
             const result = await AccountAPI.registerCustomer(formData);
+            console.log('Registration successful:', result);
             
             // Hiển thị thông báo thành công
             document.getElementById('successMessage').textContent = 'Đăng ký thành công! Bạn sẽ được chuyển hướng đến trang đăng nhập trong 3 giây...';
@@ -47,10 +62,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 3000);
             
         } catch (error) {
+            console.error('Registration error details:', error);
+            
             // Xử lý các lỗi phản hồi từ API
             if (error.message && error.message.includes('HTTP error')) {
                 try {
                     const response = await error.response.json();
+                    console.log('Error response from API:', response);
                     
                     if (response && response.message) {
                         if (response.message.includes('Tên đăng nhập đã tồn tại')) {
@@ -70,12 +88,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         showError('generalError', 'Đăng ký thất bại. Vui lòng thử lại!');
                     }
                 } catch (e) {
+                    console.error('Error parsing error response:', e);
                     showError('generalError', 'Đăng ký thất bại. Vui lòng thử lại!');
                 }
             } else {
                 // Bắt lỗi từ fetchPost trong api-service.js
+                console.log('Other error type:', error);
                 if (error.response && error.response.status === 400) {
                     error.response.json().then(data => {
+                        console.log('Error data from response:', data);
                         if (data.message.includes('Tên đăng nhập đã tồn tại')) {
                             showError('usernameError', 'Tên đăng nhập đã tồn tại');
                         } else if (data.message.includes('Số điện thoại đã được đăng ký')) {

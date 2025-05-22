@@ -141,7 +141,7 @@ public class AccountController {
             khachHang.setSoDienThoai((String) customerData.get("soDienThoai"));
             khachHang.setCccd((String) customerData.get("cccd"));
             khachHang.setEmail((String) customerData.get("email"));
-            khachHang.setTrangThai("active");
+            khachHang.setTrangThai("Chưa hoạt động");
             
             // Kiểm tra thông tin trùng lặp
             KhachHang existingByPhone = khachHangService.getKhachHangBySoDienThoai(khachHang.getSoDienThoai());
