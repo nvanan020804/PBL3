@@ -33,9 +33,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // Kiểm tra tài khoản đăng nhập có phải admin hay không
 function checkAdminLogin() {
     const userRole = localStorage.getItem('userRole');
-    console.log('User role from localStorage:', userRole);
+    console.log('DEBUG: userRole trong checkAdminLogin:', userRole);
     
-    if (!userRole || (userRole.toUpperCase() !== 'ADMIN' && userRole !== 'admin')) {
+    if (!userRole || !userRole.toLowerCase().includes('admin')) {
         showError('Bạn không có quyền truy cập trang quản lý sản phẩm.');
         setTimeout(() => {
             window.location.href = '../trangchu/index.html';

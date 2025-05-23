@@ -30,10 +30,9 @@ public class HoaDon {
     @JsonBackReference(value = "dangky-hoadon")
     private DangKy dangKy;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idNhanVien", nullable = false)
-    @JsonBackReference(value = "nhanvien-hoadon")
-    private NhanVien nhanVien;
+    // Không còn sử dụng quan hệ với nhân viên
+    @Column(name = "idNhanVien", nullable = true)
+    private Integer idNhanVien;
     
     @Column(name = "thoiGianTao", nullable = false)
     private LocalDateTime thoiGianTao;

@@ -30,8 +30,10 @@ document.addEventListener('DOMContentLoaded', function() {
 // Kiểm tra quyền admin
 function checkAdminLogin() {
     const userRole = localStorage.getItem('userRole');
-    if (!userRole || userRole.toLowerCase() !== 'admin') {
+    // Kiểm tra linh hoạt hơn, giống với login.js đã sửa
+    if (!userRole || !userRole.toLowerCase().includes('admin')) {
         showError('Bạn không có quyền truy cập trang quản lý gói dịch vụ!');
+        console.log('Vai trò người dùng:', userRole);
         setTimeout(() => {
             window.location.href = '../trangchu/index.html';
         }, 2000);
@@ -260,7 +262,20 @@ function renderGoiDichVu(danhSachGoi) {
         const id = goi.id || goi.idGoiDichVu || '';
         const tenGoi = goi.tenGoi || goi.ten || '';
         const gia = goi.gia || goi.giaTien || 0;
-        const thoiGian = goi.thoiHan || goi.thoiGian || 0; // Đổi từ thoiHan thành thoiGian để khớp với backend
+        
+        // Lấy thời gian với kiểm tra và xác thực giá trị
+        let thoiGian = goi.thoiHan || goi.thoiGian || 0;
+        // Đảm bảo thoiGian là số hợp lệ
+        if (thoiGian === undefined || thoiGian === null || isNaN(thoiGian)) {
+            thoiGian = 0;
+            console.log('Không thể lấy thời hạn gói, sử dụng giá trị mặc định.');
+        }
+        
+        // Đảm bảo hiển thị định dạng thời gian phù hợp
+        const displayDuration = thoiGian && !isNaN(thoiGian) && thoiGian > 0 
+            ? `${thoiGian} tháng` 
+            : 'Không xác định';
+            
         const moTa = goi.moTa || goi.moTa || '';
         
         const row = document.createElement('tr');
@@ -268,7 +283,7 @@ function renderGoiDichVu(danhSachGoi) {
             <td>${index + 1}</td>
             <td>${tenGoi}</td>
             <td>${formatCurrency(gia)}</td>
-            <td>${thoiGian} tháng</td>
+            <td>${displayDuration}</td>
             <td>${moTa}</td>
             <td>
                 <button onclick="editGoiDichVu('${id}')" class="btn-edit">
@@ -313,7 +328,16 @@ async function editGoiDichVu(id) {
         dichvuId.value = numericId;
         tenGoi.value = goi.tenGoi || goi.ten || '';
         gia.value = goi.gia || goi.giaTien || 0;
-        thoiHan.value = goi.thoiHan || goi.thoiGian || 0; // Đổi từ thoiHan thành thoiGian để khớp với backend
+        
+        // Lấy thời gian với kiểm tra và xác thực giá trị
+        let packageDuration = goi.thoiHan || goi.thoiGian || 0;
+        // Đảm bảo packageDuration là số hợp lệ
+        if (packageDuration === undefined || packageDuration === null || isNaN(packageDuration)) {
+            packageDuration = 0;
+            console.log('Không thể lấy thời hạn gói, sử dụng giá trị mặc định.');
+        }
+        thoiHan.value = packageDuration;
+        
         moTa.value = goi.moTa || goi.moTa || '';
         
         // Chuyển sang chế độ chỉnh sửa

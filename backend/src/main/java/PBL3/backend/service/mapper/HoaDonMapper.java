@@ -4,9 +4,7 @@ import PBL3.backend.dto.request.HoaDonRequest;
 import PBL3.backend.dto.response.HoaDonResponse;
 import PBL3.backend.model.DangKy;
 import PBL3.backend.model.HoaDon;
-import PBL3.backend.model.NhanVien;
 import PBL3.backend.repository.DangKyRepository;
-import PBL3.backend.repository.NhanVienRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +17,6 @@ public class HoaDonMapper {
 
     @Autowired
     private DangKyRepository dangKyRepository;
-    
-    @Autowired
-    private NhanVienRepository nhanVienRepository;
     
     @Autowired
     private HoaDonChiTietMapper hoaDonChiTietMapper;
@@ -39,10 +34,9 @@ public class HoaDonMapper {
             hoaDon.setDangKy(dangKy);
         }
         
+        // Đặt ID nhân viên trực tiếp
         if (request.getIdNhanVien() != null) {
-            NhanVien nhanVien = nhanVienRepository.findById(request.getIdNhanVien())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên với ID: " + request.getIdNhanVien()));
-            hoaDon.setNhanVien(nhanVien);
+            hoaDon.setIdNhanVien(request.getIdNhanVien());
         }
         
         hoaDon.setThoiGianTao(LocalDateTime.now());
@@ -66,9 +60,10 @@ public class HoaDonMapper {
             }
         }
         
-        if (entity.getNhanVien() != null) {
-            response.setIdNhanVien(entity.getNhanVien().getIdNhanVien());
-            response.setTenNhanVien(entity.getNhanVien().getTenNhanVien());
+        if (entity.getIdNhanVien() != null) {
+            response.setIdNhanVien(entity.getIdNhanVien());
+            // Tên nhân viên không còn được sử dụng
+            response.setTenNhanVien("Admin");
         }
         
         response.setThoiGianTao(entity.getThoiGianTao());

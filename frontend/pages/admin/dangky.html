@@ -264,6 +264,63 @@
         </div>
     </div>
 
+    <!-- Modal Xác nhận tạo hóa đơn -->
+    <div class="modal fade" id="createInvoiceConfirmModal" tabindex="-1" aria-labelledby="createInvoiceConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createInvoiceConfirmModalLabel">Xác nhận thông tin hóa đơn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="invoiceConfirmAlertMessage" class="alert d-none" role="alert"></div>
+                    
+                    <form id="invoiceConfirmForm">
+                        <div class="mb-3">
+                            <h6>Thông tin khách hàng</h6>
+                            <div id="invoiceConfirmCustomerInfo" class="p-2 border rounded mb-3"></div>
+                            
+                            <h6>Thông tin gói dịch vụ</h6>
+                            <div id="invoiceConfirmPackageInfo" class="p-2 border rounded"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="invoiceStatus" class="form-label">Trạng thái hóa đơn</label>
+                            <select class="form-select" id="invoiceStatus">
+                                <option value="Chờ xử lý" selected>Chờ xử lý</option>
+                                <option value="Hoàn thành">Hoàn thành</option>
+                                <option value="Hủy">Hủy</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="paymentStatus" class="form-label">Trạng thái thanh toán</label>
+                            <select class="form-select" id="paymentStatus">
+                                <option value="Chưa thanh toán" selected>Chưa thanh toán</option>
+                                <option value="Đã thanh toán">Đã thanh toán</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="paymentMethod" class="form-label">Phương thức thanh toán</label>
+                            <select class="form-select" id="paymentMethod">
+                                <option value="tienmat" selected>Tiền mặt</option>
+                                <option value="chuyenkhoan">Chuyển khoản</option>
+                                <option value="thequa">Thẻ quà tặng</option>
+                            </select>
+                        </div>
+                        
+                        <input type="hidden" id="confirmRegistrationId">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="confirmCreateInvoiceBtn">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer Container -->
     <div id="footer-container"></div>
 

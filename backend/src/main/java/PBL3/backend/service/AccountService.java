@@ -2,10 +2,8 @@ package PBL3.backend.service;
 
 import PBL3.backend.model.Account;
 import PBL3.backend.model.KhachHang;
-import PBL3.backend.model.NhanVien;
 import PBL3.backend.repository.AccountRepository;
 import PBL3.backend.repository.KhachHangRepository;
-import PBL3.backend.repository.NhanVienRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,15 +16,12 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final KhachHangRepository khachHangRepository;
-    private final NhanVienRepository nhanVienRepository;
 
     @Autowired
     public AccountService(AccountRepository accountRepository, 
-                         KhachHangRepository khachHangRepository,
-                         NhanVienRepository nhanVienRepository) {
+                         KhachHangRepository khachHangRepository) {
         this.accountRepository = accountRepository;
         this.khachHangRepository = khachHangRepository;
-        this.nhanVienRepository = nhanVienRepository;
     }
 
     public List<Account> getAllAccounts() {
@@ -50,10 +45,8 @@ public class AccountService {
                 if (!khachHangRepository.existsById(account.getIdLienKet())) {
                     throw new RuntimeException("ID khách hàng không tồn tại");
                 }
-            } else if ("nhanvien".equals(account.getPhanQuyen()) || "admin".equals(account.getPhanQuyen())) {
-                if (!nhanVienRepository.existsById(account.getIdLienKet())) {
-                    throw new RuntimeException("ID nhân viên không tồn tại");
-                }
+            } else if ("admin".equals(account.getPhanQuyen())) {
+                // Admin account không cần liên kết
             }
         }
 
@@ -105,25 +98,7 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    @Transactional
-    public Account createStaffAccount(NhanVien nhanVien, String username, String password, String role) {
-        // Kiểm tra xem tên đăng nhập đã tồn tại chưa
-        if (accountRepository.findByTenDangNhap(username) != null) {
-            throw new RuntimeException("Tên đăng nhập đã tồn tại");
-        }
-        
-        // Lưu nhân viên để lấy ID
-        nhanVien = nhanVienRepository.save(nhanVien);
-        
-        // Tạo tài khoản cho nhân viên
-        Account account = new Account();
-        account.setTenDangNhap(username);
-        account.setMatKhau(password);
-        account.setPhanQuyen(role); // "nhanvien" hoặc "admin"
-        account.setIdLienKet(nhanVien.getIdNhanVien());
-        
-        return accountRepository.save(account);
-    }
+    // Phương thức tạo tài khoản admin đã được loại bỏ vì admin sẽ được tạo trực tiếp trong database
 
     // Phương thức đăng nhập cơ bản
     public Account login(String username, String password) {

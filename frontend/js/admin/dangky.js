@@ -28,8 +28,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // Kiểm tra tài khoản đăng nhập có phải admin hay không
 function checkAdminLogin() {
     const userRole = localStorage.getItem('userRole');
+    console.log('DEBUG: userRole trong checkAdminLogin:', userRole);
     
-    if (!userRole || (userRole.toUpperCase() !== 'ADMIN' && userRole !== 'admin')) {
+    if (!userRole || !userRole.toLowerCase().includes('admin')) {
         showError('Bạn không có quyền truy cập trang quản lý đăng ký.');
         setTimeout(() => {
             window.location.href = '../trangchu/index.html';
@@ -61,6 +62,9 @@ function setupEventListeners() {
     
     // Sự kiện nút xác nhận xóa
     document.getElementById('confirmDeleteBtn').addEventListener('click', deleteRegistration);
+    
+    // Sự kiện nút xác nhận tạo hóa đơn
+    document.getElementById('confirmCreateInvoiceBtn').addEventListener('click', confirmAndCreateInvoice);
     
     // Sự kiện nút tìm kiếm đăng ký
     document.getElementById('searchBtn').addEventListener('click', function() {
@@ -291,36 +295,7 @@ async function processRegistrationsData() {
     }
 }
 
-// Hiển thị dữ liệu mẫu khi không thể kết nối API
-function displaySampleData() {
-    registrations = [
-        { 
-            idDangKy: 1, 
-            khachHang: { idKhachHang: 1, tenKhachHang: 'Nguyễn Văn A', soDienThoai: '0901234567' },
-            goiDichVu: { id: 1, tenGoi: 'Gói Cơ Bản', gia: 300000, thoiHan: 1 },
-            ngayBatDau: '2024-05-01',
-            gioTap: '18:00-20:00',
-            trangThai: 'Đang hoạt động'
-        },
-        { 
-            idDangKy: 2, 
-            khachHang: { idKhachHang: 2, tenKhachHang: 'Trần Thị B', soDienThoai: '0912345678' },
-            goiDichVu: { id: 2, tenGoi: 'Gói Nâng Cao', gia: 500000, thoiHan: 3 },
-            ngayBatDau: '2024-04-15',
-            gioTap: '17:00-19:00',
-            trangThai: 'Đang hoạt động'
-        },
-        { 
-            idDangKy: 3, 
-            khachHang: { idKhachHang: 3, tenKhachHang: 'Lê Văn C', soDienThoai: '0923456789' },
-            goiDichVu: { id: 3, tenGoi: 'Gói Cao Cấp', gia: 1000000, thoiHan: 6 },
-            ngayBatDau: '2024-03-01',
-            gioTap: '19:00-21:00',
-            trangThai: 'Hết hạn'
-        }
-    ];
-    filterRegistrations();
-}
+
 
 // Lọc đăng ký theo trạng thái (tất cả, đang hoạt động, hết hạn, chưa kích hoạt)
 function filterRegistrations() {
@@ -589,6 +564,29 @@ function displayInvoicePackageInfo(registration) {
         return;
     }
     
+    // Lấy thời gian từ thoiHan hoặc thoiGian
+    let thoiGian = registration.goiDichVu.thoiHan || registration.goiDichVu.thoiGian;
+    
+    // Log giá trị gốc để debug
+    console.log('Modal hóa đơn - Giá trị thời hạn gói:', {
+        thoiHan: registration.goiDichVu.thoiHan,
+        thoiGian: registration.goiDichVu.thoiGian,
+        rawValue: thoiGian,
+        typeOf: typeof thoiGian
+    });
+    
+    // Đảm bảo thoiGian là hợp lệ
+    thoiGian = thoiGian !== undefined && thoiGian !== null ? Number(thoiGian) : 0;
+    if (isNaN(thoiGian)) {
+        thoiGian = 0;
+        console.log('Không thể lấy thời hạn gói cho hiển thị, sử dụng giá trị mặc định.');
+    }
+    
+    // Đảm bảo hiển thị định dạng thời gian phù hợp
+    const displayDuration = thoiGian && !isNaN(thoiGian) && thoiGian > 0 
+        ? `${thoiGian} tháng` 
+        : 'Không xác định';
+    
     packageInfo.innerHTML = `
         <dl class="row mb-0">
             <dt class="col-sm-4">Tên gói:</dt>
@@ -598,7 +596,7 @@ function displayInvoicePackageInfo(registration) {
             <dd class="col-sm-8">${formatCurrency(registration.goiDichVu.gia)}</dd>
             
             <dt class="col-sm-4">Thời hạn:</dt>
-            <dd class="col-sm-8">${registration.goiDichVu.thoiHan} tháng</dd>
+            <dd class="col-sm-8">${displayDuration}</dd>
         </dl>
     `;
 }
@@ -907,6 +905,28 @@ function searchPackage() {
         return response.json();
     })
     .then(packageData => {
+        // Xử lý thời hạn gói dịch vụ
+        let thoiGian = packageData.thoiHan || packageData.thoiGian;
+        
+        // Log để debug giá trị gốc
+        console.log('Tìm kiếm gói - Giá trị thời hạn gói:', {
+            thoiHan: packageData.thoiHan,
+            thoiGian: packageData.thoiGian,
+            rawValue: thoiGian,
+            typeOf: typeof thoiGian
+        });
+        
+        // Đảm bảo thoiGian là hợp lệ
+        thoiGian = thoiGian !== undefined && thoiGian !== null ? Number(thoiGian) : 0;
+        if (isNaN(thoiGian)) {
+            thoiGian = 0;
+        }
+        
+        // Định dạng hiển thị thời hạn
+        const displayDuration = thoiGian && thoiGian > 0 
+            ? `${thoiGian} tháng` 
+            : 'Không xác định';
+            
         // Hiển thị thông tin gói dịch vụ
         document.getElementById('packageInfo').innerHTML = `
             <dl class="row mb-0 package-info-card">
@@ -917,7 +937,7 @@ function searchPackage() {
                 <dd class="col-sm-8">${formatCurrency(packageData.gia) || ''}</dd>
                 
                 <dt class="col-sm-4">Thời hạn:</dt>
-                <dd class="col-sm-8">${packageData.thoiHan} tháng</dd>
+                <dd class="col-sm-8">${displayDuration}</dd>
                 
                 <dt class="col-sm-4">Mô tả:</dt>
                 <dd class="col-sm-8">${packageData.moTa || ''}</dd>
@@ -991,6 +1011,28 @@ function editRegistration(registrationId) {
         </dl>
     `;
     
+    // Xử lý thời hạn gói dịch vụ
+    let thoiGian = registration.goiDichVu.thoiHan || registration.goiDichVu.thoiGian;
+    
+    // Log để debug giá trị gốc
+    console.log('Edit gói - Giá trị thời hạn gói:', {
+        thoiHan: registration.goiDichVu.thoiHan,
+        thoiGian: registration.goiDichVu.thoiGian,
+        rawValue: thoiGian,
+        typeOf: typeof thoiGian
+    });
+    
+    // Đảm bảo thoiGian là hợp lệ
+    thoiGian = thoiGian !== undefined && thoiGian !== null ? Number(thoiGian) : 0;
+    if (isNaN(thoiGian)) {
+        thoiGian = 0;
+    }
+    
+    // Định dạng hiển thị thời hạn
+    const displayDuration = thoiGian && thoiGian > 0 
+        ? `${thoiGian} tháng` 
+        : 'Không xác định';
+    
     // Hiển thị thông tin gói dịch vụ
     document.getElementById('packageInfo').innerHTML = `
         <dl class="row mb-0 package-info-card">
@@ -1001,7 +1043,7 @@ function editRegistration(registrationId) {
             <dd class="col-sm-8">${formatCurrency(registration.goiDichVu.gia) || ''}</dd>
             
             <dt class="col-sm-4">Thời hạn:</dt>
-            <dd class="col-sm-8">${registration.goiDichVu.thoiHan} tháng</dd>
+            <dd class="col-sm-8">${displayDuration}</dd>
             
             <dt class="col-sm-4">Mô tả:</dt>
             <dd class="col-sm-8">${registration.goiDichVu.moTa || ''}</dd>
@@ -1171,47 +1213,359 @@ function saveRegistration() {
     });
 }
 
-// Tạo hóa đơn tự động cho đăng ký mới
+// Hiển thị modal xác nhận thông tin hóa đơn cho đăng ký mới
 async function createInvoiceForRegistration(registration) {
     try {
-        // Lấy thông tin nhân viên hiện tại (từ localStorage hoặc session)
-        const staffId = localStorage.getItem('userId') || 1; // Sử dụng ID mặc định nếu không có
+        console.log('Mở modal xác nhận thông tin hóa đơn cho đăng ký:', registration);
+        
+        // Luôn lấy thông tin chi tiết đầy đủ của đăng ký từ API để đảm bảo dữ liệu mới nhất
+        let detailedRegistration;
+        try {
+            const response = await fetch(`http://localhost:8080/api/dangky/${registration.idDangKy}`);
+            if (response.ok) {
+                detailedRegistration = await response.json();
+                console.log('Thông tin chi tiết đăng ký:', detailedRegistration);
+            } else {
+                throw new Error('Không thể lấy thông tin chi tiết đăng ký');
+            }
+        } catch (error) {
+            console.error('Không thể lấy thông tin chi tiết đăng ký:', error);
+            // Nếu không lấy được thông tin mới, sử dụng thông tin hiện có
+            detailedRegistration = registration;
+        }
+        
+        // Kiểm tra nếu không có thông tin khách hàng, thì lấy thông tin khách hàng từ API
+        if (!detailedRegistration.khachHang && !detailedRegistration.khachHangInfo) {
+            console.log('Không tìm thấy thông tin khách hàng, sẽ lấy từ API...');
+            try {
+                const idKhachHang = detailedRegistration.idKhachHang;
+                if (idKhachHang) {
+                    console.log(`Lấy thông tin khách hàng với ID ${idKhachHang}`);
+                    const customerResponse = await fetch(`http://localhost:8080/api/khachhang/${idKhachHang}`);
+                    if (customerResponse.ok) {
+                        const customerData = await customerResponse.json();
+                        detailedRegistration.khachHangInfo = customerData;
+                        console.log('Đã lấy được thông tin khách hàng:', customerData);
+                    } else {
+                        console.error(`Không thể lấy thông tin khách hàng với ID ${idKhachHang}`);
+                    }
+                } else {
+                    console.error('Không tìm thấy ID khách hàng trong đối tượng đăng ký');
+                }
+            } catch (customerError) {
+                console.error('Lỗi khi lấy thông tin khách hàng:', customerError);
+            }
+        }
+        
+        // Log để debug
+        console.log('Chi tiết thông tin đăng ký trước khi hiển thị:', {
+            hasKhachHang: !!detailedRegistration.khachHang,
+            hasKhachHangInfo: !!detailedRegistration.khachHangInfo,
+            idKhachHang: detailedRegistration.idKhachHang,
+            fullObject: detailedRegistration
+        });
+        
+        // Hiển thị thông tin khách hàng
+        const customerInfo = document.getElementById('invoiceConfirmCustomerInfo');
+        if (detailedRegistration.khachHang) {
+            // Xử lý trường hợp thông tin khách hàng có cấu trúc khác nhau
+            const ho = detailedRegistration.khachHang.ho || '';
+            const ten = detailedRegistration.khachHang.ten || detailedRegistration.khachHang.tenKhachHang || '';
+            const tenKhachHang = detailedRegistration.khachHang.tenKhachHang || '';
+            const soDienThoai = detailedRegistration.khachHang.soDienThoai || 'N/A';
+            const email = detailedRegistration.khachHang.email || 'N/A';
+            
+            // Ưu tiên sử dụng tenKhachHang nếu có
+            let displayName = tenKhachHang;
+            if (!displayName && (ho || ten)) {
+                displayName = ho ? ho + ' ' + ten : ten;
+            }
+            
+            customerInfo.innerHTML = `
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Tên khách hàng:</dt>
+                    <dd class="col-sm-8">${displayName || 'N/A'}</dd>
+                    
+                    <dt class="col-sm-4">Số điện thoại:</dt>
+                    <dd class="col-sm-8">${soDienThoai}</dd>
+                    
+                    <dt class="col-sm-4">Email:</dt>
+                    <dd class="col-sm-8">${email}</dd>
+                </dl>
+            `;
+            
+            console.log('Hiển thị thông tin khách hàng từ khachHang:', {
+                displayName, soDienThoai, email
+            });
+        } else if (detailedRegistration.khachHangInfo) {
+            // Trường hợp sử dụng khachHangInfo (từ processRegistrationsData)
+            const ho = detailedRegistration.khachHangInfo.ho || '';
+            const ten = detailedRegistration.khachHangInfo.ten || '';
+            const tenKhachHang = detailedRegistration.khachHangInfo.tenKhachHang || '';
+            const soDienThoai = detailedRegistration.khachHangInfo.soDienThoai || 'N/A';
+            const email = detailedRegistration.khachHangInfo.email || 'N/A';
+            
+            // Ưu tiên sử dụng tenKhachHang nếu có
+            let displayName = tenKhachHang;
+            if (!displayName && (ho || ten)) {
+                displayName = ho ? ho + ' ' + ten : ten;
+            }
+            
+            customerInfo.innerHTML = `
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Tên khách hàng:</dt>
+                    <dd class="col-sm-8">${displayName || 'N/A'}</dd>
+                    
+                    <dt class="col-sm-4">Số điện thoại:</dt>
+                    <dd class="col-sm-8">${soDienThoai}</dd>
+                    
+                    <dt class="col-sm-4">Email:</dt>
+                    <dd class="col-sm-8">${email}</dd>
+                </dl>
+            `;
+            
+            console.log('Hiển thị thông tin khách hàng từ khachHangInfo:', {
+                displayName, soDienThoai, email
+            });
+        } else {
+            customerInfo.innerHTML = '<p class="text-muted">Không có thông tin khách hàng</p>';
+            console.error('Không tìm thấy thông tin khách hàng trong đối tượng đăng ký:', detailedRegistration);
+        }
+        
+        // Hiển thị thông tin gói dịch vụ
+        const packageInfo = document.getElementById('invoiceConfirmPackageInfo');
         
         // Lấy thông tin giá tiền từ registration
         let price = 0;
-        if (registration.goiDichVu && registration.goiDichVu.gia) {
-            price = registration.goiDichVu.gia;
+        let packageName = 'N/A';
+        let packageDuration = 0;
+        
+        if (detailedRegistration.goiDichVu && detailedRegistration.goiDichVu.gia) {
+            // Trường hợp có đủ thông tin gói dịch vụ
+            price = detailedRegistration.goiDichVu.gia || 0;
+            packageName = detailedRegistration.goiDichVu.tenGoi || 'N/A';
+            // Đảm bảo packageDuration là số hợp lệ
+            // Kiểm tra cả thoiHan và thoiGian (có thể được sử dụng trong API)
+            packageDuration = detailedRegistration.goiDichVu.thoiHan || detailedRegistration.goiDichVu.thoiGian;
+            
+            // Log để debug giá trị gốc
+            console.log('Giá trị gốc từ goiDichVu:', {
+                thoiHan: detailedRegistration.goiDichVu.thoiHan,
+                thoiGian: detailedRegistration.goiDichVu.thoiGian,
+                rawValue: packageDuration,
+                typeOf: typeof packageDuration
+            });
+            
+            // Đảm bảo packageDuration là một số hợp lệ
+            packageDuration = packageDuration !== undefined && packageDuration !== null ? Number(packageDuration) : 0;
+            if (isNaN(packageDuration)) {
+                packageDuration = 0;
+                console.log('Không thể lấy thời hạn gói, sử dụng giá trị mặc định.');
+            }
+            
+            console.log('Thông tin gói từ goiDichVu:', {
+                tenGoi: packageName,
+                gia: price,
+                thoiHan: packageDuration
+            });
+            
+        } else if (detailedRegistration.goiDichVuInfo) {
+            // Trường hợp có thông tin trong goiDichVuInfo (từ processRegistrationsData)
+            price = detailedRegistration.goiDichVuInfo.gia || 0;
+            packageName = detailedRegistration.goiDichVuInfo.tenGoi || 'N/A';
+            // Đảm bảo packageDuration là số hợp lệ
+            // Kiểm tra cả thoiHan và thoiGian (có thể được sử dụng trong API)
+            packageDuration = detailedRegistration.goiDichVuInfo.thoiHan || detailedRegistration.goiDichVuInfo.thoiGian;
+            
+            // Log để debug giá trị gốc
+            console.log('Giá trị gốc từ goiDichVuInfo:', {
+                thoiHan: detailedRegistration.goiDichVuInfo.thoiHan,
+                thoiGian: detailedRegistration.goiDichVuInfo.thoiGian,
+                rawValue: packageDuration,
+                typeOf: typeof packageDuration
+            });
+            
+            // Đảm bảo packageDuration là một số hợp lệ
+            packageDuration = packageDuration !== undefined && packageDuration !== null ? Number(packageDuration) : 0;
+            if (isNaN(packageDuration)) {
+                packageDuration = 0;
+                console.log('Không thể lấy thời hạn gói từ goiDichVuInfo, sử dụng giá trị mặc định.');
+            }
+            
+            console.log('Thông tin gói từ goiDichVuInfo:', {
+                tenGoi: packageName,
+                gia: price,
+                thoiHan: packageDuration
+            });
+            
         } else {
-            // Nếu không có thông tin giá trong đối tượng registration, gọi API để lấy thông tin gói dịch vụ
-            const packageResponse = await fetch(`http://localhost:8080/api/goidichvu/${registration.idGOI}`);
-            if (packageResponse.ok) {
-                const packageData = await packageResponse.json();
-                price = packageData.gia || 0;
+            // Nếu không có thông tin gói dịch vụ, gọi API để lấy
+            try {
+                const idGOI = detailedRegistration.idGOI || detailedRegistration.goiDichVu?.id;
+                if (!idGOI) {
+                    throw new Error('Không tìm thấy ID gói dịch vụ');
+                }
+                
+                console.log('Lấy thông tin gói dịch vụ từ API với ID:', idGOI);
+                
+                const packageResponse = await fetch(`http://localhost:8080/api/goidichvu/${idGOI}`);
+                if (packageResponse.ok) {
+                    const packageData = await packageResponse.json();
+                    price = packageData.gia || 0;
+                    packageName = packageData.tenGoi || 'N/A';
+                    // Đảm bảo packageDuration là số hợp lệ
+                    // Kiểm tra cả thoiHan và thoiGian (có thể được sử dụng trong API)
+                    packageDuration = packageData.thoiHan || packageData.thoiGian;
+                    
+                    // Log để debug giá trị gốc
+                    console.log('Giá trị gốc từ API packageData:', {
+                        thoiHan: packageData.thoiHan,
+                        thoiGian: packageData.thoiGian,
+                        rawValue: packageDuration,
+                        typeOf: typeof packageDuration
+                    });
+                    
+                    // Đảm bảo packageDuration là một số hợp lệ
+                    packageDuration = packageDuration !== undefined && packageDuration !== null ? Number(packageDuration) : 0;
+                    if (isNaN(packageDuration)) {
+                        packageDuration = 0;
+                        console.log('Không thể lấy thời hạn gói từ API, sử dụng giá trị mặc định.');
+                    }
+                    
+                    // Ghi log chi tiết để debug
+                    console.log('Thông tin chi tiết gói từ API:', {
+                        raw: packageData,
+                        gia: packageData.gia,
+                        tenGoi: packageData.tenGoi,
+                        thoiHan: packageData.thoiHan,
+                        thoiGian: packageData.thoiGian,
+                        finalDuration: packageDuration
+                    });
+                    
+                    console.log('Thông tin gói từ API:', packageData);
+                } else {
+                    throw new Error('Không thể lấy thông tin gói dịch vụ');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy thông tin gói dịch vụ:', error);
             }
         }
+        
+        // Hiển thị thông tin gói dịch vụ sau khi đã lấy được dữ liệu
+        // Log raw value for debugging
+        console.log('Raw packageDuration before processing:', packageDuration, typeof packageDuration);
+        
+        // Đảm bảo packageDuration không hiển thị undefined
+        // Convert to number again to make absolutely sure
+        packageDuration = Number(packageDuration);
+        const thoiGian = packageDuration; // Giữ tên biến gốc để dễ hiểu
+        const displayDuration = thoiGian && !isNaN(thoiGian) && thoiGian > 0 
+            ? `${thoiGian} tháng` 
+            : 'Không xác định';
+            
+        console.log('Duration value to display:', {
+            packageDuration: thoiGian,
+            isValid: thoiGian && !isNaN(thoiGian) && thoiGian > 0,
+            displayDuration: displayDuration
+        });
+            
+        packageInfo.innerHTML = `
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Tên gói:</dt>
+                <dd class="col-sm-8">${packageName}</dd>
+                
+                <dt class="col-sm-4">Giá:</dt>
+                <dd class="col-sm-8">${formatCurrency(price)}</dd>
+                
+                <dt class="col-sm-4">Thời hạn:</dt>
+                <dd class="col-sm-8">${displayDuration}</dd>
+            </dl>
+        `;
+        
+        // Lưu ID đăng ký để sử dụng khi tạo hóa đơn
+        document.getElementById('confirmRegistrationId').value = detailedRegistration.idDangKy;
+        
+        // Hiển thị modal xác nhận tạo hóa đơn
+        const createInvoiceConfirmModal = new bootstrap.Modal(document.getElementById('createInvoiceConfirmModal'));
+        createInvoiceConfirmModal.show();
+    } catch (error) {
+        console.error('Lỗi khi hiển thị modal xác nhận hóa đơn:', error);
+        showError('Không thể tạo hóa đơn cho đăng ký. Vui lòng thử lại sau.');
+    }
+}
 
+// Xác nhận và tạo hóa đơn mới từ form xác nhận
+async function confirmAndCreateInvoice() {
+    try {
+        showLoading(true);
+        
+        // Lấy thông tin từ form xác nhận
+        const registrationId = document.getElementById('confirmRegistrationId').value;
+        const trangThai = document.getElementById('invoiceStatus').value;
+        const trangThaiThanhToan = document.getElementById('paymentStatus').value;
+        const phuongThuc = document.getElementById('paymentMethod').value;
+        
+        if (!registrationId) {
+            throw new Error('Không tìm thấy thông tin đăng ký');
+        }
+        
+        // Lấy thông tin đầy đủ của đăng ký
+        const registration = await getRegistrationById(registrationId);
+        if (!registration) {
+            throw new Error('Không thể tải thông tin đăng ký');
+        }
+        
+        // Lấy thông tin nhân viên hiện tại (từ localStorage hoặc session)
+        const staffId = localStorage.getItem('userId') || 1; // Sử dụng ID mặc định nếu không có
+        
+        // Lấy giá của gói dịch vụ
+        const price = registration.goiDichVu?.gia || 0;
+        
         // Tạo đối tượng dữ liệu hóa đơn
         const invoiceData = {
             nhanVien: {
                 idNhanVien: staffId
             },
             dangKy: {
-                idDangKy: registration.idDangKy
+                idDangKy: registrationId
             },
             tongTien: price,
             giamGia: 0,
             thanhToan: price,
-            phuongThuc: 'tienmat',
-            trangThai: 'Chờ xử lý',
-            trangThaiThanhToan: 'Chưa thanh toán',
+            phuongThuc: phuongThuc,
+            trangThai: trangThai,
+            trangThaiThanhToan: trangThaiThanhToan,
             thoiGianTao: new Date().toISOString()
         };
         
+        console.log('Dữ liệu hóa đơn sẽ được tạo:', invoiceData);
+        
         // Gọi API tạo hóa đơn
         const savedInvoice = await HoaDonAPI.createHoaDon(invoiceData);
-        console.log('Đã tạo hóa đơn tự động cho đăng ký:', savedInvoice);
+        console.log('Đã tạo hóa đơn thành công:', savedInvoice);
+        
+        // Đóng modal xác nhận
+        bootstrap.Modal.getInstance(document.getElementById('createInvoiceConfirmModal')).hide();
+        
+        // Hiển thị thông báo thành công
+        showSuccess('Tạo hóa đơn mới thành công!');
+        
+        return savedInvoice;
     } catch (error) {
-        console.error('Lỗi khi tạo hóa đơn tự động:', error);
+        console.error('Lỗi khi tạo hóa đơn mới:', error);
+        
+        // Hiển thị thông báo lỗi trong modal xác nhận
+        const alertElement = document.getElementById('invoiceConfirmAlertMessage');
+        alertElement.className = 'alert alert-danger alert-dismissible fade show';
+        alertElement.innerHTML = `
+            <i class="fas fa-exclamation-circle me-2"></i> ${error.message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        alertElement.classList.remove('d-none');
+        
+        return null;
+    } finally {
+        showLoading(false);
     }
 }
 

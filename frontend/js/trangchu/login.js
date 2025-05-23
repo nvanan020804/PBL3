@@ -38,7 +38,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
                 console.error('Không tìm thấy token trong phản hồi đăng nhập:', responseData);
             }
             
-            // In thông tin vai trò để debug
+            // In thông tin đầy đủ để debug
+            console.log('Thông tin tài khoản đăng nhập:', data);
             console.log('Vai trò người dùng:', data.phanQuyen);
             
             // Lưu thông tin người dùng và vai trò vào localStorage
@@ -46,15 +47,19 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             localStorage.setItem('userRole', data.phanQuyen); // Lưu vai trò
             localStorage.setItem('idLienKet', data.idLienKet); // Lưu idLienKet
             localStorage.setItem('userName', data.tenDangNhap); // Lưu tên đăng nhập
-
-            // Chuyển hướng dựa trên vai trò - Hỗ trợ cả dạng "ROLE_XXX" và "xxx"
-            const role = data.phanQuyen.toLowerCase();
             
-            if (role === 'admin' || role === 'role_admin') {
+            // Kiểm tra xem phân quyền đã được lưu đúng chưa
+            console.log('Phân quyền đã lưu trong localStorage:', localStorage.getItem('userRole'));
+
+            // Chuyển hướng dựa trên vai trò
+            console.log('Vai trò người dùng (chưa lowercase):', data.phanQuyen);
+            const role = data.phanQuyen ? data.phanQuyen.toLowerCase().trim() : '';
+            console.log('Vai trò đã xử lý:', role);
+            
+            // Chỉ kiểm tra vai trò admin và khách hàng (đã loại bỏ nhân viên)
+            if (role.includes('admin')) {
                 window.location.href = '../admin/home.html';
-            } else if (role === 'nhanvien' || role === 'role_nhanvien') {
-                window.location.href = '../nhanvien/home.html';
-            } else if (role === 'khachhang' || role === 'role_khachhang') {
+            } else if (role.includes('khachhang')) {
                 // Gọi API lấy thông tin khách hàng - Sử dụng cùng baseUrl và endpoint chính xác
                 try {
                     console.log('Đang lấy thông tin khách hàng với idLienKet:', data.idLienKet);
@@ -78,10 +83,10 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
                     loginError.style.display = 'block';
                 }
             } else {
-                // Hiển thị thông báo với vai trò không được hỗ trợ
-                loginError.textContent = `Vai trò "${data.phanQuyen}" chưa được hỗ trợ trong hệ thống. Vui lòng liên hệ quản trị viên.`;
+                // Thông báo lỗi với thông tin chi tiết hơn
+                loginError.textContent = 'Tài khoản không có quyền truy cập hợp lệ. Hệ thống chỉ hỗ trợ vai trò admin và khách hàng.';
                 loginError.style.display = 'block';
-                console.error('Vai trò không được hỗ trợ:', data.phanQuyen);
+                console.error('Vai trò không được hỗ trợ hoặc không hợp lệ:', data.phanQuyen);
             }
         } else {
             const errorResponse = await response.json();

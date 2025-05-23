@@ -3,11 +3,9 @@ package PBL3.backend.service;
 import PBL3.backend.model.DangKy;
 import PBL3.backend.model.HoaDon;
 import PBL3.backend.model.HoaDonChiTiet;
-import PBL3.backend.model.NhanVien;
 import PBL3.backend.repository.DangKyRepository;
 import PBL3.backend.repository.HoaDonChiTietRepository;
 import PBL3.backend.repository.HoaDonRepository;
-import PBL3.backend.repository.NhanVienRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,17 +20,14 @@ public class HoaDonService {
 
     private final HoaDonRepository hoaDonRepository;
     private final DangKyRepository dangKyRepository;
-    private final NhanVienRepository nhanVienRepository;
     private final HoaDonChiTietRepository hoaDonChiTietRepository;
 
     @Autowired
     public HoaDonService(HoaDonRepository hoaDonRepository, 
                          DangKyRepository dangKyRepository,
-                         NhanVienRepository nhanVienRepository,
                          HoaDonChiTietRepository hoaDonChiTietRepository) {
         this.hoaDonRepository = hoaDonRepository;
         this.dangKyRepository = dangKyRepository;
-        this.nhanVienRepository = nhanVienRepository;
         this.hoaDonChiTietRepository = hoaDonChiTietRepository;
     }
 
@@ -49,20 +44,11 @@ public class HoaDonService {
             .orElseThrow(() -> new RuntimeException("Không tìm thấy đăng ký với ID: " + idDangKy));
         return hoaDonRepository.findByDangKy(dangKy);
     }
-
-    public List<HoaDon> getHoaDonByNhanVien(int idNhanVien) {
-        NhanVien nhanVien = nhanVienRepository.findById(idNhanVien)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên với ID: " + idNhanVien));
-        return hoaDonRepository.findByNhanVien(nhanVien);
-    }
+    
+    // Phương thức tìm hóa đơn theo ID nhân viên đã bị loại bỏ
 
     @Transactional
     public HoaDon createHoaDon(HoaDon hoaDon) {
-        // Kiểm tra tồn tại của nhân viên (bắt buộc)
-        if (hoaDon.getNhanVien() == null || hoaDon.getNhanVien().getIdNhanVien() == 0) {
-            throw new RuntimeException("Nhân viên không hợp lệ");
-        }
-        
         // Kiểm tra đăng ký (nếu có)
         if (hoaDon.getDangKy() != null && hoaDon.getDangKy().getIdDangKy() > 0) {
             // Lấy thông tin đầy đủ của đăng ký
@@ -88,10 +74,6 @@ public class HoaDonService {
             // Nếu không có đăng ký, đặt thành null (hóa đơn mua sản phẩm)
             hoaDon.setDangKy(null);
         }
-        
-        // Lấy thông tin đầy đủ nhân viên
-        NhanVien nhanVien = nhanVienRepository.findById(hoaDon.getNhanVien().getIdNhanVien())
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên với ID: " + hoaDon.getNhanVien().getIdNhanVien()));
         
         // Thiết lập thông tin mặc định
         if (hoaDon.getThoiGianTao() == null) {
@@ -132,9 +114,6 @@ public class HoaDonService {
         } else if ("Thẻ tín dụng".equals(hoaDon.getPhuongThuc())) {
             hoaDon.setPhuongThuc("thetindung");
         }
-        
-        // Lưu hóa đơn
-        hoaDon.setNhanVien(nhanVien);
         
         return hoaDonRepository.save(hoaDon);
     }

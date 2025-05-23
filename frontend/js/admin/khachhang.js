@@ -24,8 +24,9 @@ function checkAdminLogin() {
     const userRole = localStorage.getItem('userRole');
     console.log('User role from localStorage:', userRole); // Thêm log để kiểm tra
     
-    if (!userRole || (userRole.toUpperCase() !== 'ADMIN' && userRole !== 'admin')) {
+    if (!userRole || !userRole.toLowerCase().includes('admin')) {
         showError('Bạn không có quyền truy cập trang quản lý khách hàng.');
+        console.log('Vai trò người dùng:', userRole);
         setTimeout(() => {
             window.location.href = '../trangchu/index.html';
         }, 2000);

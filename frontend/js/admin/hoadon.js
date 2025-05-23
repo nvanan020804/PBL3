@@ -39,8 +39,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // Kiểm tra tài khoản đăng nhập có phải admin hay không
 function checkAdminLogin() {
     const userRole = localStorage.getItem('userRole');
+    console.log('DEBUG: userRole trong checkAdminLogin:', userRole);
     
-    if (!userRole || (userRole.toUpperCase() !== 'ADMIN' && userRole !== 'admin')) {
+    if (!userRole || !userRole.toLowerCase().includes('admin')) {
         showError('Bạn không có quyền truy cập trang quản lý hóa đơn.');
         setTimeout(() => {
             window.location.href = '../trangchu/index.html';

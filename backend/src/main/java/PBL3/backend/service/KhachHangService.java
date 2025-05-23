@@ -20,15 +20,13 @@ public class KhachHangService {
     private final AccountRepository accountRepository;
     private final JdbcTemplate jdbcTemplate;
     private final AccountService accountService;
-    private final NhanVienService nhanVienService;
 
     @Autowired
-    public KhachHangService(KhachHangRepository khachHangRepository, AccountRepository accountRepository, JdbcTemplate jdbcTemplate, AccountService accountService, NhanVienService nhanVienService) {
+    public KhachHangService(KhachHangRepository khachHangRepository, AccountRepository accountRepository, JdbcTemplate jdbcTemplate, AccountService accountService) {
         this.khachHangRepository = khachHangRepository;
         this.accountRepository = accountRepository;
         this.jdbcTemplate = jdbcTemplate;
         this.accountService = accountService;
-        this.nhanVienService = nhanVienService;
     }
 
     public List<KhachHangResponse> getAllKhachHang() {
@@ -79,19 +77,8 @@ public class KhachHangService {
             throw new RuntimeException("CCCD đã được đăng ký");
         }
         
-        // Kiểm tra thông tin trùng lặp với bảng nhân viên
-        if (nhanVienService.getNhanVienBySoDienThoai(khachHang.getSoDienThoai()) != null) {
-            throw new RuntimeException("Số điện thoại đã được đăng ký cho nhân viên");
-        }
-        
-        if (khachHang.getEmail() != null && nhanVienService.getNhanVienByEmail(khachHang.getEmail()) != null) {
-            throw new RuntimeException("Email đã được đăng ký cho nhân viên");
-        }
-        
-        if (khachHang.getCccd() != null && nhanVienService.getNhanVienByCccd(khachHang.getCccd()) != null) {
-            throw new RuntimeException("CCCD đã được đăng ký cho nhân viên");
-        }
-        
+    
+    
         // Mặc định trạng thái cho khách hàng mới
         if (khachHang.getTrangThai() == null) {
             khachHang.setTrangThai("Chưa hoạt động");
