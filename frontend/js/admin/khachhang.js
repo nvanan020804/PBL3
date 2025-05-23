@@ -154,14 +154,17 @@ function filterCustomers() {
         filteredCustomers = filteredCustomers.filter(customer => 
             customer.trangThai === true || 
             customer.trangThai === 'true' || 
-            customer.trangThai === 'active'
+            customer.trangThai === 'active' ||
+            customer.trangThai === 'Đang hoạt động'
         );
     } else if (currentFilter === 'inactive') {
         filteredCustomers = filteredCustomers.filter(customer => 
             customer.trangThai === false || 
             customer.trangThai === 'false' || 
             customer.trangThai === 'inactive' || 
-            customer.trangThai === null
+            customer.trangThai === null ||
+            customer.trangThai === 'Không hoạt động' ||
+            customer.trangThai === 'Chưa hoạt động'
         );
     }
     
@@ -203,10 +206,13 @@ function displayCustomers(customersToDisplay) {
     
     customersToDisplay.forEach((customer, index) => {
         // Kiểm tra trạng thái và chuyển đổi thành boolean hoặc sử dụng giá trị chuỗi
-        const isActive = customer.trangThai === 'Đang hoạt động';
+        const isActive = customer.trangThai === 'Đang hoạt động' || 
+                          customer.trangThai === true || 
+                          customer.trangThai === 'true' || 
+                          customer.trangThai === 'active';
         
-        console.log(`Khách hàng ${customer.id} - trạng thái gốc:`, customer.trangThai); // Debug
-        console.log(`Khách hàng ${customer.id} - trạng thái đã xử lý:`, isActive); // Debug
+        console.log(`Khách hàng ${customer.id || customer.idKhachHang} - trạng thái gốc:`, customer.trangThai); // Debug
+        console.log(`Khách hàng ${customer.id || customer.idKhachHang} - trạng thái đã xử lý:`, isActive); // Debug
         
         const row = document.createElement('tr');
         const startIndex = (currentPage - 1) * itemsPerPage;
@@ -292,7 +298,8 @@ function deleteCustomer() {
     if (customer) {
         const isActive = customer.trangThai === true || 
                          customer.trangThai === 'true' || 
-                         customer.trangThai === 'active';
+                         customer.trangThai === 'active' ||
+                         customer.trangThai === 'Đang hoạt động';
         
         if (isActive) {
             // Hiển thị thông báo lỗi TRONG modal thay vì đóng modal và hiển thị thông báo toàn cục
@@ -398,7 +405,8 @@ function editCustomer(customerId) {
     // Xác định trạng thái
     const isActive = customer.trangThai === true || 
                      customer.trangThai === 'true' || 
-                     customer.trangThai === 'active';
+                     customer.trangThai === 'active' || 
+                     customer.trangThai === 'Đang hoạt động';
     
     // Điền thông tin khách hàng vào form
     document.getElementById('customerId').value = idToUse;
@@ -423,7 +431,7 @@ function saveCustomer() {
         soDienThoai: document.getElementById('soDienThoai').value.trim(),
         email: document.getElementById('email').value.trim(),
         cccd: document.getElementById('cccd').value.trim(),
-        trangThai: document.getElementById('trangThai').value === 'true'
+        trangThai: document.getElementById('trangThai').value === 'true' ? 'Đang hoạt động' : 'Không hoạt động'
     };
     
     // Xóa bất kỳ thông báo lỗi nào trước đó

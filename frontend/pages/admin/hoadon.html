@@ -72,7 +72,6 @@
             <tr>
               <th>ID</th>
               <th>Khách Hàng</th>
-              <th>Nhân Viên</th>
               <th>Thời Gian Tạo</th>
               <th>Tổng Tiền</th>
               <th>Giảm Giá</th>
@@ -111,15 +110,9 @@
           <div class="modal-body">
             <form id="invoiceForm">
               <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <input type="hidden" id="invoiceType" value="SANPHAM">
                   <h6 class="mb-3">Hóa đơn mua sản phẩm</h6>
-                </div>
-                <div class="col-md-6">
-                  <label for="idNhanVien" class="form-label">Nhân Viên</label>
-                  <select class="form-select" id="idNhanVien" required>
-                    <!-- Các option sẽ được thêm bằng JavaScript -->
-                  </select>
                 </div>
               </div>
               <div class="row mb-3">
@@ -249,7 +242,6 @@
               <div class="col-md-6">
                 <p><strong>ID Hóa Đơn:</strong> <span id="viewIdHoaDon"></span></p>
                 <p><strong>Khách Hàng:</strong> <span id="viewCustomerName"></span></p>
-                <p><strong>Nhân Viên:</strong> <span id="viewStaffName"></span></p>
               </div>
               <div class="col-md-6">
                 <p><strong>Thời Gian Tạo:</strong> <span id="viewCreationTime"></span></p>
@@ -266,6 +258,21 @@
               </div>
               <div class="col-md-6">
                 <p><strong>Phương Thức Thanh Toán:</strong> <span id="viewPhuongThuc"></span></p>
+              </div>
+            </div>
+            
+            <!-- Hiển thị thông tin đăng ký nếu có -->
+            <div id="viewRegistrationInfo" class="mt-3 mb-3 border-top pt-3 d-none">
+              <h5 class="mb-2">Thông Tin Đăng Ký</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <p><strong>Gói Dịch Vụ:</strong> <span id="viewTenGoi"></span></p>
+                  <p><strong>Ngày Bắt Đầu:</strong> <span id="viewNgayBatDau"></span></p>
+                  <p><strong>Ngày Kết Thúc:</strong> <span id="viewNgayKetThuc"></span></p>
+                </div>
+                <div class="col-md-6">
+                  <p><strong>Trạng Thái Đăng Ký:</strong> <span id="viewTrangThaiDangKy"></span></p>
+                </div>
               </div>
             </div>
 

@@ -45,6 +45,11 @@ public class HoaDonService {
         return hoaDonRepository.findByDangKy(dangKy);
     }
     
+    public List<HoaDon> getAllHoaDonWithDangKy() {
+        // Trả về danh sách hóa đơn có liên kết với đăng ký (dangKy không null)
+        return hoaDonRepository.findByDangKyIsNotNull();
+    }
+    
     // Phương thức tìm hóa đơn theo ID nhân viên đã bị loại bỏ
 
     @Transactional

@@ -37,20 +37,21 @@ public class HoaDonController {
     }
 
     @GetMapping("/dangky/{idDangKy}")
-    public ResponseEntity<List<HoaDon>> getHoaDonByDangKy(@PathVariable int idDangKy) {
+    public ResponseEntity<List<HoaDon>> getHoaDonByDangKy(@PathVariable String idDangKy) {
         try {
-            List<HoaDon> hoaDonList = hoaDonService.getHoaDonByDangKy(idDangKy);
+            List<HoaDon> hoaDonList;
+            if ("all".equalsIgnoreCase(idDangKy)) {
+                // Nếu tham số là "all", trả về tất cả hóa đơn có liên kết với đăng ký
+                hoaDonList = hoaDonService.getAllHoaDonWithDangKy();
+            } else {
+                // Ngược lại, chuyển đổi sang int và gọi service
+                int dangKyId = Integer.parseInt(idDangKy);
+                hoaDonList = hoaDonService.getHoaDonByDangKy(dangKyId);
+            }
             return new ResponseEntity<>(hoaDonList, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @GetMapping("/nhanvien/{idNhanVien}")
-    public ResponseEntity<List<HoaDon>> getHoaDonByNhanVien(@PathVariable int idNhanVien) {
-        try {
-            List<HoaDon> hoaDonList = hoaDonService.getHoaDonByNhanVien(idNhanVien);
-            return new ResponseEntity<>(hoaDonList, HttpStatus.OK);
+        } catch (NumberFormatException e) {
+            // Lỗi khi chuyển đổi idDangKy sang số
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

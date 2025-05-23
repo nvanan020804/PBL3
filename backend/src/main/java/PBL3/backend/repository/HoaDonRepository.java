@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     List<HoaDon> findByDangKy(DangKy dangKy);
-    List<HoaDon> findByIdNhanVien(Integer idNhanVien);
+    List<HoaDon> findByDangKyIsNotNull();
 }

@@ -281,9 +281,6 @@ const HoaDonAPI = {
     // Lấy hóa đơn theo ID đăng ký
     getHoaDonByDangKy: (idDangKy) => fetchGet(`hoadon/dangky/${idDangKy}`),
     
-    // Lấy hóa đơn theo ID nhân viên
-    getHoaDonByNhanVien: (idNhanVien) => fetchGet(`hoadon/nhanvien/${idNhanVien}`),
-    
     // Tạo hóa đơn mới
     createHoaDon: (hoaDonData) => fetchPost('hoadon', hoaDonData),
     

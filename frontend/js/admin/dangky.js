@@ -712,17 +712,11 @@ async function createNewInvoiceForRegistration(registrationId) {
             return;
         }
         
-        // Lấy thông tin nhân viên hiện tại (từ localStorage hoặc session)
-        const staffId = localStorage.getItem('userId') || 1; // Sử dụng ID mặc định nếu không có
-        
         // Lấy giá của gói dịch vụ
         const price = registration.goiDichVu?.gia || 0;
         
         // Tạo đối tượng dữ liệu hóa đơn
         const invoiceData = {
-            nhanVien: {
-                idNhanVien: staffId
-            },
             dangKy: {
                 idDangKy: registrationId
             },
@@ -1515,17 +1509,11 @@ async function confirmAndCreateInvoice() {
             throw new Error('Không thể tải thông tin đăng ký');
         }
         
-        // Lấy thông tin nhân viên hiện tại (từ localStorage hoặc session)
-        const staffId = localStorage.getItem('userId') || 1; // Sử dụng ID mặc định nếu không có
-        
         // Lấy giá của gói dịch vụ
         const price = registration.goiDichVu?.gia || 0;
         
         // Tạo đối tượng dữ liệu hóa đơn
         const invoiceData = {
-            nhanVien: {
-                idNhanVien: staffId
-            },
             dangKy: {
                 idDangKy: registrationId
             },

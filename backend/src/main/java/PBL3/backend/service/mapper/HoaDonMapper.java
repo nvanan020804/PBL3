@@ -34,11 +34,6 @@ public class HoaDonMapper {
             hoaDon.setDangKy(dangKy);
         }
         
-        // Đặt ID nhân viên trực tiếp
-        if (request.getIdNhanVien() != null) {
-            hoaDon.setIdNhanVien(request.getIdNhanVien());
-        }
-        
         hoaDon.setThoiGianTao(LocalDateTime.now());
         hoaDon.setTrangThai(request.getTrangThai());
         
@@ -53,17 +48,9 @@ public class HoaDonMapper {
         HoaDonResponse response = new HoaDonResponse();
         response.setIdHoaDon(entity.getIdHoaDon());
         
+        // Chỉ trả về idDangKy nếu có, frontend sẽ gọi API DangKyController để lấy chi tiết khi cần
         if (entity.getDangKy() != null) {
             response.setIdDangKy(entity.getDangKy().getIdDangKy());
-            if (entity.getDangKy().getKhachHang() != null) {
-                response.setTenKhachHang(entity.getDangKy().getKhachHang().getTenKhachHang());
-            }
-        }
-        
-        if (entity.getIdNhanVien() != null) {
-            response.setIdNhanVien(entity.getIdNhanVien());
-            // Tên nhân viên không còn được sử dụng
-            response.setTenNhanVien("Admin");
         }
         
         response.setThoiGianTao(entity.getThoiGianTao());

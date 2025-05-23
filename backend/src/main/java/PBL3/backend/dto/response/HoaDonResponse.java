@@ -14,10 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class HoaDonResponse {
     private int idHoaDon;
-    private int idDangKy;
-    private String tenKhachHang;
-    private int idNhanVien;
-    private String tenNhanVien;
+    private Integer idDangKy; // Đã thay đổi thành Integer để có thể null nếu không có đăng ký
     private LocalDateTime thoiGianTao;
     private String trangThai;
     private List<HoaDonChiTietResponse> chiTietList;

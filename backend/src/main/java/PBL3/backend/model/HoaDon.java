@@ -2,6 +2,7 @@ package PBL3.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,10 +31,6 @@ public class HoaDon {
     @JsonBackReference(value = "dangky-hoadon")
     private DangKy dangKy;
     
-    // Không còn sử dụng quan hệ với nhân viên
-    @Column(name = "idNhanVien", nullable = true)
-    private Integer idNhanVien;
-    
     @Column(name = "thoiGianTao", nullable = false)
     private LocalDateTime thoiGianTao;
     
@@ -58,4 +55,10 @@ public class HoaDon {
     @OneToMany(mappedBy = "hoaDon", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "hoadon-chitiet")
     private List<HoaDonChiTiet> chiTietList = new ArrayList<>();
+    
+    // Thêm getter method để trả về ID đăng ký mà không cần serialization toàn bộ đối tượng dangKy
+    @JsonProperty("idDangKy")
+    public Integer getIdDangKy() {
+        return dangKy != null ? dangKy.getIdDangKy() : null;
+    }
 }

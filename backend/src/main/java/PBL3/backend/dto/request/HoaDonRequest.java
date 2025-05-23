@@ -16,9 +16,6 @@ public class HoaDonRequest {
     @NotNull(message = "ID đăng ký không được để trống")
     private Integer idDangKy;
     
-    @NotNull(message = "ID nhân viên không được để trống")
-    private Integer idNhanVien;
-    
     @Pattern(regexp = "^(Đã thanh toán|Chưa thanh toán|Hủy)$", message = "Trạng thái phải là một trong: Đã thanh toán, Chưa thanh toán, Hủy")
     private String trangThai;
 }
