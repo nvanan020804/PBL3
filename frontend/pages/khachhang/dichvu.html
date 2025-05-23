@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GYM-Manager</title>
+    <link rel="stylesheet" href="../../css/khachhang/home.css" />
+    <link rel="stylesheet" href="../../css/khachhang/dichvu.css" />
+    <link rel="stylesheet" href="../../css/components/footer.css" />
+    <link rel="stylesheet" href="../../css/components/header.css" />
+    <link rel="stylesheet" href="../../css/components/menu.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <style>
+      .dichvu-container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .table-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-top: 20px;
+      }
+
+      #dichvu-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      #dichvu-table th,
+      #dichvu-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      #dichvu-table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        color: #333;
+      }
+
+      #dichvu-table tbody tr:hover {
+        background-color: #f5f5f5;
+      }
+
+      .btn-register {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .btn-register:hover {
+        background-color: #0056b3;
+      }
+
+      #form-dang-ky {
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+
+      #form-dang-ky h2 {
+        color: #333;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      #form-dang-ky form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      #form-dang-ky label {
+        font-weight: bold;
+        color: #555;
+      }
+
+      #form-dang-ky input {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      #form-dang-ky button {
+        padding: 10px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+
+      #form-dang-ky button:hover {
+        background-color: #218838;
+      }
+
+      .payment-info {
+        background-color: #f8f9fa;
+padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+      }
+
+      .payment-info h3 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+      }
+
+      .payment-info p {
+        margin: 5px 0;
+        font-size: 0.95em;
+      }
+
+      .note {
+        color: #dc3545;
+        font-style: italic;
+        margin-top: 10px;
+      }
+
+      #goi-hien-tai {
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+
+      #goi-hien-tai h3 {
+        color: #333;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      #goi-hien-tai p {
+        margin: 8px 0;
+        color: #555;
+        padding: 5px 0;
+        border-bottom: 1px solid #eee;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-container"></div>
+    <div id="menu-container"></div>
+    <div class="main">
+      <div class="dichvu-container">
+        <h1>Danh Sách Gói Dịch Vụ</h1>
+        <div class="table-container">
+          <table id="dichvu-table">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Tên gói</th>
+                <th>Giá</th>
+                <th>Thời hạn</th>
+                <th>Mô tả</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Dữ liệu sẽ được thêm vào bằng JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="form-dang-ky" style="display:none">
+        <h2>Đăng ký gói dịch vụ</h2>
+        <form id="dangky-form">
+          <div class="payment-info">
+            <h3>Thông tin thanh toán</h3>
+            <p><strong>Số tài khoản:</strong> 0935186115</p>
+            <p><strong>Ngân hàng:</strong> MBBank</p>
+            <p><strong>Chủ tài khoản:</strong> NGUYEN VAN A</p>
+            <p class="note">* Vui lòng chuyển khoản trước khi đăng ký với nội dung: "GYM [Tên của bạn]"</p>
+          </div>
+          <div class="form-group">
+            <label for="gio-tap">Chọn giờ tập:</label>
+            <input type="time" id="gio-tap" required>
+          </div>
+          <button type="submit">Xác nhận đăng ký</button>
+        </form>
+      </div>
+      
+      <div id="goi-hien-tai" style="display:none"></div>
+    </div>
+    <div id="footer-container"></div>
+    <script src="../../js/components/loadComponents.js"></script>
+    <script src="../../js/components/menuScroll.js"></script>
+    <script src="../../js/components/navbar.js"></script>
+    <script src="../../js/khachhang/dichvu.js"></script>
+  </body>
+</html>

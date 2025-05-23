@@ -1,0 +1,161 @@
+/* CSS cho trang quản lý sản phẩm */
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+}
+
+/* Styling cho card sản phẩm */
+.product-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 20px;
+  height: 100%;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.product-image {
+  height: 200px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.product-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  height: 3em;
+}
+
+.card-footer {
+  background-color: #fff;
+  border-top: none;
+}
+
+/* Styling cho statusbar */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.status-instock {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-lowstock {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-outofstock {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+/* Styling cho bảng sản phẩm */
+.table img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.table .action-buttons {
+  white-space: nowrap;
+}
+
+.table .action-buttons .btn {
+  margin-right: 5px;
+}
+
+/* Styling cho phần tìm kiếm và filter */
+.form-control:focus,
+.form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Styling cho pagination */
+.pagination .page-item.active .page-link {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.pagination .page-link {
+  color: #0d6efd;
+}
+
+/* Styling cho modal */
+.modal-header {
+  background-color: #0d6efd;
+  color: white;
+}
+
+/* Styling cho alert messages */
+#alertMessage {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  min-width: 300px;
+  max-width: 80%;
+  text-align: center;
+}
+
+/* Loading overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 9998;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #0d6efd;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .table-responsive {
+    overflow-x: auto;
+  }
+  
+  .action-buttons .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}

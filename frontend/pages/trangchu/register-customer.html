@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký tài khoản - GYM Manager</title>
+    <link rel="stylesheet" href="../../css/trangchu/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-container">
+        <div class="left-section">
+            <h1>GYM Manager</h1>
+            <p>Đăng ký tài khoản để trải nghiệm dịch vụ tập luyện và chăm sóc sức khỏe hàng đầu.</p>
+        </div>
+        
+        <div class="login-container">
+            <form class="login-form" id="registerForm">
+                <h2>Đăng ký tài khoản</h2>
+                
+                <div class="input-box">
+                    <input type="text" id="username" placeholder="Tên đăng nhập" required>
+                    <div id="usernameError" class="error-message"></div>
+                </div>
+                
+                <div class="input-box">
+                    <input type="password" id="password" placeholder="Mật khẩu" required>
+                    <div id="passwordError" class="error-message"></div>
+                </div>
+                
+                <h3>Thông tin cá nhân</h3>
+                
+                <div class="input-box">
+                    <input type="text" id="tenKhachHang" placeholder="Họ và tên" required>
+                </div>
+                
+                <div class="input-box">
+                    <input type="number" id="namSinh" placeholder="Năm sinh">
+                </div>
+                
+                <div class="input-box">
+                    <input type="text" id="soDienThoai" placeholder="Số điện thoại" required>
+                    <div id="soDienThoaiError" class="error-message"></div>
+                </div>
+                
+                <div class="input-box">
+                    <input type="text" id="cccd" placeholder="CCCD/CMND">
+                    <div id="cccdError" class="error-message"></div>
+                </div>
+                
+                <div class="input-box">
+                    <input type="email" id="email" placeholder="Email">
+                    <div id="emailError" class="error-message"></div>
+                </div>
+                
+                <div id="successMessage" class="success-message"></div>
+                <div id="generalError" class="error-message"></div>
+                
+                <input type="submit" value="Đăng ký">
+                
+                <div class="divider"><span>HOẶC</span></div>
+                
+                <p style="text-align: center; margin: 15px 0;">
+                    <a href="login.html" style="color: #1877f2; text-decoration: none;">Đã có tài khoản? Đăng nhập ngay</a>
+                </p>
+            </form>
+        </div>
+    </div>
+    
+    <script type="module" src="../../js/trangchu/register-customer.js"></script>
+</body>
+</html>

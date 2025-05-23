@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - GYM Manager</title>
+    <link rel="stylesheet" href="../../css/trangchu/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-container">
+        <div class="left-section">
+            <h1>GYM Manager</h1>
+            <p>Quản lý tập luyện hiệu quả, nâng cao sức khỏe và thể hình của bạn.</p>
+        </div>
+        
+        <div class="login-container">
+            <form class="login-form" id="loginForm">
+                <h2>Đăng nhập</h2>
+                <div class="input-box">
+                    <input type="text" id="username" placeholder="Tên đăng nhập" required>
+                </div>
+                <div class="input-box">
+                    <input type="password" id="password" placeholder="Mật khẩu" required>
+                </div>
+                <div id="loginError" class="error-message"></div>
+                <input type="submit" value="Đăng nhập">
+                <a href="#" class="forgot-password">Quên mật khẩu?</a>
+                
+                <div class="divider"><span>HOẶC</span></div>
+                
+                <a href="register-customer.html" class="create-account-btn">Tạo tài khoản mới</a>
+            </form>
+        </div>
+    </div>
+    
+    <script src="../../js/trangchu/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Chỉnh màu header */
+.table-dark {
+    background-color: #212529;
+}
+
+/* Hiệu ứng hover cho dòng trong bảng */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Định dạng các nút hành động */
+.action-buttons .btn {
+    margin-right: 5px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.action-buttons .btn:last-child {
+    margin-right: 0;
+}
+
+/* Hiệu ứng cho nút thêm khách hàng */
+#addCustomerBtn {
+    transition: all 0.3s ease;
+    border-radius: 4px;
+}
+
+#addCustomerBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Định dạng cho alert messages */
+.alert {
+    border-radius: 4px;
+    font-size: 0.95rem;
+}
+
+.alert.show {
+    display: block;
+}
+
+/* Tùy chỉnh cho form modal */
+.modal-content {
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Required field indicator */
+.form-label .text-danger {
+    font-weight: bold;
+}
+
+/* Spinner khi loading */
+#loadingSpinner {
+    margin: 30px auto;
+}
+
+/* Container chính */
+.container {
+    background-color: white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    padding: 25px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* Pagination styling */
+.pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.pagination .page-link {
+    color: #0d6efd;
+}
+
+.pagination .page-link:hover {
+    background-color: #e9ecef;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .action-buttons .btn {
+        margin-right: 0;
+        margin-bottom: 5px;
+        width: 100%;
+    }
+    
+    .container {
+        padding: 15px;
+    }
+}
+
+/* Status badges */
+.badge-active {
+    background-color: #28a745;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-weight: normal;
+}
+
+.badge-inactive {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-weight: normal;
+}

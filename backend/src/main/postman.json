@@ -1,0 +1,1460 @@
+{
+  "info": {
+    "name": "PBL3 Gym Management API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12345678"
+  },
+  "item": [
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "Đăng nhập",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "login"]
+            },
+            "description": "Đăng nhập vào hệ thống"
+          },
+          "response": []
+        },
+        {
+          "name": "Đăng ký tài khoản khách hàng",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"customer1\",\n  \"password\": \"123456\",\n  \"khachHang\": {\n    \"tenKhachHang\": \"Nguyễn Văn A\",\n    \"namSinh\": 1990,\n    \"soDienThoai\": \"0987654321\",\n    \"cccd\": \"012345678901\",\n    \"email\": \"nguyenvana@gmail.com\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/register/customer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "register", "customer"]
+            },
+            "description": "Đăng ký tài khoản cho khách hàng mới"
+          },
+          "response": []
+        },
+        {
+          "name": "Đăng ký tài khoản nhân viên",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"staff1\",\n  \"password\": \"123456\",\n  \"role\": \"nhanvien\",\n  \"nhanVien\": {\n    \"tenNhanVien\": \"Trần Văn B\",\n    \"tuoi\": 25,\n    \"soDienThoai1\": \"0123456789\",\n    \"cccd\": \"098765432109\",\n    \"email\": \"tranvanb@gmail.com\",\n    \"viTri\": \"Huấn luyện viên\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/register/staff",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "register", "staff"]
+            },
+            "description": "Đăng ký tài khoản cho nhân viên mới"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy tất cả tài khoản",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts"]
+            },
+            "description": "Lấy danh sách tất cả tài khoản"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy tài khoản theo username",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "admin"]
+            },
+            "description": "Lấy thông tin tài khoản theo username"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Khách Hàng",
+      "item": [
+        {
+          "name": "Lấy tất cả khách hàng",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/khachhang",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "khachhang"]
+            },
+            "description": "Lấy danh sách tất cả khách hàng"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy khách hàng theo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/khachhang/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "khachhang", "1"]
+            },
+            "description": "Lấy thông tin khách hàng theo ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy khách hàng theo số điện thoại",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/khachhang/phone/0987654321",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "khachhang", "phone", "0987654321"]
+            },
+            "description": "Lấy thông tin khách hàng theo số điện thoại"
+          },
+          "response": []
+        },
+        {
+          "name": "Tìm kiếm khách hàng theo tên đăng nhập",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/khachhang/search?query=username&searchBy=username",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "khachhang", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "username"
+                },
+                {
+                  "key": "searchBy",
+                  "value": "username"
+                }
+              ]
+            },
+            "description": "Tìm kiếm khách hàng theo tên đăng nhập"
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo khách hàng mới",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenKhachHang\": \"Nguyễn Văn A\",\n  \"namSinh\": 1990,\n  \"soDienThoai\": \"0987654321\",\n  \"cccd\": \"012345678901\",\n  \"email\": \"nguyenvana@gmail.com\",\n  \"trangThai\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/khachhang",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "khachhang"]
+            },
+            "description": "Tạo mới một khách hàng"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật khách hàng",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenKhachHang\": \"Nguyễn Văn A (Cập nhật)\",\n  \"namSinh\": 1990,\n  \"soDienThoai\": \"0987654321\",\n  \"cccd\": \"012345678901\",\n  \"email\": \"nguyenvana@gmail.com\",\n  \"trangThai\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/khachhang/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "khachhang", "1"]
+            },
+            "description": "Cập nhật thông tin khách hàng"
+          },
+          "response": []
+        },
+        {
+          "name": "Xóa khách hàng",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/khachhang/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "khachhang", "1"]
+            },
+            "description": "Xóa khách hàng"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Nhân Viên",
+      "item": [
+        {
+          "name": "Lấy tất cả nhân viên",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/nhanvien",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "nhanvien"]
+            },
+            "description": "Lấy danh sách tất cả nhân viên"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy nhân viên theo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/nhanvien/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "nhanvien", "1"]
+            },
+            "description": "Lấy thông tin nhân viên theo ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy nhân viên theo số điện thoại",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/nhanvien/phone/0123456789",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "nhanvien", "phone", "0123456789"]
+            },
+            "description": "Lấy thông tin nhân viên theo số điện thoại"
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo nhân viên mới",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenNhanVien\": \"Trần Văn B\",\n  \"tuoi\": 25,\n  \"soDienThoai1\": \"0123456789\",\n  \"cccd\": \"098765432109\",\n  \"email\": \"tranvanb@gmail.com\",\n  \"viTri\": \"Huấn luyện viên\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/nhanvien",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "nhanvien"]
+            },
+            "description": "Tạo mới một nhân viên"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật nhân viên",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenNhanVien\": \"Trần Văn B (Cập nhật)\",\n  \"tuoi\": 26,\n  \"soDienThoai1\": \"0123456789\",\n  \"cccd\": \"098765432109\",\n  \"email\": \"tranvanb@gmail.com\",\n  \"viTri\": \"Huấn luyện viên cấp cao\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/nhanvien/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "nhanvien", "1"]
+            },
+            "description": "Cập nhật thông tin nhân viên"
+          },
+          "response": []
+        },
+        {
+          "name": "Xóa nhân viên",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/nhanvien/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "nhanvien", "1"]
+            },
+            "description": "Xóa nhân viên"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Gói Dịch Vụ",
+      "item": [
+        {
+          "name": "Lấy tất cả gói dịch vụ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/goidichvu",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goidichvu"]
+            },
+            "description": "Lấy danh sách tất cả gói dịch vụ"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy gói dịch vụ theo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/goidichvu/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goidichvu", "1"]
+            },
+            "description": "Lấy thông tin gói dịch vụ theo ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy gói dịch vụ theo tên",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/goidichvu/name/Gói VIP",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goidichvu", "name", "Gói VIP"]
+            },
+            "description": "Lấy thông tin gói dịch vụ theo tên"
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo gói dịch vụ mới",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenGoi\": \"Gói VIP\",\n  \"gia\": 1000000,\n  \"moTa\": \"Gói dịch vụ cao cấp với đầy đủ tiện ích\",\n  \"thoiGian\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/goidichvu",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goidichvu"]
+            },
+            "description": "Tạo mới một gói dịch vụ"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật gói dịch vụ",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenGoi\": \"Gói VIP Plus\",\n  \"gia\": 1200000,\n  \"moTa\": \"Gói dịch vụ cao cấp với đầy đủ tiện ích và huấn luyện viên cá nhân\",\n  \"thoiGian\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/goidichvu/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goidichvu", "1"]
+            },
+            "description": "Cập nhật thông tin gói dịch vụ"
+          },
+          "response": []
+        },
+        {
+          "name": "Xóa gói dịch vụ",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/goidichvu/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "goidichvu", "1"]
+            },
+            "description": "Xóa gói dịch vụ"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Đăng Ký",
+      "item": [
+        {
+          "name": "Lấy tất cả đăng ký",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dangky",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dangky"]
+            },
+            "description": "Lấy danh sách tất cả đăng ký"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy đăng ký theo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dangky/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dangky", "1"]
+            },
+            "description": "Lấy thông tin đăng ký theo ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy đăng ký theo khách hàng",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dangky/khachhang/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dangky", "khachhang", "1"]
+            },
+            "description": "Lấy danh sách đăng ký của một khách hàng"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy đăng ký đang hoạt động của khách hàng",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dangky/active/khachhang/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dangky", "active", "khachhang", "1"]
+            },
+            "description": "Lấy danh sách đăng ký đang hoạt động của một khách hàng"
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo đăng ký mới",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idKhachHang\": 1,\n  \"idGOI\": 1,\n  \"ngayBatDau\": \"2025-05-04\",\n  \"trangThai\": \"Đang hoạt động\",\n  \"gioTap\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dangky",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dangky"]
+            },
+            "description": "Tạo mới một đăng ký"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật đăng ký",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idKhachHang\": 1,\n  \"idGOI\": 1,\n  \"ngayBatDau\": \"2025-05-05\",\n  \"trangThai\": \"Đang hoạt động\",\n  \"gioTap\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/dangky/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dangky", "1"]
+            },
+            "description": "Cập nhật thông tin đăng ký"
+          },
+          "response": []
+        },
+        {
+          "name": "Kích hoạt đăng ký",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dangky/1/activate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dangky", "1", "activate"]
+            },
+            "description": "Kích hoạt đăng ký"
+          },
+          "response": []
+        },
+        {
+          "name": "Hủy đăng ký",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dangky/1/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dangky", "1", "cancel"]
+            },
+            "description": "Hủy đăng ký"
+          },
+          "response": []
+        },
+        {
+          "name": "Xóa đăng ký",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dangky/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dangky", "1"]
+            },
+            "description": "Xóa đăng ký"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Hóa Đơn",
+      "item": [
+        {
+          "name": "Lấy tất cả hóa đơn",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadon",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadon"]
+            },
+            "description": "Lấy danh sách tất cả hóa đơn"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy hóa đơn theo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadon/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadon", "1"]
+            },
+            "description": "Lấy thông tin hóa đơn theo ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy hóa đơn theo đăng ký",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadon/dangky/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadon", "dangky", "1"]
+            },
+            "description": "Lấy danh sách hóa đơn theo ID đăng ký"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy hóa đơn theo nhân viên",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadon/nhanvien/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadon", "nhanvien", "1"]
+            },
+            "description": "Lấy danh sách hóa đơn theo ID nhân viên"
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo hóa đơn mới",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dangKy\": {\n    \"idDangKy\": 1\n  },\n  \"nhanVien\": {\n    \"idNhanVien\": 1\n  },\n  \"thoiGianTao\": \"2025-05-11T15:30:00\",\n  \"trangThai\": \"Chờ xử lý\",\n  \"tongTien\": 1500000,\n  \"giamGia\": 50000,\n  \"thanhToan\": 1450000,\n  \"phuongThuc\": \"tiền mặt\",\n  \"trangThaiThanhToan\": \"Đã thanh toán\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadon",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadon"]
+            },
+            "description": "Tạo mới một hóa đơn"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật hóa đơn",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dangKy\": {\n    \"idDangKy\": 1\n  },\n  \"nhanVien\": {\n    \"idNhanVien\": 1\n  },\n  \"thoiGianTao\": \"2025-05-11T16:30:00\",\n  \"trangThai\": \"Đã hoàn thành\",\n  \"tongTien\": 1200000,\n  \"giamGia\": 0,\n  \"thanhToan\": 1200000,\n  \"phuongThuc\": \"chuyển khoản\",\n  \"trangThaiThanhToan\": \"Đã thanh toán\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadon/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadon", "1"]
+            },
+            "description": "Cập nhật thông tin hóa đơn"
+          },
+          "response": []
+        },
+        {
+          "name": "Hoàn thành hóa đơn",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadon/1/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadon", "1", "complete"]
+            },
+            "description": "Đánh dấu hóa đơn là đã hoàn thành"
+          },
+          "response": []
+        },
+        {
+          "name": "Hủy hóa đơn",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadon/1/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadon", "1", "cancel"]
+            },
+            "description": "Hủy hóa đơn"
+          },
+          "response": []
+        },
+        {
+          "name": "Xóa hóa đơn",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadon/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadon", "1"]
+            },
+            "description": "Xóa hóa đơn"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Hóa Đơn Chi Tiết",
+      "item": [
+        {
+          "name": "Lấy tất cả chi tiết hóa đơn",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadonchitiet",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadonchitiet"]
+            },
+            "description": "Lấy danh sách tất cả chi tiết hóa đơn"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy chi tiết hóa đơn theo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadonchitiet/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadonchitiet", "1"]
+            },
+            "description": "Lấy thông tin chi tiết hóa đơn theo ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy chi tiết theo hóa đơn",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadonchitiet/hoadon/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadonchitiet", "hoadon", "1"]
+            },
+            "description": "Lấy danh sách chi tiết theo ID hóa đơn"
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo chi tiết hóa đơn mới",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hoaDon\": {\n    \"idHoaDon\": 1\n  },\n  \"sanPham\": {\n    \"idSanPham\": 1\n  },\n  \"soLuong\": 2,\n  \"gia\": 250000,\n  \"thanhTien\": 500000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadonchitiet",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadonchitiet"]
+            },
+            "description": "Tạo mới một chi tiết hóa đơn"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật chi tiết hóa đơn",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hoaDon\": {\n    \"idHoaDon\": 1\n  },\n  \"sanPham\": {\n    \"idSanPham\": 1\n  },\n  \"soLuong\": 3,\n  \"gia\": 250000,\n  \"thanhTien\": 750000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadonchitiet/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadonchitiet", "1"]
+            },
+            "description": "Cập nhật thông tin chi tiết hóa đơn"
+          },
+          "response": []
+        },
+        {
+          "name": "Xóa chi tiết hóa đơn",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hoadonchitiet/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hoadonchitiet", "1"]
+            },
+            "description": "Xóa chi tiết hóa đơn"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Phân Loại Sản Phẩm",
+      "item": [
+        {
+          "name": "Lấy tất cả danh mục",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/danhmuc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "danhmuc"]
+            },
+            "description": "Lấy danh sách tất cả danh mục sản phẩm"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy danh mục theo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/danhmuc/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "danhmuc", "1"]
+            },
+            "description": "Lấy thông tin danh mục theo ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy danh mục theo tên",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/danhmuc/name/Thực phẩm bổ sung",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "danhmuc", "name", "Thực phẩm bổ sung"]
+            },
+            "description": "Lấy thông tin danh mục theo tên"
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo danh mục mới",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenDanhMuc\": \"Thực phẩm bổ sung\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/danhmuc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "danhmuc"]
+            },
+            "description": "Tạo mới một danh mục sản phẩm"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật danh mục",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenDanhMuc\": \"Thực phẩm bổ sung cao cấp\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/danhmuc/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "danhmuc", "1"]
+            },
+            "description": "Cập nhật thông tin danh mục"
+          },
+          "response": []
+        },
+        {
+          "name": "Xóa danh mục",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/danhmuc/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "danhmuc", "1"]
+            },
+            "description": "Xóa danh mục sản phẩm"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Sản Phẩm",
+      "item": [
+        {
+          "name": "Lấy tất cả sản phẩm",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sanpham",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sanpham"]
+            },
+            "description": "Lấy danh sách tất cả sản phẩm"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy sản phẩm theo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sanpham/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sanpham", "1"]
+            },
+            "description": "Lấy thông tin sản phẩm theo ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy sản phẩm theo danh mục",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sanpham/danhmuc/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sanpham", "danhmuc", "1"]
+            },
+            "description": "Lấy danh sách sản phẩm theo danh mục"
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo sản phẩm mới",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenSanPham\": \"Whey Protein\",\n  \"donViDem\": \"hộp\",\n  \"gia\": 500000,\n  \"congDung\": \"Bổ sung protein cho người tập thể hình\",\n  \"soLuong\": 20,\n  \"danhMuc\": {\n    \"idDanhMuc\": 1\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sanpham",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sanpham"]
+            },
+            "description": "Tạo mới một sản phẩm"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật sản phẩm",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenSanPham\": \"Whey Protein Gold Standard\",\n  \"donViDem\": \"hộp\",\n  \"gia\": 650000,\n  \"congDung\": \"Bổ sung protein chất lượng cao cho người tập thể hình\",\n  \"soLuong\": 15,\n  \"danhMuc\": {\n    \"idDanhMuc\": 1\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sanpham/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sanpham", "1"]
+            },
+            "description": "Cập nhật thông tin sản phẩm"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật số lượng sản phẩm",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"soLuong\": 25\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sanpham/1/soluong",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sanpham", "1", "soluong"]
+            },
+            "description": "Cập nhật số lượng sản phẩm"
+          },
+          "response": []
+        },
+        {
+          "name": "Nhập hàng",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"soLuongThem\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sanpham/1/nhaphang",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sanpham", "1", "nhaphang"]
+            },
+            "description": "Thêm số lượng sản phẩm (nhập hàng)"
+          },
+          "response": []
+        },
+        {
+          "name": "Xóa sản phẩm",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sanpham/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sanpham", "1"]
+            },
+            "description": "Xóa sản phẩm"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Thiết Bị",
+      "item": [
+        {
+          "name": "Lấy tất cả thiết bị",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/thietbi",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "thietbi"]
+            },
+            "description": "Lấy danh sách tất cả thiết bị"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy thiết bị theo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/thietbi/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "thietbi", "1"]
+            },
+            "description": "Lấy thông tin thiết bị theo ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy thiết bị theo trạng thái",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/thietbi/trangthai/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "thietbi", "trangthai", "active"]
+            },
+            "description": "Lấy danh sách thiết bị theo trạng thái"
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo thiết bị mới",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenThietBi\": \"Máy chạy bộ\",\n  \"congDung\": \"Luyện tập cardio\",\n  \"ngayNhap\": \"2025-01-01\",\n  \"giaTien\": 20000000,\n  \"trangThai\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/thietbi",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "thietbi"]
+            },
+            "description": "Tạo mới một thiết bị"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật thiết bị",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenThietBi\": \"Máy chạy bộ điện tử\",\n  \"congDung\": \"Luyện tập cardio với nhiều chế độ\",\n  \"ngayNhap\": \"2025-01-01\",\n  \"giaTien\": 25000000,\n  \"trangThai\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/thietbi/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "thietbi", "1"]
+            },
+            "description": "Cập nhật thông tin thiết bị"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật trạng thái thiết bị",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trangThai\": \"maintenance\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/thietbi/1/trangthai",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "thietbi", "1", "trangthai"]
+            },
+            "description": "Cập nhật trạng thái thiết bị"
+          },
+          "response": []
+        },
+        {
+          "name": "Xóa thiết bị",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/thietbi/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "thietbi", "1"]
+            },
+            "description": "Xóa thiết bị"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Doanh Thu",
+      "item": [
+        {
+          "name": "Lấy tất cả doanh thu",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/doanhthu",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "doanhthu"]
+            },
+            "description": "Lấy danh sách tất cả doanh thu"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy doanh thu theo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/doanhthu/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "doanhthu", "1"]
+            },
+            "description": "Lấy thông tin doanh thu theo ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy doanh thu theo thời gian",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/doanhthu/thoigian/202505",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "doanhthu", "thoigian", "202505"]
+            },
+            "description": "Lấy thông tin doanh thu theo thời gian (format YYYYMM)"
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo doanh thu mới",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"thoiGian\": \"202505\",\n  \"tongThu\": 50000000,\n  \"tongChi\": 20000000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/doanhthu",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "doanhthu"]
+            },
+            "description": "Tạo mới thông tin doanh thu"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật doanh thu",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"thoiGian\": \"202505\",\n  \"tongThu\": 55000000,\n  \"tongChi\": 22000000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/doanhthu/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "doanhthu", "1"]
+            },
+            "description": "Cập nhật thông tin doanh thu"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật tổng thu",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tongThu\": 60000000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/doanhthu/1/tongthu",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "doanhthu", "1", "tongthu"]
+            },
+            "description": "Cập nhật tổng thu"
+          },
+          "response": []
+        },
+        {
+          "name": "Cập nhật tổng chi",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tongChi\": 25000000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/doanhthu/1/tongchi",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "doanhthu", "1", "tongchi"]
+            },
+            "description": "Cập nhật tổng chi"
+          },
+          "response": []
+        },
+        {
+          "name": "Thêm vào tổng thu",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"soTien\": 2000000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/doanhthu/1/themthu",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "doanhthu", "1", "themthu"]
+            },
+            "description": "Thêm một khoản vào tổng thu"
+          },
+          "response": []
+        },
+        {
+          "name": "Thêm vào tổng chi",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"soTien\": 1000000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/doanhthu/1/themchi",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "doanhthu", "1", "themchi"]
+            },
+            "description": "Thêm một khoản vào tổng chi"
+          },
+          "response": []
+        },
+        {
+          "name": "Xóa doanh thu",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/doanhthu/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "doanhthu", "1"]
+            },
+            "description": "Xóa thông tin doanh thu"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
+}
+
+
+

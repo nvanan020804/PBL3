@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const tabs = document.querySelectorAll(".nav-bar .tab");
   const images = document.querySelectorAll(".album-slide .img");
   const slideContainer = document.querySelector(".album-slide");
-  const imgWidth = 270; // 250px ảnh + 20px margin
+  const imgWidth = 270;
   const visibleCount = 4;
 
   tabs.forEach((tab) => {

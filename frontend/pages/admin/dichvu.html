@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý Gói Dịch Vụ - GYM-Manager</title>
+    <link rel="stylesheet" href="../../css/admin/home.css" />
+    <link rel="stylesheet" href="../../css/admin/dichvu.css" />
+    <link rel="stylesheet" href="../../css/components/footer.css" />
+    <link rel="stylesheet" href="../../css/components/header.css" />
+    <link rel="stylesheet" href="../../css/components/menu.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div id="header-container"></div>
+    <div id="menu-container"></div>
+    <div class="main">
+        <div class="dichvu-container">
+            <h1>QUẢN LÝ GÓI DỊCH VỤ</h1>
+            
+            <!-- Thông báo -->
+            <div id="alert-success" class="alert alert-success">
+                <i class="fas fa-check-circle"></i> <span id="success-message"></span>
+            </div>
+            <div id="alert-danger" class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i> <span id="error-message"></span>
+            </div>
+            
+            <!-- Loading indicator -->
+            <div id="loading" class="loading">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <!-- Form thêm/sửa gói dịch vụ -->
+            <div class="form-container">
+                <h2 id="form-title">Thêm Gói Dịch Vụ Mới</h2>
+                <form id="dichvu-form">
+                    <input type="hidden" id="dichvu-id">
+                    
+                    <!-- Vùng hiển thị lỗi -->
+                    <div id="error-container" class="error-container"></div>
+                    
+                    <div class="form-group">
+                        <label for="ten-goi">Tên gói:</label>
+                        <input type="text" id="ten-goi" placeholder="Nhập tên gói dịch vụ" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gia">Giá (VNĐ):</label>
+                        <input type="number" id="gia" placeholder="Nhập giá gói dịch vụ" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="thoi-han">Thời hạn (tháng):</label>
+                        <input type="number" id="thoi-han" placeholder="Nhập thời hạn (số tháng)" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="mo-ta">Mô tả:</label>
+                        <textarea id="mo-ta" rows="4" placeholder="Nhập mô tả gói dịch vụ" required></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn-save" id="btn-save">
+                            <i class="fas fa-save"></i> Lưu
+                        </button>
+                        <button type="button" class="btn-cancel" id="btn-cancel">
+                            <i class="fas fa-times"></i> Hủy
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Bảng danh sách gói dịch vụ -->
+            <div class="table-container">
+                <h2>Danh Sách Gói Dịch Vụ</h2>
+                <table id="dichvu-table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên gói</th>
+                            <th>Giá</th>
+                            <th>Thời hạn</th>
+                            <th>Mô tả</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dichvu-list">
+                        <!-- Dữ liệu sẽ được thêm vào bằng JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="footer-container"></div>
+    <script src="../../js/components/loadComponents.js"></script>
+    <script src="../../js/components/menuScroll.js"></script>
+    <script src="../../js/components/navbar.js"></script>
+    <script src="../../js/trangchu/menu.js"></script>
+    <script src="../../js/admin/dichvu.js"></script>
+  </body>
+</html>

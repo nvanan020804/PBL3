@@ -1,0 +1,217 @@
+/* CSS cho trang quản lý đăng ký */
+
+/* Màu sắc chính */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+}
+
+/* Định dạng cho bảng */
+.table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    vertical-align: middle;
+}
+
+.table tbody td {
+    vertical-align: middle;
+}
+
+.table-responsive {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+/* Badge trạng thái */
+.badge-active {
+    background-color: #28a745;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.75rem;
+    color: white;
+}
+
+.badge-inactive {
+    background-color: #dc3545;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.75rem;
+    color: white;
+}
+
+.badge-pending {
+    background-color: #ffc107;
+    color: #212529;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.75rem;
+}
+
+/* Nút hành động */
+.action-buttons .btn {
+    margin-right: 5px;
+}
+
+.action-buttons .btn:last-child {
+    margin-right: 0;
+}
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.action-buttons button {
+    margin-bottom: 5px;
+}
+
+/* Thông tin khách hàng và gói dịch vụ */
+#customerInfo, #packageInfo {
+    min-height: 80px;
+    padding: 10px;
+}
+
+.customer-info-card, .package-info-card {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 0;
+}
+
+.customer-info-card dt, .package-info-card dt {
+    font-weight: 600;
+    color: #6c757d;
+}
+
+/* Form tìm kiếm */
+#searchInput, #tenDangNhap, #tenGoi {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#searchBtn, #searchCustomerBtn, #searchPackageBtn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Pagination */
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Alert messages */
+.alert {
+    margin-bottom: 20px;
+}
+
+/* Modal */
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+.text-danger {
+    font-weight: 500;
+}
+
+/* Styles for invoice modal */
+#invoiceModal .modal-lg {
+    max-width: 800px;
+}
+
+#invoiceCustomerInfo, 
+#invoicePackageInfo {
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+#invoiceAlertMessage {
+    margin-bottom: 20px;
+}
+
+/* Badge styles */
+.badge {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.bg-warning {
+    background-color: #ffc107 !important;
+    color: #212529;
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+    color: white;
+}
+
+.bg-danger {
+    background-color: #dc3545 !important;
+    color: white;
+}
+
+.bg-secondary {
+    background-color: #6c757d !important;
+    color: white;
+}
+
+/* Override for invoice table */
+#invoiceTableBody td {
+    vertical-align: middle;
+}
+
+/* Mark paid button styling */
+.mark-paid-btn {
+    margin-left: 5px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .table {
+        font-size: 0.9rem;
+    }
+    
+    .action-buttons .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .action-buttons .btn {
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
+}
+
+/* Background */
+body {
+    background-color: #f8f9fa;
+}

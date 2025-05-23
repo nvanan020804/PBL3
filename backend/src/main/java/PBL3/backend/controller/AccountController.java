@@ -1,66 +1,224 @@
 package PBL3.backend.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import PBL3.backend.model.Account;
+import PBL3.backend.model.KhachHang;
+import PBL3.backend.service.AccountService;
+import PBL3.backend.service.KhachHangService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import PBL3.backend.model.Account;
-import PBL3.backend.service.AccountService;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
+/**
+ * Controller quản lý các API liên quan đến tài khoản người dùng
+ * Bao gồm các chức năng đăng nhập, đăng ký, quản lý tài khoản
+ */
 @RestController
-@RequestMapping("/api/accounts")
-@CrossOrigin(origins = "http://localhost")
+@RequestMapping("/api/accounts") // Đường dẫn API cho tài khoản
+@CrossOrigin(origins = "*")
 public class AccountController {
 
-    @Autowired
-    private AccountService accountService;
+    private final AccountService accountService;
+    private final KhachHangService khachHangService;
 
-    @RequestMapping(method = RequestMethod.OPTIONS)
-    public ResponseEntity<?> handleOptions() {
-        return ResponseEntity.ok().build();
+    @Autowired
+    public AccountController(AccountService accountService, KhachHangService khachHangService) {
+        this.accountService = accountService;
+        this.khachHangService = khachHangService;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginInfo) {
+    /**
+     * Lấy danh sách tất cả tài khoản trong hệ thống
+     * @return Danh sách tài khoản và status code 200 OK
+     */
+    @GetMapping
+    public ResponseEntity<List<Account>> getAllAccounts() {
+        List<Account> accounts = accountService.getAllAccounts();
+        return new ResponseEntity<>(accounts, HttpStatus.OK);
+    }
+
+    /**
+     * Lấy thông tin tài khoản theo tên đăng nhập (username)
+     * @param username Tên đăng nhập cần tìm kiếm
+     * @return Thông tin tài khoản nếu tìm thấy (200 OK) hoặc 404 NOT FOUND nếu không tìm thấy
+     */
+    @GetMapping("/{username}")  // Lấy thông tin tài khoản theo tên đăng nhập
+    public ResponseEntity<Account> getAccountByUsername(@PathVariable String username) {
+        Optional<Account> account = accountService.getAccountByUsername(username);
+        return account.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * Tạo tài khoản mới trong hệ thống
+     * @param account Thông tin tài khoản cần tạo
+     * @return Tài khoản đã tạo và status code 201 CREATED hoặc 400 BAD REQUEST nếu thất bại
+     */
+    @PostMapping
+    public ResponseEntity<Account> createAccount(@RequestBody Account account) {
         try {
-            String username = loginInfo.get("username");
-            String password = loginInfo.get("password");
-            
-            if (username == null || password == null) {
-                return ResponseEntity.badRequest().body(createErrorResponse("Username và password là bắt buộc"));
-            }
-            
-            Account acc = accountService.login(username, password);
-            
-            if (acc != null) { 
-                Map<String, Object> response = new HashMap<>();
-                response.put("message", "Đăng nhập thành công");
-                response.put("role", acc.getRoleACC());
-                response.put("token","some-jwt-token"); // Bạn nên triển khai method này
-                return ResponseEntity.ok(response);
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(createErrorResponse("Sai tài khoản hoặc mật khẩu"));
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createErrorResponse("Lỗi hệ thống"));
+            Account createdAccount = accountService.createAccount(account);
+            return new ResponseEntity<>(createdAccount, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
-    private Map<String, String> createErrorResponse(String message) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", message);
-        return response;
+    /**
+     * Cập nhật thông tin tài khoản theo tên đăng nhập
+     * @param username Tên đăng nhập của tài khoản cần cập nhật
+     * @param accountDetails Thông tin tài khoản mới
+     * @return Tài khoản đã cập nhật và status code 200 OK hoặc 404 NOT FOUND nếu không tìm thấy
+     */
+    @PutMapping("/{username}")
+    public ResponseEntity<Account> updateAccount(@PathVariable String username, @RequestBody Account accountDetails) {
+        try {
+            Account updatedAccount = accountService.updateAccount(username, accountDetails);
+            return new ResponseEntity<>(updatedAccount, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
+    /**
+     * Xóa tài khoản khỏi hệ thống theo tên đăng nhập
+     * @param username Tên đăng nhập của tài khoản cần xóa
+     * @return Status code 204 NO CONTENT nếu xóa thành công hoặc 404 NOT FOUND nếu không tìm thấy
+     */
+    @DeleteMapping("/{username}")
+    public ResponseEntity<Void> deleteAccount(@PathVariable String username) {
+        try {
+            accountService.deleteAccount(username);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Đăng ký tài khoản mới cho khách hàng
+     * @param registrationData Dữ liệu đăng ký bao gồm username, password và thông tin khách hàng
+     * @return Tài khoản đã tạo và status code 201 CREATED hoặc 400 BAD REQUEST nếu thất bại
+     */
+    @PostMapping("/register/customer")
+    public ResponseEntity<?> registerCustomer(@RequestBody Map<String, Object> registrationData) {
+        try {
+            // Trích xuất dữ liệu
+            String username = (String) registrationData.get("username");
+            String password = (String) registrationData.get("password");
+            
+            // Kiểm tra tên đăng nhập đã tồn tại chưa
+            if (accountService.getAccountByUsername(username).isPresent()) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", "Tên đăng nhập đã tồn tại");
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+            }
+            
+            // Kiểm tra độ mạnh của mật khẩu
+            if (password.length() < 6) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", "Mật khẩu phải có ít nhất 6 ký tự");
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+            }
+            
+            @SuppressWarnings("unchecked")
+            Map<String, Object> customerData = (Map<String, Object>) registrationData.get("khachHang");
+            
+            KhachHang khachHang = new KhachHang();
+            khachHang.setTenKhachHang((String) customerData.get("tenKhachHang"));
+            if (customerData.get("namSinh") != null) {
+                khachHang.setNamSinh(Integer.valueOf(customerData.get("namSinh").toString()));
+            }
+            khachHang.setSoDienThoai((String) customerData.get("soDienThoai"));
+            khachHang.setCccd((String) customerData.get("cccd"));
+            khachHang.setEmail((String) customerData.get("email"));
+            khachHang.setTrangThai("Chưa hoạt động");
+            
+            // Kiểm tra thông tin trùng lặp
+            KhachHang existingByPhone = khachHangService.getKhachHangBySoDienThoai(khachHang.getSoDienThoai());
+            if (existingByPhone != null) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", "Số điện thoại đã được đăng ký");
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+            }
+            
+            if (khachHang.getEmail() != null) {
+                KhachHang existingByEmail = khachHangService.getKhachHangByEmail(khachHang.getEmail());
+                if (existingByEmail != null) {
+                    Map<String, String> errorResponse = new HashMap<>();
+                    errorResponse.put("message", "Email đã được đăng ký");
+                    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+                }
+            }
+            
+            if (khachHang.getCccd() != null) {
+                KhachHang existingByCccd = khachHangService.getKhachHangByCccd(khachHang.getCccd());
+                if (existingByCccd != null) {
+                    Map<String, String> errorResponse = new HashMap<>();
+                    errorResponse.put("message", "CCCD đã được đăng ký");
+                    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+                }
+            }
+            
+            Account account = accountService.createCustomerAccount(khachHang, username, password);
+            return new ResponseEntity<>(account, HttpStatus.CREATED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // Chức năng đăng ký admin đã được loại bỏ và sẽ được tạo trực tiếp trong database
+
+    /**
+     * Xác thực đăng nhập vào hệ thống
+     * @param loginData Dữ liệu đăng nhập bao gồm username và password
+     * @return Thông tin tài khoản và thông báo nếu đăng nhập thành công (200 OK) 
+     *         hoặc thông báo lỗi nếu thất bại (401 UNAUTHORIZED)
+     */
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
+        // In thông tin để debug
+        System.out.println("Received login data: " + loginData);
+        
+        String username = loginData.get("username");
+        String password = loginData.get("password");
+        
+        // Kiểm tra dữ liệu đầu vào
+        if (username == null || password == null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Tên đăng nhập và mật khẩu không được để trống");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        
+        System.out.println("Attempting login with username: " + username);
+        
+        // Gọi service để xác thực
+        Account account = accountService.login(username, password);
+        
+        if (account != null) {
+            System.out.println("Login successful for user: " + username);
+            Map<String, Object> response = new HashMap<>();
+            response.put("account", account);
+            response.put("message", "Đăng nhập thành công");
+            
+            // Thêm token vào response (phần này sẽ được thay thế bằng JWT thực tế sau)
+            String mockToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+            response.put("token", mockToken);
+            
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            System.out.println("Login failed for user: " + username);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Tên đăng nhập hoặc mật khẩu không đúng");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+    }
 }
