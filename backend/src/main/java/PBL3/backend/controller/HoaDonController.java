@@ -24,38 +24,52 @@ public class HoaDonController {
     }
 
     @GetMapping
-    public ResponseEntity<List<HoaDon>> getAllHoaDon() {
-        List<HoaDon> hoaDonList = hoaDonService.getAllHoaDon();
-        return new ResponseEntity<>(hoaDonList, HttpStatus.OK);
+    public ResponseEntity<?> getAllHoaDon() {
+        try {
+            List<HoaDon> hoaDonList = hoaDonService.getAllHoaDon();
+            return new ResponseEntity<>(hoaDonList, HttpStatus.OK);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Không thể lấy danh sách hóa đơn: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<HoaDon> getHoaDonById(@PathVariable int id) {
-        return hoaDonService.getHoaDonById(id)
-                .map(hoaDon -> new ResponseEntity<>(hoaDon, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<?> getHoaDonById(@PathVariable int id) {
+        try {
+            return hoaDonService.getHoaDonById(id)
+                    .map(hoaDon -> new ResponseEntity<>(hoaDon, HttpStatus.OK))
+                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Không thể lấy hóa đơn: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/dangky/{idDangKy}")
-    public ResponseEntity<List<HoaDon>> getHoaDonByDangKy(@PathVariable int idDangKy) {
+    public ResponseEntity<?> getHoaDonByDangKy(@PathVariable int idDangKy) {
         try {
             List<HoaDon> hoaDonList = hoaDonService.getHoaDonByDangKy(idDangKy);
             return new ResponseEntity<>(hoaDonList, HttpStatus.OK);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Không tìm thấy hóa đơn cho đăng ký: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
-
-    @GetMapping("/nhanvien/{idNhanVien}")
-    public ResponseEntity<List<HoaDon>> getHoaDonByNhanVien(@PathVariable int idNhanVien) {
+    @GetMapping("/khachhang/{idKhachHang}")
+    public ResponseEntity<?> getHoaDonByKhachHang(@PathVariable int idKhachHang) {
         try {
-            List<HoaDon> hoaDonList = hoaDonService.getHoaDonByNhanVien(idNhanVien);
+            List<HoaDon> hoaDonList = hoaDonService.getHoaDonByKhachHang(idKhachHang);
             return new ResponseEntity<>(hoaDonList, HttpStatus.OK);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Không tìm thấy hóa đơn cho khách hàng: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
-
     @PostMapping
     public ResponseEntity<?> createHoaDon(@RequestBody HoaDon hoaDon) {
         try {

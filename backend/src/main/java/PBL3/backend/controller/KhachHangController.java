@@ -1,11 +1,14 @@
 package PBL3.backend.controller;
 
+import PBL3.backend.config.JwtUtil;
 import PBL3.backend.dto.response.KhachHangResponse;
 import PBL3.backend.model.KhachHang;
 import PBL3.backend.service.KhachHangService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -38,10 +41,17 @@ public class KhachHangController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<KhachHang> getKhachHangById(@PathVariable int id) {
-        return khachHangService.getKhachHangById(id)
-                .map(khachHang -> new ResponseEntity<>(khachHang, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<?> getKhachHangById(@PathVariable int id) {
+        KhachHang khachHang = khachHangService.getKhachHangById(id).orElse(null);
+        if (khachHang == null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Không tìm thấy khách hàng với ID: " + id);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        // Sử dụng KhachHangMapper để trả về response chuẩn
+        PBL3.backend.service.mapper.KhachHangMapper mapper = new PBL3.backend.service.mapper.KhachHangMapper();
+        PBL3.backend.dto.response.KhachHangResponse response = mapper.toResponse(khachHang);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/phone/{soDienThoai}")
@@ -97,6 +107,29 @@ public class KhachHangController {
             Map<String, String> response = new HashMap<>();
             response.put("message", e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile() {
+        try {
+            // Lấy thông tin người dùng đã đăng nhập từ Spring Security
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName(); // Lấy username của người dùng đã đăng nhập
+
+            // Lấy thông tin khách hàng từ username
+            KhachHangResponse khachHang = khachHangService.getKhachHangByUsername(username);
+
+            if (khachHang != null) {
+                return new ResponseEntity<>(khachHang, HttpStatus.OK);
+            } else {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Không tìm thấy thông tin khách hàng");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Lỗi khi lấy thông tin profile: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
