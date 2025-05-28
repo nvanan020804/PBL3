@@ -1,23 +1,30 @@
+<link rel="stylesheet" href="../css/components/menu.css">
 <div class="menu">
   <nav class="menu-box">
     <div class="menu-left">
-      <img src="../../assets/logo/logo.png" alt="Logo" class="menu-image" />
+      <img src="../../assets/logo/logo.png" alt="Logo" class="menu-image">
     </div>
+    
     <ul class="menu-items">
-      <li class="item-menu"><a href="home.html">Trang chủ</a></li>
+      <!-- Menu public (dành cho tất cả) -->
+      <li class="item-menu"><a href="index.html">Trang chủ</a></li>
       <li class="item-menu"><a href="dichvu.html">Dịch vụ</a></li>
+      <li class="item-menu"><a href="sanpham.html">Sản phẩm</a></li>
+      <li class="item-menu"><a href="hoadon.html">Hóa đơn</a></li>
+      
+      <!-- Menu admin (sẽ được ẩn/hiện bằng JS) -->
       <li class="item-menu admin-only"><a href="thongke.html">Thống kê</a></li>
-      <li class="item-menu admin-or-nv"><a href="khachhang.html">Khách hàng</a></li>
+      <li class="item-menu admin-only"><a href="khachhang.html">Khách hàng</a></li>
       <li class="item-menu admin-only"><a href="dangky.html">Đăng ký</a></li>
-      <li class="item-menu admin-only"><a href="sanpham.html">Sản phẩm</a></li>
-      <li class="item-menu admin-only"><a href="hoadon.html">Hóa đơn</a></li>
     </ul>
+    
     <div class="menu-right">
       <ul class="auth-buttons">
         <li class="login-btn" id="register-button"><a href="register-customer.html">ĐĂNG KÝ</a></li>
         <li class="login-btn" id="login-button"><a href="login.html">ĐĂNG NHẬP</a></li>
-        <li class="login-btn" id="logout-button"><a href="../trangchu/index.html">ĐĂNG XUẤT</a></li>
-        <li class="user-display" id="user-display"></li>
+        <li class="login-btn" id="logout-button" style="display:none"><a href="#">ĐĂNG XUẤT</a></li>
+        <li class="login-btn user-only" id="profile-button" style="display:none"><a href="../khachhang/profile.html">HỒ SƠ</a></li>
+        <li class="user-display" id="user-display" style="display:none"></li>
       </ul>
     </div>
   </nav>

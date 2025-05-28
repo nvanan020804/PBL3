@@ -111,3 +111,10 @@
     margin-right: 10px;
     padding: 8px 0;
 }
+.admin-only {
+  display: none;
+}
+
+.admin-only.admin-visible {
+  display: block !important;
+}

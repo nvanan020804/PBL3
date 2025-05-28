@@ -5,55 +5,88 @@ fetch("../../components/header.html")
     document.getElementById("header-container").innerHTML = data;
   });
 
-// Load menu
 fetch("../../components/menu.html")
   .then((res) => res.text())
   .then((data) => {
     document.getElementById("menu-container").innerHTML = data;
-    
-    // Thực thi menu.js sau khi menu được load
+
     const loginButton = document.getElementById("login-button");
     const registerButton = document.getElementById("register-button");
     const logoutButton = document.getElementById("logout-button");
     const userDisplay = document.getElementById("user-display");
+    const profileButton = document.getElementById("profile-button"); // Thêm nút Hồ sơ
+    const adminOnlyItems = document.querySelectorAll(".admin-only");
+    const userOnlyItems = document.querySelectorAll(".user-only"); // Thêm class user-only
+    const allMenuLinks = document.querySelectorAll(".menu-items a");
+    const authLinks = document.querySelectorAll(".auth-buttons a");
 
-    // Kiểm tra xem người dùng đã đăng nhập chưa
-    const user = localStorage.getItem('user');
-    
+    // Kiểm tra trạng thái đăng nhập
+    const user = JSON.parse(localStorage.getItem("user"));
+    console.log("User data:", user); // Debug
+
     if (user) {
-        // Người dùng đã đăng nhập
-        if (loginButton) loginButton.style.display = 'none';
-        if (registerButton) registerButton.style.display = 'none';
-        if (logoutButton) logoutButton.style.display = 'block';
-        
-        // Hiển thị tên người dùng nếu có
-        if (userDisplay) {
-            try {
-                const userData = JSON.parse(user);
-                userDisplay.textContent = userData.tenDangNhap || 'Người dùng';
-                userDisplay.style.display = 'inline-block';
-            } catch (e) {
-                console.error('Lỗi khi xử lý thông tin người dùng:', e);
-            }
-        }
+      // Đã đăng nhập
+      loginButton.style.display = "none";
+      registerButton.style.display = "none";
+      logoutButton.style.display = "block";
+      userDisplay.textContent = user.tenDangNhap || "Người dùng";
+      userDisplay.style.display = "inline-block";
+
+      // Xử lý phân quyền admin/user
+      if (user.phanQuyen === "admin") {
+        // Nếu là admin
+        adminOnlyItems.forEach((item) => {
+          item.style.display = "block";
+          item.classList.add("admin-visible");
+        });
+        userOnlyItems.forEach((item) => {
+          item.style.display = "none"; // Ẩn nút Hồ sơ cho admin
+        });
+      } else {
+        // Nếu là user
+        adminOnlyItems.forEach((item) => {
+          item.style.display = "none";
+          item.classList.remove("admin-visible");
+        });
+        userOnlyItems.forEach((item) => {
+          item.style.display = "block"; // Hiển thị nút Hồ sơ cho user
+        });
+      }
+
+      allMenuLinks.forEach((link) => {
+        link.addEventListener("click", (e) => {});
+      });
     } else {
-        // Người dùng chưa đăng nhập
-        if (loginButton) loginButton.style.display = 'block';
-        if (registerButton) registerButton.style.display = 'block';
-        if (logoutButton) logoutButton.style.display = 'none';
-        if (userDisplay) userDisplay.style.display = 'none';
+      // Chưa đăng nhập
+      loginButton.style.display = "block";
+      registerButton.style.display = "block";
+      logoutButton.style.display = "none";
+      userDisplay.style.display = "none";
+      profileButton.style.display = "none"; // Ẩn nút Hồ sơ khi chưa đăng nhập
+      adminOnlyItems.forEach((item) => (item.style.display = "none"));
+      userOnlyItems.forEach((item) => (item.style.display = "none")); // Ẩn nút Hồ sơ
+
+      allMenuLinks.forEach((link) => {
+        if (!link.getAttribute("href").includes("index.html")) {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.location.href = "login.html";
+          });
+        }
+      });
     }
 
-    // Xử lý sự kiện đăng xuất
-    if (logoutButton) {
-        logoutButton.addEventListener('click', function (e) {
-            e.preventDefault();
-            // Xóa thông tin người dùng khỏi localStorage
-            localStorage.clear(); // Xóa tất cả dữ liệu
-            // Chuyển hướng về trang chủ
-            window.location.href = "../../pages/trangchu/index.html";
-        });
-    }
+    authLinks.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
+    });
+
+    logoutButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      localStorage.removeItem("user");
+      window.location.href = "../../pages/trangchu/index.html";
+    });
   });
 
 // Load footer
