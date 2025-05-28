@@ -135,9 +135,9 @@
                 <textarea class="form-control" id="moTa" rows="3"></textarea>
               </div>
               <div class="mb-3">
-                <label for="hinhAnh" class="form-label">Hình Ảnh <span class="text-muted">(Tùy chọn - Tạm thời bỏ qua)</span></label>
-                <input type="file" class="form-control" id="hinhAnh" accept="image/*" disabled>
-                <small class="form-text text-muted">Chức năng tải lên hình ảnh đang tạm thời tắt.</small>
+                <label for="hinhAnh" class="form-label">Hình Ảnh</label>
+                <input type="file" class="form-control" id="hinhAnh" accept="image/*">
+                <small class="form-text text-muted">Chọn ảnh cho sản phẩm (JPG, PNG - tối đa 1MB)</small>
                 <div id="imagePreview" class="mt-2 d-none">
                   <img src="" alt="Preview" id="previewImage" class="img-thumbnail" style="max-height: 150px;">
                 </div>
@@ -214,6 +214,7 @@
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../js/components/loadComponents.js"></script>
+     <script src="../../js/components/menuScroll.js"></script>
     <script src="../../js/admin/sanpham.js" type="module"></script>
   </body>
 </html>

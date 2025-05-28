@@ -1,5 +1,5 @@
 // Import API functions
-import { HoaDonAPI } from '../../js/utils/api-service.js';
+import { HoaDonAPI, DangKyAPI } from '../../js/utils/api-service.js';
 
 // Khởi tạo biến toàn cục
 let registrations = []; // Mảng lưu danh sách đăng ký
@@ -60,7 +60,7 @@ function setupEventListeners() {
     // Sự kiện nút lưu đăng ký
     document.getElementById('saveRegistrationBtn').addEventListener('click', saveRegistration);
     
-    // Sự kiện nút xác nhận xóa
+    // Sự kiện nút xác nhận xóa (chức năng đã bị loại bỏ)
     document.getElementById('confirmDeleteBtn').addEventListener('click', deleteRegistration);
     
     // Sự kiện nút xác nhận tạo hóa đơn
@@ -299,17 +299,8 @@ async function processRegistrationsData() {
 
 // Lọc đăng ký theo trạng thái (tất cả, đang hoạt động, hết hạn, chưa kích hoạt)
 function filterRegistrations() {
-    let filteredRegistrations = [...registrations];
+    let filteredRegistrations = getFilteredRegistrations();
     
-    if (currentFilter === 'Đang hoạt động') {
-        filteredRegistrations = filteredRegistrations.filter(registration => 
-            registration.trangThai === 'Đang hoạt động'
-        );
-    } else if (currentFilter === 'Chưa hoạt động') {
-        filteredRegistrations = filteredRegistrations.filter(registration => 
-            registration.trangThai === 'Hết hạn'
-        );
-    } 
     // Cập nhật tổng số trang
     totalPages = Math.ceil(filteredRegistrations.length / itemsPerPage);
     
@@ -330,6 +321,27 @@ function filterRegistrations() {
     updatePagination();
 }
 
+// Hàm helper để lấy danh sách đăng ký đã lọc theo trạng thái hiện tại
+function getFilteredRegistrations() {
+    let filteredRegistrations = [...registrations];
+    
+    if (currentFilter === 'active') {
+        filteredRegistrations = filteredRegistrations.filter(registration => 
+            registration.trangThai === 'Đang hoạt động'
+        );
+    } else if (currentFilter === 'inactive') {
+        filteredRegistrations = filteredRegistrations.filter(registration => 
+            registration.trangThai === 'Hết hạn'
+        );
+    } else if (currentFilter === 'pending') {
+        filteredRegistrations = filteredRegistrations.filter(registration => 
+            registration.trangThai === 'Chờ kích hoạt'
+        );
+    }
+    
+    return filteredRegistrations;
+}
+
 // Hiển thị danh sách đăng ký
 function displayRegistrations(registrationsToDisplay) {
     const tableBody = document.getElementById('registrationsTableBody');
@@ -338,7 +350,7 @@ function displayRegistrations(registrationsToDisplay) {
     if (registrationsToDisplay.length === 0) {
         const emptyRow = document.createElement('tr');
         emptyRow.innerHTML = `
-            <td colspan="9" class="text-center py-3">Không có dữ liệu đăng ký</td>
+            <td colspan="8" class="text-center py-3">Không có dữ liệu đăng ký</td>
         `;
         tableBody.appendChild(emptyRow);
         return;
@@ -426,19 +438,6 @@ function displayRegistrations(registrationsToDisplay) {
                     ${trangThai}
                 </span>
             </td>
-            <td>
-                <div class="action-buttons">
-                    <button class="btn btn-sm btn-info edit-btn" data-id="${registration.idDangKy}">
-                        <i class="fas fa-edit"></i> Sửa
-                    </button>
-                    <button class="btn btn-sm btn-secondary invoice-btn" data-id="${registration.idDangKy}">
-                        <i class="fas fa-file-invoice"></i> Hóa đơn
-                    </button>
-                    <button class="btn btn-sm btn-danger delete-btn" data-id="${registration.idDangKy}" data-name="${tenKhachHang}">
-                        <i class="fas fa-trash-alt"></i> Xóa
-                    </button>
-                </div>
-            </td>
         `;
         
         tableBody.appendChild(row);
@@ -448,30 +447,27 @@ function displayRegistrations(registrationsToDisplay) {
     attachActionButtonEvents();
 }
 
-// Gắn sự kiện cho các nút hành động (sửa, xóa, xem hóa đơn)
+// Gắn sự kiện cho hàng của bảng để truy cập chi tiết đăng ký
 function attachActionButtonEvents() {
-    // Gắn sự kiện cho nút sửa
-    document.querySelectorAll('.edit-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const registrationId = this.getAttribute('data-id');
-            editRegistration(registrationId);
-        });
-    });
-    
-    // Gắn sự kiện cho nút xóa
-    document.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const registrationId = this.getAttribute('data-id');
-            const customerName = this.getAttribute('data-name');
-            showDeleteConfirmation(registrationId, customerName);
-        });
-    });
-    
-    // Gắn sự kiện cho nút xem hóa đơn
-    document.querySelectorAll('.invoice-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const registrationId = this.getAttribute('data-id');
-            viewRegistrationInvoices(registrationId);
+    // Đã loại bỏ các nút hành động và thay thế bằng tính năng nhấp vào hàng
+    // Gắn sự kiện cho các hàng trong bảng đăng ký
+    document.querySelectorAll('#registrationsTableBody tr').forEach(row => {
+        row.style.cursor = 'pointer'; // Thêm con trỏ để hiển thị rằng có thể nhấp
+        
+        // Khi nhấp vào hàng sẽ mở modal hóa đơn để xem chi tiết
+        row.addEventListener('click', function() {
+            // Lấy chỉ mục của hàng trong trang hiện tại
+            const rowIndex = Array.from(this.parentNode.children).indexOf(this);
+            // Tính chỉ mục thực của đăng ký trong danh sách đã lọc
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const registrationIndex = startIndex + rowIndex;
+            
+            // Lấy đăng ký tương ứng
+            const filteredRegistrations = getFilteredRegistrations();
+            if (filteredRegistrations[registrationIndex]) {
+                const registrationId = filteredRegistrations[registrationIndex].idDangKy;
+                viewRegistrationInvoices(registrationId);
+            }
         });
     });
 }
@@ -680,11 +676,17 @@ async function markInvoiceAsPaid(invoiceId) {
     try {
         showLoading(true);
         
+        // Lấy thông tin hóa đơn trước để biết idDangKy
+        const invoice = await HoaDonAPI.getHoaDonById(invoiceId);
+        
         // Gọi API đánh dấu đã thanh toán
         await HoaDonAPI.daThanhToan(invoiceId);
         
+        // Cập nhật trạng thái hoàn thành luôn
+        await HoaDonAPI.hoanThanhHoaDon(invoiceId);
+        
         // Hiển thị thông báo
-        showInvoiceSuccess('Đánh dấu đã thanh toán thành công.');
+        showInvoiceSuccess('Đánh dấu đã thanh toán và hoàn thành thành công.');
         
         // Tải lại danh sách hóa đơn của đăng ký hiện tại
         const registrationId = document.getElementById('createInvoiceBtn').getAttribute('data-id');
@@ -692,6 +694,27 @@ async function markInvoiceAsPaid(invoiceId) {
         
         // Hiển thị lại danh sách hóa đơn
         displayInvoiceList(invoices);
+        
+        // Kích hoạt đăng ký nếu có ID đăng ký
+        if (invoice && invoice.idDangKy) {
+            try {
+                // Sử dụng API đã định nghĩa để cập nhật trạng thái đăng ký
+                await DangKyAPI.updateDangKyStatus(invoice.idDangKy, {
+                    trangThai: 'Đang hoạt động'
+                });
+                
+                console.log('Đã cập nhật trạng thái đăng ký thành "Đang hoạt động"');
+                showInvoiceSuccess('Hóa đơn đã thanh toán và đăng ký đã được kích hoạt thành công!');
+                
+                // Reload đăng ký để cập nhật trạng thái mới
+                setTimeout(() => {
+                    loadRegistrations();
+                }, 1000);
+            } catch (updateError) {
+                console.error('Lỗi khi cập nhật trạng thái đăng ký:', updateError);
+                showInvoiceError('Đã thanh toán hóa đơn nhưng không thể kích hoạt đăng ký. Hãy thử lại sau.');
+            }
+        }
     } catch (error) {
         console.error('Lỗi khi đánh dấu đã thanh toán:', error);
         showInvoiceError('Không thể đánh dấu đã thanh toán. Vui lòng thử lại sau.');
@@ -1062,51 +1085,15 @@ function showDeleteConfirmation(registrationId, customerName) {
     deleteModal.show();
 }
 
-// Xóa đăng ký
+// Xóa đăng ký - chức năng đã bị loại bỏ
 function deleteRegistration() {
-    if (!currentRegistrationId) return;
-
-    // Xóa thông báo lỗi cũ nếu có
+    // Xoá thông báo lỗi cũ
     clearDeleteError();
     
-    showLoading(true);
-    console.log('Đang xóa đăng ký với ID:', currentRegistrationId);
+    // Hiển thị thông báo trong modal
+    showDeleteError("Chức năng xóa đăng ký đã bị vô hiệu hoá theo quy định mới của hệ thống.");
     
-    // URL của API xóa đăng ký
-    const apiUrl = `http://localhost:8080/api/dangky/${currentRegistrationId}`;
-    
-    fetch(apiUrl, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        console.log('Phản hồi DELETE:', response.status);
-        
-        if (!response.ok) {
-            return response.json().then(data => {
-                throw new Error(data.message || 'Không thể xóa đăng ký');
-            }).catch(() => {
-                throw new Error('Không thể xóa đăng ký');
-            });
-        }
-        // Đóng modal
-        bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal')).hide();
-        showSuccess('Xóa đăng ký thành công!');
-        
-        // Cập nhật danh sách đăng ký
-        loadRegistrations();
-    })
-    .catch(error => {
-        console.error('Lỗi khi xóa đăng ký:', error);
-        
-        // Hiển thị lỗi TRONG modal thay vì thông báo toàn cục
-        showDeleteError(error.message);
-    })
-    .finally(() => {
-        showLoading(false);
-    });
+    // Không đóng modal để người dùng có thể đọc thông báo
 }
 
 // Lưu thông tin đăng ký (thêm mới hoặc cập nhật)
@@ -1143,7 +1130,8 @@ function saveRegistration() {
         idGOI: parseInt(idGOI),
         ngayBatDau: ngayBatDau,
         gioTap: gioTap,
-        trangThai: trangThai
+        // Đảm bảo đăng ký mới luôn có trạng thái "Chờ kích hoạt"
+        trangThai: !editMode ? 'Chờ kích hoạt' : trangThai
     };
     
     showLoading(true);
@@ -1185,13 +1173,16 @@ function saveRegistration() {
         // Đóng modal
         bootstrap.Modal.getInstance(document.getElementById('registrationModal')).hide();
         
-        // Nếu là thêm mới đăng ký, tự động tạo hóa đơn
+        // Nếu là thêm mới đăng ký, bắt buộc tạo hóa đơn trước khi hoàn tất
         if (!editMode && data && data.idDangKy) {
-            // Tạo hóa đơn cho đăng ký mới
+            // Hiển thị thông báo trạng thái
+            showSuccess('Đăng ký mới đã được tạo với trạng thái "Chờ kích hoạt". Vui lòng tạo và thanh toán hóa đơn để kích hoạt đăng ký.');
+            
+            // Tạo hóa đơn cho đăng ký mới ngay lập tức
             createInvoiceForRegistration(data);
+        } else {
+            showSuccess(editMode ? 'Cập nhật thông tin đăng ký thành công!' : 'Thêm đăng ký mới thành công!');
         }
-        
-        showSuccess(editMode ? 'Cập nhật thông tin đăng ký thành công!' : 'Thêm đăng ký mới thành công!');
         
         // Cập nhật danh sách đăng ký
         loadRegistrations();
@@ -1477,7 +1468,35 @@ async function createInvoiceForRegistration(registration) {
         `;
         
         // Lưu ID đăng ký để sử dụng khi tạo hóa đơn
-        document.getElementById('confirmRegistrationId').value = detailedRegistration.idDangKy;
+        const confirmRegistrationIdElement = document.getElementById('confirmRegistrationId');
+        if (confirmRegistrationIdElement) {
+            confirmRegistrationIdElement.value = detailedRegistration.idDangKy || '';
+            console.log('Đã đặt ID đăng ký vào trường ẩn:', detailedRegistration.idDangKy);
+        } else {
+            console.error('Không tìm thấy phần tử confirmRegistrationId trong form');
+        }
+        
+        // Log toàn bộ trạng thái form để debug
+        console.log('Trạng thái các phần tử trong form:', {
+            confirmRegistrationIdElement: document.getElementById('confirmRegistrationId'),
+            invoiceStatus: document.getElementById('invoiceStatus'),
+            paymentStatus: document.getElementById('paymentStatus'),
+            paymentMethod: document.getElementById('paymentMethod')
+        });
+        
+        // Gắn lại sự kiện cho nút xác nhận
+        const confirmBtn = document.getElementById('confirmCreateInvoiceBtn');
+        
+        // Xóa tất cả event listeners cũ bằng cách sử dụng một bản sao
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        // Gắn sự kiện mới và ghi log để debug
+        console.log('Gắn lại sự kiện cho nút xác nhận', newConfirmBtn);
+        newConfirmBtn.addEventListener('click', function(event) {
+            console.log('Nút xác nhận được nhấp!', event);
+            confirmAndCreateInvoice();
+        });
         
         // Hiển thị modal xác nhận tạo hóa đơn
         const createInvoiceConfirmModal = new bootstrap.Modal(document.getElementById('createInvoiceConfirmModal'));
@@ -1491,16 +1510,32 @@ async function createInvoiceForRegistration(registration) {
 // Xác nhận và tạo hóa đơn mới từ form xác nhận
 async function confirmAndCreateInvoice() {
     try {
+        console.log('Bắt đầu hàm confirmAndCreateInvoice');
         showLoading(true);
         
         // Lấy thông tin từ form xác nhận
-        const registrationId = document.getElementById('confirmRegistrationId').value;
+        const registrationIdElement = document.getElementById('confirmRegistrationId');
+        console.log('Debug - confirmRegistrationId element:', registrationIdElement);
+        
+        if (!registrationIdElement) {
+            throw new Error('Không tìm thấy phần tử confirmRegistrationId');
+        }
+        
+        const registrationId = registrationIdElement.value;
+        console.log('Debug - confirmRegistrationId value:', registrationId);
+        
         const trangThai = document.getElementById('invoiceStatus').value;
         const trangThaiThanhToan = document.getElementById('paymentStatus').value;
         const phuongThuc = document.getElementById('paymentMethod').value;
         
+        console.log('Form values:', { 
+            trangThai, 
+            trangThaiThanhToan, 
+            phuongThuc 
+        });
+        
         if (!registrationId) {
-            throw new Error('Không tìm thấy thông tin đăng ký');
+            throw new Error('Không tìm thấy thông tin đăng ký (ID trống)');
         }
         
         // Lấy thông tin đầy đủ của đăng ký
@@ -1532,11 +1567,30 @@ async function confirmAndCreateInvoice() {
         const savedInvoice = await HoaDonAPI.createHoaDon(invoiceData);
         console.log('Đã tạo hóa đơn thành công:', savedInvoice);
         
+        // Nếu hóa đơn được hoàn thành và đã thanh toán, cập nhật trạng thái đăng ký thành "Đang hoạt động"
+        if (trangThai === 'Hoàn thành' && trangThaiThanhToan === 'Đã thanh toán') {
+            try {
+                // Sử dụng API đã định nghĩa để cập nhật trạng thái đăng ký
+                await DangKyAPI.updateDangKyStatus(registrationId, {
+                    trangThai: 'Đang hoạt động'
+                });
+                
+                console.log('Đã cập nhật trạng thái đăng ký thành "Đang hoạt động"');
+                showSuccess('Tạo hóa đơn và kích hoạt đăng ký thành công!');
+                
+                // Reload đăng ký để cập nhật trạng thái mới
+                loadRegistrations();
+            } catch (updateError) {
+                console.error('Lỗi khi cập nhật trạng thái đăng ký:', updateError);
+                showSuccess('Tạo hóa đơn thành công nhưng không thể kích hoạt đăng ký!');
+            }
+        } else {
+            // Hiển thị thông báo thành công tạo hóa đơn
+            showSuccess('Tạo hóa đơn mới thành công! Đăng ký vẫn ở trạng thái "Chờ kích hoạt" cho đến khi hóa đơn được thanh toán và hoàn thành.');
+        }
+        
         // Đóng modal xác nhận
         bootstrap.Modal.getInstance(document.getElementById('createInvoiceConfirmModal')).hide();
-        
-        // Hiển thị thông báo thành công
-        showSuccess('Tạo hóa đơn mới thành công!');
         
         return savedInvoice;
     } catch (error) {
@@ -1544,12 +1598,18 @@ async function confirmAndCreateInvoice() {
         
         // Hiển thị thông báo lỗi trong modal xác nhận
         const alertElement = document.getElementById('invoiceConfirmAlertMessage');
-        alertElement.className = 'alert alert-danger alert-dismissible fade show';
-        alertElement.innerHTML = `
-            <i class="fas fa-exclamation-circle me-2"></i> ${error.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-        alertElement.classList.remove('d-none');
+        if (alertElement) {
+            alertElement.className = 'alert alert-danger alert-dismissible fade show';
+            alertElement.innerHTML = `
+                <i class="fas fa-exclamation-circle me-2"></i> ${error.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            alertElement.classList.remove('d-none');
+        } else {
+            // Fallback nếu không tìm thấy phần tử cảnh báo
+            console.error('Không tìm thấy phần tử invoiceConfirmAlertMessage');
+            showError('Lỗi khi tạo hóa đơn: ' + error.message);
+        }
         
         return null;
     } finally {
@@ -1659,6 +1719,12 @@ function resetForm() {
     document.getElementById('customerInfo').innerHTML = '<p class="mb-0 text-muted">Thông tin khách hàng sẽ hiển thị ở đây</p>';
     document.getElementById('packageInfo').innerHTML = '<p class="mb-0 text-muted">Thông tin gói dịch vụ sẽ hiển thị ở đây</p>';
     document.getElementById('ngayBatDau').valueAsDate = new Date();
+    
+    // Đặt trạng thái mặc định là "Chờ kích hoạt" khi tạo mới đăng ký
+    if (!editMode) {
+        document.getElementById('trangThai').value = 'Chờ kích hoạt';
+    }
+    
     clearFormErrors();
 }
 

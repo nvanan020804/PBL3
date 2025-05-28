@@ -6,14 +6,18 @@ import PBL3.backend.model.HoaDonChiTiet;
 import PBL3.backend.repository.DangKyRepository;
 import PBL3.backend.repository.HoaDonChiTietRepository;
 import PBL3.backend.repository.HoaDonRepository;
+import PBL3.backend.dto.response.ThongKeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class HoaDonService {
@@ -52,7 +56,7 @@ public class HoaDonService {
     
     // Phương thức tìm hóa đơn theo ID nhân viên đã bị loại bỏ
 
-    @Transactional
+    @Transactional(readOnly = false)
     public HoaDon createHoaDon(HoaDon hoaDon) {
         // Kiểm tra đăng ký (nếu có)
         if (hoaDon.getDangKy() != null && hoaDon.getDangKy().getIdDangKy() > 0) {
@@ -123,7 +127,7 @@ public class HoaDonService {
         return hoaDonRepository.save(hoaDon);
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     public HoaDon updateHoaDon(int id, HoaDon hoaDonDetails) {
         HoaDon hoaDon = hoaDonRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + id));
@@ -158,20 +162,13 @@ public class HoaDonService {
         return hoaDonRepository.save(hoaDon);
     }
 
-    @Transactional
+    // Phương thức xoá hoá đơn đã được loại bỏ vì yêu cầu hệ thống
+    @Transactional(readOnly = false)
     public void deleteHoaDon(int id) {
-        HoaDon hoaDon = hoaDonRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + id));
-            
-        // Kiểm tra nếu có chi tiết hóa đơn
-        if (!hoaDon.getChiTietList().isEmpty()) {
-            throw new RuntimeException("Không thể xóa hóa đơn đã có chi tiết");
-        }
-        
-        hoaDonRepository.deleteById(id);
+        throw new RuntimeException("Chức năng xóa hoá đơn đã bị vô hiệu hoá");
     }
     
-    @Transactional
+    @Transactional(readOnly = false)
     public HoaDon hoanThanhHoaDon(int id) {
         HoaDon hoaDon = hoaDonRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + id));
@@ -180,7 +177,7 @@ public class HoaDonService {
         return hoaDonRepository.save(hoaDon);
     }
     
-    @Transactional
+    @Transactional(readOnly = false)
     public HoaDon huyHoaDon(int id) {
         HoaDon hoaDon = hoaDonRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + id));
@@ -189,7 +186,7 @@ public class HoaDonService {
         return hoaDonRepository.save(hoaDon);
     }
     
-    @Transactional
+    @Transactional(readOnly = false)
     public HoaDon calculateTotals(int id) {
         HoaDon hoaDon = hoaDonRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + id));
@@ -211,7 +208,7 @@ public class HoaDonService {
         return hoaDonRepository.save(hoaDon);
     }
     
-    @Transactional
+    @Transactional(readOnly = false)
     public HoaDon daThanhToan(int id) {
         HoaDon hoaDon = hoaDonRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + id));
@@ -220,12 +217,154 @@ public class HoaDonService {
         return hoaDonRepository.save(hoaDon);
     }
     
-    @Transactional
+    @Transactional(readOnly = false)
     public HoaDon chuaThanhToan(int id) {
         HoaDon hoaDon = hoaDonRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + id));
             
         hoaDon.setTrangThaiThanhToan("Chưa thanh toán");
         return hoaDonRepository.save(hoaDon);
+    }
+    
+    /**
+     * Lấy danh sách hóa đơn đã hoàn thành trong khoảng thời gian
+     * @param startDate Ngày bắt đầu
+     * @param endDate Ngày kết thúc
+     * @return Danh sách hóa đơn đã hoàn thành
+     */
+    public List<HoaDon> getCompletedInvoices(LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+        
+        return hoaDonRepository.findByTrangThaiAndThoiGianTaoBetween(
+            "Hoàn thành", startDateTime, endDateTime);
+    }
+    
+    /**
+     * Tính doanh thu theo ngày
+     * @param startDate Ngày bắt đầu
+     * @param endDate Ngày kết thúc
+     * @return Danh sách doanh thu theo ngày
+     */
+    public List<ThongKeDTO> getRevenueByDay(LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+        
+        // Lấy tất cả hóa đơn đã hoàn thành trong khoảng thời gian
+        List<HoaDon> completedInvoices = hoaDonRepository.findByTrangThaiAndThoiGianTaoBetween(
+            "Hoàn thành", startDateTime, endDateTime);
+            
+        Map<LocalDate, List<HoaDon>> invoicesByDay = completedInvoices.stream()
+            .collect(Collectors.groupingBy(hd -> hd.getThoiGianTao().toLocalDate()));
+            
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        List<ThongKeDTO> result = new ArrayList<>();
+        
+        // Tạo danh sách các ngày từ startDate đến endDate
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            List<HoaDon> dailyInvoices = invoicesByDay.getOrDefault(date, Collections.emptyList());
+            
+            // Tính tổng doanh thu trong ngày
+            BigDecimal dailyRevenue = dailyInvoices.stream()
+                .map(HoaDon::getThanhToan)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                
+            ThongKeDTO dayRevenue = new ThongKeDTO(
+                date.format(dateFormatter),
+                dailyRevenue,
+                dailyInvoices.size()
+            );
+            
+            result.add(dayRevenue);
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Tính doanh thu theo tháng
+     * @param startMonth Tháng bắt đầu
+     * @param endMonth Tháng kết thúc
+     * @return Danh sách doanh thu theo tháng
+     */
+    public List<ThongKeDTO> getRevenueByMonth(YearMonth startMonth, YearMonth endMonth) {
+        LocalDate startDate = startMonth.atDay(1);
+        LocalDate endDate = endMonth.atEndOfMonth();
+        
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+        
+        // Lấy tất cả hóa đơn đã hoàn thành trong khoảng thời gian
+        List<HoaDon> completedInvoices = hoaDonRepository.findByTrangThaiAndThoiGianTaoBetween(
+            "Hoàn thành", startDateTime, endDateTime);
+            
+        Map<YearMonth, List<HoaDon>> invoicesByMonth = completedInvoices.stream()
+            .collect(Collectors.groupingBy(hd -> YearMonth.from(hd.getThoiGianTao())));
+            
+        DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MM/yyyy");
+        List<ThongKeDTO> result = new ArrayList<>();
+        
+        // Tạo danh sách các tháng từ startMonth đến endMonth
+        for (YearMonth month = startMonth; !month.isAfter(endMonth); month = month.plusMonths(1)) {
+            List<HoaDon> monthlyInvoices = invoicesByMonth.getOrDefault(month, Collections.emptyList());
+            
+            // Tính tổng doanh thu trong tháng
+            BigDecimal monthlyRevenue = monthlyInvoices.stream()
+                .map(HoaDon::getThanhToan)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                
+            ThongKeDTO monthRevenue = new ThongKeDTO(
+                month.format(monthFormatter),
+                monthlyRevenue,
+                monthlyInvoices.size()
+            );
+            
+            result.add(monthRevenue);
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Tính doanh thu theo năm
+     * @param startYear Năm bắt đầu
+     * @param endYear Năm kết thúc
+     * @return Danh sách doanh thu theo năm
+     */
+    public List<ThongKeDTO> getRevenueByYear(int startYear, int endYear) {
+        LocalDate startDate = LocalDate.of(startYear, 1, 1);
+        LocalDate endDate = LocalDate.of(endYear, 12, 31);
+        
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+        
+        // Lấy tất cả hóa đơn đã hoàn thành trong khoảng thời gian
+        List<HoaDon> completedInvoices = hoaDonRepository.findByTrangThaiAndThoiGianTaoBetween(
+            "Hoàn thành", startDateTime, endDateTime);
+            
+        Map<Integer, List<HoaDon>> invoicesByYear = completedInvoices.stream()
+            .collect(Collectors.groupingBy(hd -> hd.getThoiGianTao().getYear()));
+            
+        List<ThongKeDTO> result = new ArrayList<>();
+        
+        // Tạo danh sách các năm từ startYear đến endYear
+        for (int year = startYear; year <= endYear; year++) {
+            List<HoaDon> yearlyInvoices = invoicesByYear.getOrDefault(year, Collections.emptyList());
+            
+            // Tính tổng doanh thu trong năm
+            BigDecimal yearlyRevenue = yearlyInvoices.stream()
+                .map(HoaDon::getThanhToan)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                
+            ThongKeDTO yearRevenue = new ThongKeDTO(
+                String.valueOf(year),
+                yearlyRevenue,
+                yearlyInvoices.size()
+            );
+            
+            result.add(yearRevenue);
+        }
+        
+        return result;
     }
 }

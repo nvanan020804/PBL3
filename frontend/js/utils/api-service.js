@@ -299,8 +299,17 @@ const HoaDonAPI = {
     // Hoàn thành hóa đơn
     hoanThanhHoaDon: (id) => fetchPut(`hoadon/${id}/hoanthanh`, {}),
     
-    // Hủy hóa đơn
-    huyHoaDon: (id) => fetchPut(`hoadon/${id}/huy`, {})
+    // Lấy doanh thu theo ngày
+    getRevenueByDay: (startDate, endDate) => fetchGet(`hoadon/revenue/day?startDate=${startDate}&endDate=${endDate}`),
+    
+    // Lấy doanh thu theo tháng
+    getRevenueByMonth: (startMonth, endMonth) => fetchGet(`hoadon/revenue/month?startMonth=${startMonth}&endMonth=${endMonth}`),
+    
+    // Lấy doanh thu theo năm
+    getRevenueByYear: (startYear, endYear) => fetchGet(`hoadon/revenue/year?startYear=${startYear}&endYear=${endYear}`),
+    
+    // Lấy tất cả hóa đơn đã hoàn thành trong khoảng thời gian
+    getCompletedInvoices: (startDate, endDate) => fetchGet(`hoadon/completed?startDate=${startDate}&endDate=${endDate}`)
 };
 
 /**
@@ -346,7 +355,10 @@ const DangKyAPI = {
     updateDangKy: (id, dangKyData) => fetchPut(`dangky/${id}`, dangKyData),
     
     // Xóa đăng ký
-    deleteDangKy: (id) => fetchDelete(`dangky/${id}`)
+    deleteDangKy: (id) => fetchDelete(`dangky/${id}`),
+    
+    // Cập nhật trạng thái đăng ký
+    updateDangKyStatus: (id, statusData) => fetchPut(`dangky/${id}/update-status`, statusData)
 };
 
 /**
@@ -392,7 +404,34 @@ const SanPhamAPI = {
     getDanhMuc: () => fetchGet('danhmuc'),
     
     // Tạo danh mục mới
-    createDanhMuc: (danhMucData) => fetchPost('danhmuc', danhMucData)
+    createDanhMuc: (danhMucData) => fetchPost('danhmuc', danhMucData),
+    
+    // Chuyển đổi file hình ảnh thành base64
+    convertImageToBase64: (file) => {
+        return new Promise((resolve, reject) => {
+            if (!file) {
+                resolve(null);
+                return;
+            }
+            
+            // Kiểm tra loại file
+            if (!file.type.match('image.*')) {
+                reject(new Error('Chỉ chấp nhận file hình ảnh'));
+                return;
+            }
+            
+            // Kiểm tra kích thước file (giới hạn 1MB)
+            if (file.size > 1024 * 1024) {
+                reject(new Error('Kích thước hình ảnh không được vượt quá 1MB'));
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    }
 };
 
 /**

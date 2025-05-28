@@ -270,7 +270,7 @@ function displayInvoices() {
                         <li><a class="dropdown-item cancel-btn" href="#" data-id="${invoice.idHoaDon}"><i class="fas fa-times"></i> Hủy</a></li>
                     </ul>
                 </div>
-                <button class="btn btn-sm btn-danger delete-btn" data-id="${invoice.idHoaDon}"><i class="fas fa-trash"></i></button>
+                <!-- Nút xóa hóa đơn đã bị loại bỏ -->
             `;
         }
         
@@ -328,6 +328,7 @@ function attachActionButtons() {
     });
     
     // Nút xóa hóa đơn
+    // Chức năng xóa hóa đơn đã bị vô hiệu hoá
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', function() {
             const invoiceId = this.getAttribute('data-id');
@@ -543,28 +544,9 @@ async function viewInvoiceDetails(invoiceId) {
     }
 }
 
-// Xóa hóa đơn
+// Xóa hóa đơn - chức năng đã bị loại bỏ
 async function deleteInvoice(invoiceId) {
-    if (confirm('Bạn có chắc chắn muốn xóa hóa đơn này không?')) {
-        try {
-            showLoading();
-            
-            // Gọi API xóa hóa đơn
-            await HoaDonAPI.deleteHoaDon(invoiceId);
-            
-            // Hiển thị thông báo
-            setTimeout(() => {
-                showSuccess('Xóa hóa đơn thành công.');
-                // Tải lại danh sách hóa đơn
-                loadInvoices();
-            }, 300);
-            
-        } catch (error) {
-            console.error('Lỗi khi xóa hóa đơn:', error);
-            showError('Không thể xóa hóa đơn. Vui lòng thử lại sau.');
-            hideLoading();
-        }
-    }
+    showError('Chức năng xóa hóa đơn đã bị vô hiệu hoá theo quy định mới của hệ thống.');
 }
 
 // Đánh dấu hóa đơn đã thanh toán
@@ -592,9 +574,20 @@ async function markAsPaid(invoiceId) {
         if (index !== -1) {
             invoices[index] = {...invoices[index], trangThaiThanhToan: 'Đã thanh toán'};
             displayInvoices();
+            
+            // Nếu hóa đơn này liên quan đến đăng ký, cập nhật trạng thái đăng ký thành "Đang hoạt động"
+            const invoice = invoices[index];
+            if (invoice.idDangKy) {
+                try {
+                    await DangKyAPI.updateDangKyStatus(invoice.idDangKy, { trangThai: 'Đang hoạt động' });
+                    console.log(`Đã cập nhật trạng thái đăng ký #${invoice.idDangKy} thành "Đang hoạt động"`);
+                } catch (error) {
+                    console.error('Lỗi khi cập nhật trạng thái đăng ký:', error);
+                }
+            }
         }
         
-        showSuccess('Đã cập nhật trạng thái thanh toán thành công.');
+        showSuccess('Đã cập nhật trạng thái thanh toán thành công. Nếu hóa đơn liên quan đến đăng ký, trạng thái đăng ký đã được cập nhật thành Đang hoạt động.');
         
         // Cập nhật lại modal chi tiết để hiển thị nút hoàn thành nếu khách hàng đã thanh toán
         const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewInvoiceModal'));

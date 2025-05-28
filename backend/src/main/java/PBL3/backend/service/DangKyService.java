@@ -117,17 +117,10 @@ public class DangKyService {
         return dangKyRepository.save(dangKy);
     }
 
+    // Phương thức xoá đăng ký đã được loại bỏ vì yêu cầu hệ thống
     @Transactional
     public void deleteDangKy(int id) {
-        DangKy dangKy = dangKyRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy đăng ký với ID: " + id));
-            
-        // Kiểm tra nếu có hóa đơn liên quan
-        if (!dangKy.getHoaDons().isEmpty()) {
-            throw new RuntimeException("Không thể xóa đăng ký đã có hóa đơn");
-        }
-        
-        dangKyRepository.deleteById(id);
+        throw new RuntimeException("Chức năng xoá đăng ký đã bị vô hiệu hoá");
     }
     
     @Transactional

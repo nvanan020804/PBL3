@@ -83,7 +83,6 @@
                         <th scope="col">Ngày kết thúc</th>
                         <th scope="col">Giờ tập</th>
                         <th scope="col">Trạng thái</th>
-                        <th scope="col">Hành động</th>
                     </tr>
                 </thead>
                 <tbody id="registrationsTableBody">
@@ -173,7 +172,7 @@
                             <select class="form-select" id="trangThai">
                                 <option value="Đang hoạt động">Đang hoạt động</option>
                                 <option value="Hết hạn">Hết hạn</option>
-                                <option value="Chưa kích hoạt">Chưa kích hoạt</option>
+                                <option value="Chờ kích hoạt">Chờ kích hoạt</option>
                             </select>
                         </div>
                     </form>
@@ -196,16 +195,15 @@
                 </div>
                 <div class="modal-body">
                     <!-- Thêm phần tử thông báo lỗi trong modal -->
-                    <div id="delete-error-container" class="alert alert-danger mb-3" style="display: none;">
-                        <i class="fas fa-exclamation-circle"></i> <span id="delete-error-message"></span>
+                    <div id="delete-error-container" class="alert alert-danger mb-3">
+                        <i class="fas fa-exclamation-circle"></i> <span id="delete-error-message">Chức năng xóa đăng ký đã bị vô hiệu hoá theo quy định mới của hệ thống.</span>
                     </div>
                     
-                    <p>Bạn có chắc chắn muốn xóa đăng ký của khách hàng <span id="deleteCustomerName" class="fw-bold"></span>?</p>
-                    <p class="text-danger"><i class="fas fa-exclamation-triangle"></i> Lưu ý: Việc xóa đăng ký sẽ không thể hoàn tác.</p>
+                    <p>Đăng ký của khách hàng <span id="deleteCustomerName" class="fw-bold"></span> không thể xoá.</p>
+                    <p class="text-info"><i class="fas fa-info-circle"></i> Lưu ý: Để đảm bảo tính toàn vẹn dữ liệu, các đăng ký không được phép xoá khỏi hệ thống.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 </div>
             </div>
         </div>
@@ -321,16 +319,13 @@
         </div>
     </div>
 
-    <!-- Footer Container -->
     <div id="footer-container"></div>
 
-    <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Component Loader Script -->
     <script src="../../js/components/loadComponents.js"></script>
     
-    <!-- Registration Management Script -->
     <script type="module" src="../../js/admin/dangky.js"></script>
+     <script src="../../js/components/menuScroll.js"></script>
 </body>
 </html>

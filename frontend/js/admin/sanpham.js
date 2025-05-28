@@ -12,6 +12,7 @@ let currentStockFilter = 'all'; // Bộ lọc hiện tại theo tồn kho
 let editMode = false; // Biến kiểm tra đang ở chế độ sửa hay thêm mới
 let currentProductId = null; // ID của sản phẩm đang được chỉnh sửa
 let viewMode = 'grid'; // Chế độ hiển thị ('grid' hoặc 'table')
+let currentProductImage = null; // Lưu trữ ảnh hiện tại của sản phẩm đang chỉnh sửa
 
 // Đợi DOM được tải hoàn toàn
 document.addEventListener('DOMContentLoaded', function() {
@@ -68,6 +69,9 @@ function setupEventListeners() {
     
     // Sự kiện nút lưu danh mục
     document.getElementById('saveCategoryBtn').addEventListener('click', saveCategory);
+    
+    // Sự kiện khi chọn file hình ảnh
+    document.getElementById('hinhAnh').addEventListener('change', handleImageSelect);
     
     // Sự kiện nút làm mới
     document.getElementById('refreshBtn').addEventListener('click', function() {
@@ -294,7 +298,7 @@ function displayProducts(productsToDisplay) {
                 <div class="position-absolute top-0 end-0 m-2">
                     <span class="status-badge ${statusClass}">${stockStatus}</span>
                 </div>
-                <img src="../../assets/goidichvu/goi1.jpg" 
+                <img src="${product.hinhAnh || '../../assets/goidichvu/goi1.jpg'}" 
                     class="card-img-top product-image" alt="${product.tenSanPham}">
                 <div class="card-body">
                     <h5 class="card-title product-title">${product.tenSanPham}</h5>
@@ -326,7 +330,7 @@ function displayProducts(productsToDisplay) {
         row.innerHTML = `
             <td>${product.idSanPham}</td>
             <td>
-                <img src="../../assets/goidichvu/goi1.jpg" 
+                <img src="${product.hinhAnh || '../../assets/goidichvu/goi1.jpg'}" 
                     alt="${product.tenSanPham}" class="img-thumbnail">
             </td>
             <td>${product.tenSanPham}</td>
@@ -413,7 +417,7 @@ function viewProductDetails(productId) {
             document.getElementById('viewProductPrice').textContent = formatCurrency(product.gia);
             document.getElementById('viewProductQuantity').textContent = product.soLuong;
             document.getElementById('viewProductDescription').textContent = product.congDung || 'Không có mô tả';
-            document.getElementById('viewProductImage').src = `../../assets/goidichvu/goi1.jpg`;
+            document.getElementById('viewProductImage').src = product.hinhAnh || `../../assets/goidichvu/goi1.jpg`;
             
             // Hiển thị modal
             const viewModal = new bootstrap.Modal(document.getElementById('viewProductModal'));
@@ -451,6 +455,26 @@ function editProduct(productId) {
             document.getElementById('gia').value = product.gia;
             document.getElementById('soLuong').value = product.soLuong;
             document.getElementById('moTa').value = product.congDung || '';
+            
+            // Lưu trữ ảnh hiện tại
+            currentProductImage = product.hinhAnh;
+            console.log("Lưu trữ hình ảnh hiện tại, có hình ảnh:", currentProductImage ? "Có" : "Không");
+            
+            // Xử lý hiển thị hình ảnh hiện tại nếu có
+            const imagePreview = document.getElementById('imagePreview');
+            const previewImage = document.getElementById('previewImage');
+            
+            if (product.hinhAnh) {
+                previewImage.src = product.hinhAnh;
+                imagePreview.classList.remove('d-none');
+                console.log("Đã hiển thị hình ảnh hiện tại trong modal");
+            } else {
+                imagePreview.classList.add('d-none');
+                console.log("Không có hình ảnh để hiển thị");
+            }
+            
+            // Reset file input để tránh nhầm lẫn giữa các lần chỉnh sửa
+            document.getElementById('hinhAnh').value = '';
             
             // Hiển thị modal
             const productModal = new bootstrap.Modal(document.getElementById('productModal'));
@@ -549,21 +573,30 @@ function clearDeleteError() {
 }
 
 // Lưu thông tin sản phẩm (thêm mới hoặc cập nhật)
-function saveProduct() {
-    // Lấy dữ liệu từ form
-    const formData = getProductFormData();
-    
-    // Validate dữ liệu
-    if (!validateProductData(formData)) {
-        return;
-    }
-    
-    showLoading(true);
-    
-    // Nếu đang ở chế độ chỉnh sửa
-    if (editMode) {
-        SanPhamAPI.updateSanPham(currentProductId, formData)
-            .then(response => {
+async function saveProduct() {
+    try {
+        showLoading(true);
+        
+        // Lấy dữ liệu từ form (bây giờ là async do xử lý ảnh)
+        const formData = await getProductFormData();
+        
+        // Validate dữ liệu
+        if (!validateProductData(formData)) {
+            showLoading(false);
+            return;
+        }
+        
+        // Log để debug
+        console.log('Dữ liệu sản phẩm sẽ lưu:', formData);
+        console.log('Hình ảnh:', formData.hinhAnh ? 'Có hình ảnh' : 'Không có hình ảnh');
+        
+        // Nếu đang ở chế độ chỉnh sửa
+        if (editMode) {
+            try {
+                console.log('Dữ liệu sản phẩm trước khi cập nhật:', formData);
+                console.log('ID sản phẩm cần cập nhật:', currentProductId);
+                
+                const response = await SanPhamAPI.updateSanPham(currentProductId, formData);
                 console.log('Sản phẩm đã được cập nhật:', response);
                 
                 // Đóng modal
@@ -571,10 +604,12 @@ function saveProduct() {
                 
                 showSuccess('Cập nhật sản phẩm thành công!');
                 
+                // Reset biến lưu trữ ảnh
+                currentProductImage = null;
+                
                 // Tải lại danh sách sản phẩm
                 loadProducts();
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Lỗi khi cập nhật sản phẩm:', error);
                 
                 // Kiểm tra nếu lỗi là sản phẩm đã tồn tại
@@ -584,11 +619,11 @@ function saveProduct() {
                     showFormError('Không thể cập nhật sản phẩm. ' + (error.message || ''));
                 }
                 showLoading(false);
-            });
-    } else {
-        // Thêm mới sản phẩm
-        SanPhamAPI.createSanPham(formData)
-            .then(response => {
+            }
+        } else {
+            // Thêm mới sản phẩm
+            try {
+                const response = await SanPhamAPI.createSanPham(formData);
                 console.log('Sản phẩm mới đã được tạo:', response);
                 
                 // Đóng modal
@@ -598,8 +633,7 @@ function saveProduct() {
                 
                 // Tải lại danh sách sản phẩm
                 loadProducts();
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Lỗi khi thêm sản phẩm:', error);
                 if (isProductNameExists(error)) {
                     showFormError('Tên sản phẩm đã tồn tại');
@@ -607,28 +641,66 @@ function saveProduct() {
                     showFormError('Không thể thêm sản phẩm mới. ' + (error.message || ''));
                 }
                 showLoading(false);
-            });
+            }
+        }
+    } catch (error) {
+        console.error('Lỗi xử lý dữ liệu sản phẩm:', error);
+        showFormError('Lỗi xử lý dữ liệu: ' + (error.message || ''));
+        showLoading(false);
     }
 }
 
 // Lấy dữ liệu từ form sản phẩm
-function getProductFormData() {
+async function getProductFormData() {
     const tenSanPham = document.getElementById('tenSanPham').value;
     const idDanhMuc = document.getElementById('loaiSanPham').value;
     const gia = document.getElementById('gia').value;
     const soLuong = document.getElementById('soLuong').value;
     const congDung = document.getElementById('moTa').value;
+    const imageFile = document.getElementById('hinhAnh').files[0];
     
-    return {
-        tenSanPham: tenSanPham,
-        danhMuc: {
-            idDanhMuc: parseInt(idDanhMuc)
-        },
-        gia: parseFloat(gia),
-        soLuong: parseInt(soLuong),
-        congDung: congDung,
-        donViDem: 'cái' // Giá trị mặc định
-    };
+    try {
+        // Chuyển đổi hình ảnh sang base64 nếu có file mới, hoặc sử dụng ảnh cũ khi đang ở chế độ sửa
+        let imageBase64;
+        
+        if (imageFile) {
+            console.log("Đang xử lý file hình ảnh mới:", imageFile.name, "kích thước:", imageFile.size);
+            // Nếu có file mới, chuyển đổi nó
+            imageBase64 = await SanPhamAPI.convertImageToBase64(imageFile);
+            console.log("Đã chuyển đổi hình ảnh thành Base64, độ dài chuỗi:", imageBase64 ? imageBase64.length : 0);
+        } else if (editMode && currentProductImage) {
+            // Nếu không có file mới và đang ở chế độ sửa, sử dụng ảnh cũ
+            imageBase64 = currentProductImage;
+            console.log("Sử dụng lại hình ảnh cũ, độ dài chuỗi:", imageBase64 ? imageBase64.length : 0);
+        } else {
+            // Không có ảnh
+            imageBase64 = null;
+            console.log("Không có hình ảnh được chọn hoặc ảnh cũ");
+        }
+        
+        // Tạo object dữ liệu sản phẩm
+        const productData = {
+            tenSanPham: tenSanPham,
+            danhMuc: {
+                idDanhMuc: parseInt(idDanhMuc)
+            },
+            gia: parseFloat(gia),
+            soLuong: parseInt(soLuong),
+            congDung: congDung,
+            donViDem: 'cái' // Giá trị mặc định
+        };
+        
+        // Chỉ thêm hình ảnh nếu có
+        if (imageBase64) {
+            productData.hinhAnh = imageBase64;
+        }
+        
+        return productData;
+    } catch (error) {
+        console.error("Lỗi xử lý hình ảnh:", error);
+        showError(`Lỗi xử lý hình ảnh: ${error.message}`);
+        throw error;
+    }
 }
 
 // Validate dữ liệu sản phẩm
@@ -669,9 +741,15 @@ function resetForm() {
     // Reset biến trạng thái
     editMode = false;
     currentProductId = null;
+    currentProductImage = null;
     
     // Reset tiêu đề modal
     document.getElementById('productModalLabel').textContent = 'Thêm Sản Phẩm Mới';
+    
+    // Ẩn preview hình ảnh
+    const imagePreview = document.getElementById('imagePreview');
+    imagePreview.classList.add('d-none');
+    document.getElementById('previewImage').src = '';
 }
 
 // Hiển thị lỗi trong form modal
@@ -1032,4 +1110,62 @@ function saveCategory() {
             showCategoryAlert('Không thể thêm danh mục. ' + (error.message || ''), false);
             showLoading(false);
         });
+}
+
+// Xử lý khi người dùng chọn hình ảnh
+function handleImageSelect(event) {
+    const fileInput = event.target;
+    const file = fileInput.files[0];
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImage = document.getElementById('previewImage');
+    
+    // Nếu không có file nào được chọn
+    if (!file) {
+        // Nếu đang ở chế độ sửa và có ảnh cũ, hiển thị lại ảnh cũ
+        if (editMode && currentProductImage) {
+            previewImage.src = currentProductImage;
+            imagePreview.classList.remove('d-none');
+        } else {
+            imagePreview.classList.add('d-none');
+        }
+        return;
+    }
+    
+    // Kiểm tra loại file
+    if (!file.type.match('image.*')) {
+        alert('Vui lòng chọn file hình ảnh (JPG, PNG)');
+        fileInput.value = '';
+        
+        // Nếu đang ở chế độ sửa và có ảnh cũ, hiển thị lại ảnh cũ
+        if (editMode && currentProductImage) {
+            previewImage.src = currentProductImage;
+            imagePreview.classList.remove('d-none');
+        } else {
+            imagePreview.classList.add('d-none');
+        }
+        return;
+    }
+    
+    // Kiểm tra kích thước file (giới hạn 1MB)
+    if (file.size > 1024 * 1024) {
+        alert('Kích thước hình ảnh không được vượt quá 1MB');
+        fileInput.value = '';
+        
+        // Nếu đang ở chế độ sửa và có ảnh cũ, hiển thị lại ảnh cũ
+        if (editMode && currentProductImage) {
+            previewImage.src = currentProductImage;
+            imagePreview.classList.remove('d-none');
+        } else {
+            imagePreview.classList.add('d-none');
+        }
+        return;
+    }
+    
+    // Hiển thị hình ảnh xem trước
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        previewImage.src = e.target.result;
+        imagePreview.classList.remove('d-none');
+    };
+    reader.readAsDataURL(file);
 }

@@ -110,6 +110,7 @@ public class DangKyController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteDangKy(@PathVariable int id) {
         try {
+            // Chức năng đã bị vô hiệu hóa
             dangKyService.deleteDangKy(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (RuntimeException e) {
@@ -170,6 +171,32 @@ public class DangKyController {
         }
     }
 
+    @PutMapping("/{id}/update-status")
+    public ResponseEntity<?> updateDangKyStatus(@PathVariable int id, @RequestBody Map<String, String> statusUpdate) {
+        try {
+            String newStatus = statusUpdate.get("trangThai");
+            if (newStatus == null || newStatus.isEmpty()) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Trạng thái không được để trống");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+            
+            // Lấy đăng ký từ cơ sở dữ liệu
+            DangKy dangKy = dangKyService.getDangKyById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đăng ký với ID: " + id));
+            
+            // Cập nhật trạng thái
+            dangKy.setTrangThai(newStatus);
+            DangKy updatedDangKy = dangKyService.updateDangKy(id, dangKy);
+            
+            return new ResponseEntity<>(convertToResponse(updatedDangKy), HttpStatus.OK);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     private DangKyResponse convertToResponse(DangKy dangKy) {
         DangKyResponse response = new DangKyResponse();
         response.setIdDangKy(dangKy.getIdDangKy());
@@ -191,15 +218,14 @@ public class DangKyController {
             response.setThoiHan(goiDichVu.getThoiGian());  // Sửa tên phương thức
             
             // Tính ngày kết thúc dựa trên ngày bắt đầu và thời hạn
-            if (dangKy.getNgayBatDau() != null && goiDichVu.getThoiGian() > 0) {  // Sửa tên phương thức
-                // Tính ngày kết thúc bằng cách cộng thời gian (tháng) vào ngày bắt đầu
-                // Mỗi tháng là 30 ngày
-                LocalDate startDate = dangKy.getNgayBatDau();
-                LocalDate endDate = startDate.plusDays(goiDichVu.getThoiGian() * 30L);  // Sửa tên phương thức
-                response.setNgayKetThuc(endDate);
+            if (dangKy.getNgayBatDau() != null && goiDichVu.getThoiGian() > 0) {
+                LocalDate ngayBatDau = dangKy.getNgayBatDau();
+                int thoiHan = goiDichVu.getThoiGian();
+                LocalDate ngayKetThuc = ngayBatDau.plusDays(thoiHan * 30L); // Giả sử thời hạn tính bằng tháng
+                response.setNgayKetThuc(ngayKetThuc);
             }
         }
         
         return response;
     }
-}
+} 

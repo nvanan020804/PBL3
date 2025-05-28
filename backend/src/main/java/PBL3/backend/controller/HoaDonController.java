@@ -84,6 +84,7 @@ public class HoaDonController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteHoaDon(@PathVariable int id) {
         try {
+            // Chức năng đã bị vô hiệu hóa
             hoaDonService.deleteHoaDon(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (RuntimeException e) {

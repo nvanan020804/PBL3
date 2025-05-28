@@ -43,6 +43,9 @@ public class SanPham {
     @Column(name = "soLuong")
     private Integer soLuong = 0;
     
+    @Column(name = "hinhAnh", columnDefinition = "TEXT")
+    private String hinhAnh;
+    
     @OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL)
     @JsonManagedReference(value = "sanpham-chitiet")
     private List<HoaDonChiTiet> hoaDonChiTietList = new ArrayList<>();

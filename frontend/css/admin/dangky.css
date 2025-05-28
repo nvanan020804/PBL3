@@ -10,6 +10,8 @@
     --info-color: #17a2b8;
     --light-color: #f8f9fa;
     --dark-color: #343a40;
+    --gray-color: #e9ecef;
+    --hover-color: #f1f8ff; /* Màu hover cho hàng bảng */
 }
 
 /* Định dạng cho bảng */
@@ -185,6 +187,17 @@
 /* Mark paid button styling */
 .mark-paid-btn {
     margin-left: 5px;
+}
+
+/* Thêm hiệu ứng hover cho hàng trong bảng để tăng khả năng tương tác */
+#registrationsTable tbody tr {
+    transition: all 0.2s ease;
+}
+
+#registrationsTable tbody tr:hover {
+    background-color: var(--hover-color);
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive */

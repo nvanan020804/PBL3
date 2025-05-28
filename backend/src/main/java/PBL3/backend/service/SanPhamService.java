@@ -108,6 +108,11 @@ public class SanPhamService {
             sanPham.setSoLuong(sanPhamDetails.getSoLuong());
         }
         
+        // Cập nhật hình ảnh nếu có
+        if (sanPhamDetails.getHinhAnh() != null) {
+            sanPham.setHinhAnh(sanPhamDetails.getHinhAnh());
+        }
+        
         return sanPhamRepository.save(sanPham);
     }
 

@@ -24,7 +24,7 @@ public class DangKyRequest {
     @NotNull(message = "Ngày bắt đầu không được để trống")
     private LocalDate ngayBatDau;
     
-    @Pattern(regexp = "^(Đang hoạt động|Hết hạn|Chưa kích hoạt)$", message = "Trạng thái phải là một trong: Đang hoạt động, Hết hạn, Chưa kích hoạt")
+    @Pattern(regexp = "^(Đang hoạt động|Hết hạn|Chưa kích hoạt|Chờ kích hoạt)$", message = "Trạng thái phải là một trong: Đang hoạt động, Hết hạn, Chưa kích hoạt, Chờ kích hoạt")
     private String trangThai;
     
     private String gioTap;

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống kê doanh thu - Admin</title>
+    <link rel="stylesheet" href="../../css/admin/thongke.css">
+    <link rel="stylesheet" href="../../css/components/header.css">
+    <link rel="stylesheet" href="../../css/components/menu.css">
+    <link rel="stylesheet" href="../../css/components/footer.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header Container -->
+    <div id="header-container"></div>
+
+    <!-- Menu Container -->
+    <div id="menu-container"></div>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col">
+                <h2>Thống kê doanh thu</h2>
+            </div>
+        </div>
+
+        <!-- Filter and Chart Type Controls -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Bộ lọc thống kê</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="dateRangeType" class="form-label">Xem theo</label>
+                            <select class="form-select" id="dateRangeType">
+                                <option value="day" selected>Ngày</option>
+                                <option value="month">Tháng</option>
+                                <option value="year">Năm</option>
+                            </select>
+                        </div>
+                        
+                        <div id="dayFilterSection">
+                            <div class="mb-3">
+                                <label for="startDate" class="form-label">Từ ngày</label>
+                                <input type="date" class="form-control" id="startDate">
+                            </div>
+                            <div class="mb-3">
+                                <label for="endDate" class="form-label">Đến ngày</label>
+                                <input type="date" class="form-control" id="endDate">
+                            </div>
+                        </div>
+                        
+                        <div id="monthFilterSection" style="display: none;">
+                            <div class="mb-3">
+                                <label for="startMonth" class="form-label">Từ tháng</label>
+                                <input type="month" class="form-control" id="startMonth">
+                            </div>
+                            <div class="mb-3">
+                                <label for="endMonth" class="form-label">Đến tháng</label>
+                                <input type="month" class="form-control" id="endMonth">
+                            </div>
+                        </div>
+                        
+                        <div id="yearFilterSection" style="display: none;">
+                            <div class="mb-3">
+                                <label for="startYear" class="form-label">Từ năm</label>
+                                <input type="number" class="form-control" id="startYear" min="2020" max="2100">
+                            </div>
+                            <div class="mb-3">
+                                <label for="endYear" class="form-label">Đến năm</label>
+                                <input type="number" class="form-control" id="endYear" min="2020" max="2100">
+                            </div>
+                        </div>
+                        
+                        <button id="applyFilterBtn" class="btn btn-primary">
+                            <i class="fas fa-filter"></i> Áp dụng bộ lọc
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Tùy chọn hiển thị</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="chartType" class="form-label">Loại biểu đồ</label>
+                            <select class="form-select" id="chartType">
+                                <option value="bar" selected>Biểu đồ cột</option>
+                                <option value="line">Biểu đồ đường</option>
+                                <option value="pie">Biểu đồ tròn</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="showAmounts" checked>
+                                <label class="form-check-label" for="showAmounts">
+                                    Hiển thị số tiền trên biểu đồ
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button id="refreshChartBtn" class="btn btn-success">
+                            <i class="fas fa-sync-alt"></i> Cập nhật biểu đồ
+                        </button>
+                        <button id="downloadChartBtn" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-download"></i> Tải xuống biểu đồ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Summary Card -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Tổng quan doanh thu</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="revenue-info-box text-center p-3 border rounded mb-3">
+                                    <h3 class="mb-3">Tổng doanh thu</h3>
+                                    <h2 id="totalRevenue" class="text-success">0 ₫</h2>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="revenue-info-box text-center p-3 border rounded mb-3">
+                                    <h3 class="mb-3">Số lượng hóa đơn</h3>
+                                    <h2 id="totalInvoices" class="text-primary">0</h2>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="revenue-info-box text-center p-3 border rounded mb-3">
+                                    <h3 class="mb-3">Doanh thu trung bình</h3>
+                                    <h2 id="averageRevenue" class="text-info">0 ₫</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert messages -->
+        <div id="alertSuccess" class="alert alert-success alert-dismissible fade" role="alert">
+            <span id="alertSuccessMessage"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div id="alertError" class="alert alert-danger alert-dismissible fade" role="alert">
+            <span id="alertErrorMessage"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Revenue Chart -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Biểu đồ doanh thu</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="position: relative; height:60vh; width:100%">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Chi tiết doanh thu</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="revenueTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th scope="col" style="width: 25%">Thời gian</th>
+                                        <th scope="col" style="width: 25%; text-align: right;">Doanh thu</th>
+                                        <th scope="col" style="width: 25%; text-align: center;">Số lượng hóa đơn</th>
+                                        <th scope="col" style="width: 25%; text-align: right;">Doanh thu trung bình</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="revenueTableBody">
+                                    <!-- Dữ liệu sẽ được thêm vào đây bằng JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="text-center py-4 d-none">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/components/loadComponents.js"></script>
+     <script src="../../js/components/menuScroll.js"></script>
+    <script type="module" src="../../js/admin/thongke.js"></script>
+</body>
+</html>
