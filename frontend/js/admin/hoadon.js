@@ -111,6 +111,11 @@ function setupEventListeners() {
     document.getElementById('itemSoLuong').addEventListener('input', function() {
         calculateItemTotal();
     });
+    
+    // Nút lưu sản phẩm trong modal thêm sản phẩm
+    document.getElementById('saveItemBtn').addEventListener('click', function() {
+        addItemToInvoice();
+    });
 }
 
 // Tải danh sách hóa đơn
@@ -270,7 +275,7 @@ function displayInvoices() {
                         <li><a class="dropdown-item cancel-btn" href="#" data-id="${invoice.idHoaDon}"><i class="fas fa-times"></i> Hủy</a></li>
                     </ul>
                 </div>
-                <!-- Nút xóa hóa đơn đã bị loại bỏ -->
+                <button class="btn btn-sm btn-danger delete-btn" data-id="${invoice.idHoaDon}"><i class="fas fa-trash"></i></button>
             `;
         }
         
@@ -328,7 +333,6 @@ function attachActionButtons() {
     });
     
     // Nút xóa hóa đơn
-    // Chức năng xóa hóa đơn đã bị vô hiệu hoá
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', function() {
             const invoiceId = this.getAttribute('data-id');
@@ -544,146 +548,408 @@ async function viewInvoiceDetails(invoiceId) {
     }
 }
 
-// Xóa hóa đơn - chức năng đã bị loại bỏ
-async function deleteInvoice(invoiceId) {
-    showError('Chức năng xóa hóa đơn đã bị vô hiệu hoá theo quy định mới của hệ thống.');
+// Hiển thị modal thêm sản phẩm
+function showItemModal() {
+    // Reset form
+    document.getElementById('itemForm').reset();
+    
+    // Cập nhật danh sách sản phẩm
+    updateProductDropdown();
+    
+    // Thiết lập giá trị mặc định cho số lượng
+    document.getElementById('itemSoLuong').value = 1;
+    
+    // Cập nhật giá sản phẩm
+    updateItemPrice();
+    
+    // Hiển thị modal
+    const itemModal = new bootstrap.Modal(document.getElementById('itemModal'));
+    itemModal.show();
 }
 
-// Đánh dấu hóa đơn đã thanh toán
-async function markAsPaid(invoiceId) {
+// Cập nhật giá sản phẩm khi chọn sản phẩm
+function updateItemPrice() {
+    const productSelect = document.getElementById('itemSanPham');
+    const selectedProductId = productSelect.value;
+    
+    if (selectedProductId) {
+        // Tìm sản phẩm đã chọn
+        const selectedProduct = products.find(p => p.idSanPham == selectedProductId);
+        
+        if (selectedProduct && selectedProduct.gia) {
+            // Cập nhật trường giá
+            document.getElementById('itemGia').value = selectedProduct.gia;
+            
+            // Tính toán thành tiền
+            calculateItemTotal();
+        }
+    } else {
+        document.getElementById('itemGia').value = 0;
+        document.getElementById('itemThanhTien').value = 0;
+    }
+}
+
+// Tính toán thành tiền khi thay đổi giá hoặc số lượng
+function calculateItemTotal() {
+    const gia = parseFloat(document.getElementById('itemGia').value) || 0;
+    const soLuong = parseInt(document.getElementById('itemSoLuong').value) || 0;
+    
+    const thanhTien = gia * soLuong;
+    document.getElementById('itemThanhTien').value = thanhTien;
+}
+
+// Thêm sản phẩm vào hóa đơn
+function addItemToInvoice() {
     try {
-        if (!confirm('Xác nhận đánh dấu hóa đơn này đã thanh toán?')) {
+        // Lấy dữ liệu từ form
+        const productId = document.getElementById('itemSanPham').value;
+        const gia = parseFloat(document.getElementById('itemGia').value) || 0;
+        const soLuong = parseInt(document.getElementById('itemSoLuong').value) || 0;
+        const thanhTien = parseFloat(document.getElementById('itemThanhTien').value) || 0;
+        
+        // Kiểm tra dữ liệu
+        if (!productId) {
+            showError('Vui lòng chọn sản phẩm.');
+            return false;
+        }
+        
+        if (soLuong <= 0) {
+            showError('Số lượng phải lớn hơn 0.');
+            return false;
+        }
+        
+        if (gia <= 0) {
+            showError('Giá phải lớn hơn 0.');
+            return false;
+        }
+        
+        // Tìm thông tin sản phẩm
+        const selectedProduct = products.find(p => p.idSanPham == productId);
+        if (!selectedProduct) {
+            showError('Không tìm thấy sản phẩm.');
+            return false;
+        }
+        
+        // Kiểm tra số lượng có đủ không
+        if (soLuong > selectedProduct.soLuong) {
+            showError(`Chỉ còn ${selectedProduct.soLuong} sản phẩm trong kho.`);
+            return false;
+        }
+        
+        // Tạo chi tiết hóa đơn mới
+        const invoiceDetail = {
+            sanPham: selectedProduct,
+            gia: gia,
+            soLuong: soLuong,
+            thanhTien: thanhTien
+        };
+        
+        // Thêm vào mảng tạm
+        tempInvoiceDetails.push(invoiceDetail);
+
+        // Cập nhật lại số lượng sản phẩm trong mảng products
+        selectedProduct.soLuong -= soLuong;
+
+        // Cập nhật lại dropdown sản phẩm để phản ánh số lượng mới
+        updateProductDropdown();
+        
+        // Cập nhật hiển thị
+        displayInvoiceDetails();
+        
+        // Đóng modal
+        const itemModal = bootstrap.Modal.getInstance(document.getElementById('itemModal'));
+        if (itemModal) {
+            itemModal.hide();
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Lỗi khi thêm sản phẩm:', error);
+        showError('Có lỗi xảy ra khi thêm sản phẩm.');
+        return false;
+    }
+}
+
+// Tải thông tin khách hàng cho từng hóa đơn
+async function loadCustomerDetailsForInvoices(invoices) {
+    try {
+        // Lấy danh sách riêng biệt của tất cả idKhachHang từ các hóa đơn
+        const customerIds = [];
+        invoices.forEach(invoice => {
+            if (invoice.khachHang && typeof invoice.khachHang === 'object' && invoice.khachHang.idKhachHang) {
+                if (!customerIds.includes(invoice.khachHang.idKhachHang)) {
+                    customerIds.push(invoice.khachHang.idKhachHang);
+                }
+            }
+        });
+        
+        if (customerIds.length === 0) {
+            console.log('Không có khách hàng cần tải thông tin');
+            return;
+        }
+        
+        console.log('Tải thông tin cho các khách hàng:', customerIds);
+        
+        // Gọi API để lấy thông tin chi tiết của từng khách hàng
+        for (const customerId of customerIds) {
+            try {
+                const response = await fetch(`http://localhost:8080/api/khachhang/${customerId}`);
+                if (response.ok) {
+                    const customer = await response.json();
+                    
+                    // Cập nhật tên khách hàng cho tất cả hóa đơn có khách hàng này
+                    invoices.forEach(invoice => {
+                        if (invoice.khachHang && invoice.khachHang.idKhachHang === customerId) {
+                            customerNamesMap[invoice.idHoaDon] = customer.tenKhachHang;
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error(`Lỗi khi tải thông tin khách hàng ID ${customerId}:`, error);
+            }
+        }
+    } catch (error) {
+        console.error('Lỗi khi tải thông tin khách hàng:', error);
+    }
+}
+
+// Lấy thông tin khách hàng cho một hóa đơn cụ thể
+async function loadCustomerDetailsForInvoice(invoice) {
+    try {
+        // Kiểm tra xem thông tin khách hàng đã có trong map chưa
+        if (customerNamesMap[invoice.idHoaDon]) {
+            console.log(`Thông tin khách hàng cho hóa đơn ${invoice.idHoaDon} đã có sẵn`);
+            return; // Đã có thông tin khách hàng
+        }
+        
+        console.log(`Đang tải thông tin khách hàng cho hóa đơn ${invoice.idHoaDon}`);
+        
+        // Lấy ID khách hàng từ hóa đơn
+        let customerId = null;
+        if (invoice.khachHang && invoice.khachHang.idKhachHang) {
+            customerId = invoice.khachHang.idKhachHang;
+            console.log(`Tìm thấy ID khách hàng từ trường khachHang: ${customerId}`);
+        } else if (invoice.dangKy && invoice.dangKy.khachHang && invoice.dangKy.khachHang.idKhachHang) {
+            customerId = invoice.dangKy.khachHang.idKhachHang;
+            console.log(`Tìm thấy ID khách hàng từ trường dangKy: ${customerId}`);
+        }
+        
+        if (!customerId) {
+            console.log(`Không tìm thấy ID khách hàng cho hóa đơn ${invoice.idHoaDon}`);
+            // Vẫn gán một giá trị mặc định để tránh lặp lại việc tìm kiếm
+            customerNamesMap[invoice.idHoaDon] = 'Khách lẻ';
+            return; // Không có ID khách hàng
+        }
+        
+        // Gọi API để lấy thông tin khách hàng
+        try {
+            console.log(`Đang gọi API lấy thông tin khách hàng có ID ${customerId}`);
+            const response = await fetch(`http://localhost:8080/api/khachhang/${customerId}`);
+            if (response.ok) {
+                const customer = await response.json();
+                if (customer && customer.tenKhachHang) {
+                    console.log(`Đã tìm thấy thông tin khách hàng: ${customer.tenKhachHang}`);
+                    customerNamesMap[invoice.idHoaDon] = customer.tenKhachHang;
+                } else {
+                    console.log(`Không có thông tin tên cho khách hàng ID ${customerId}`);
+                    customerNamesMap[invoice.idHoaDon] = 'Khách hàng #' + customerId;
+                }
+            } else {
+                console.log(`API trả về lỗi khi tìm khách hàng ID ${customerId}. Status: ${response.status}`);
+                customerNamesMap[invoice.idHoaDon] = 'Khách hàng #' + customerId;
+            }
+        } catch (error) {
+            console.error(`Lỗi khi tải thông tin khách hàng cho hóa đơn ${invoice.idHoaDon}:`, error);
+            customerNamesMap[invoice.idHoaDon] = 'Khách hàng không xác định';
+        }
+    } catch (error) {
+        console.error('Lỗi khi tải thông tin khách hàng cho hóa đơn:', error);
+        if (invoice && invoice.idHoaDon) {
+            customerNamesMap[invoice.idHoaDon] = 'Khách hàng không xác định';
+        }
+    }
+}
+
+// Đánh dấu hóa đơn là Hoàn thành
+async function completeInvoice(invoiceId) {
+    try {
+        // Kiểm tra xem hóa đơn đã được thanh toán chưa
+        const invoice = invoices.find(inv => inv.idHoaDon == invoiceId);
+        if (!invoice) {
+            showError('Không tìm thấy thông tin hóa đơn.');
+            return;
+        }
+        
+        // Nếu hóa đơn chưa thanh toán, hiển thị thông báo lỗi
+        if (invoice.trangThaiThanhToan !== 'Đã thanh toán') {
+            showError('Không thể hoàn thành hóa đơn chưa thanh toán. Vui lòng thanh toán hóa đơn trước.');
+            return;
+        }
+        
+        if (!confirm('Xác nhận đánh dấu hóa đơn này là hoàn thành?')) {
             return;
         }
         
         showLoading();
-        const updatedInvoice = await HoaDonAPI.daThanhToan(invoiceId);
         
-        // Update DOM elements
-        const paymentStatusElement = document.getElementById('viewPaymentStatus');
-        if (paymentStatusElement) {
-            paymentStatusElement.textContent = 'Đã thanh toán';
-            paymentStatusElement.className = 'status-badge payment-completed';
-        }
+        // Gọi API để cập nhật trạng thái hóa đơn thành Hoàn thành
+        const updatedInvoice = await HoaDonAPI.hoanThanhHoaDon(invoiceId);
         
-        // Update action buttons
-        updatePaymentButtons(invoiceId, true);
-        
-        // Update invoice in list
+        // Cập nhật hóa đơn trong mảng
         const index = invoices.findIndex(inv => inv.idHoaDon == invoiceId);
         if (index !== -1) {
-            invoices[index] = {...invoices[index], trangThaiThanhToan: 'Đã thanh toán'};
+            invoices[index] = {...invoices[index], trangThai: 'Hoàn thành'};
             displayInvoices();
-            
-            // Nếu hóa đơn này liên quan đến đăng ký, cập nhật trạng thái đăng ký thành "Đang hoạt động"
-            const invoice = invoices[index];
-            if (invoice.idDangKy) {
-                try {
-                    await DangKyAPI.updateDangKyStatus(invoice.idDangKy, { trangThai: 'Đang hoạt động' });
-                    console.log(`Đã cập nhật trạng thái đăng ký #${invoice.idDangKy} thành "Đang hoạt động"`);
-                } catch (error) {
-                    console.error('Lỗi khi cập nhật trạng thái đăng ký:', error);
-                }
+        }
+        
+        showSuccess('Đã cập nhật trạng thái hóa đơn thành Hoàn thành.');
+        
+        // Nếu đang mở modal chi tiết, đóng modal và mở lại để cập nhật giao diện
+        const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewInvoiceModal'));
+        if (viewModal) {
+            viewModal.hide();
+            setTimeout(() => {
+                viewInvoiceDetails(invoiceId);
+            }, 500);
+        }
+        
+    } catch (error) {
+        console.error('Lỗi khi cập nhật trạng thái hóa đơn:', error);
+        showError('Không thể cập nhật trạng thái hóa đơn. Vui lòng thử lại sau.');
+    } finally {
+        hideLoading();
+    }
+}
+
+// Đánh dấu hóa đơn là Hủy
+async function cancelInvoice(invoiceId) {
+    try {
+        if (!confirm('Xác nhận hủy hóa đơn này?')) {
+            return;
+        }
+        
+        showLoading();
+        
+        // Gọi API để cập nhật trạng thái hóa đơn thành Hủy
+        const updatedInvoice = await HoaDonAPI.huyHoaDon(invoiceId);
+        
+        // Cập nhật hóa đơn trong mảng
+        const index = invoices.findIndex(inv => inv.idHoaDon == invoiceId);
+        if (index !== -1) {
+            invoices[index] = {...invoices[index], trangThai: 'Hủy'};
+            displayInvoices();
+        }
+        
+        showSuccess('Đã cập nhật trạng thái hóa đơn thành Hủy.');
+        
+    } catch (error) {
+        console.error('Lỗi khi cập nhật trạng thái hóa đơn:', error);
+        showError('Không thể cập nhật trạng thái hóa đơn. Vui lòng thử lại sau.');
+    } finally {
+        hideLoading();
+    }
+}
+
+// Hiển thị danh sách chi tiết hóa đơn tạm thời
+function displayInvoiceDetails() {
+    const detailsTableBody = document.getElementById('invoiceDetailsTableBody');
+    if (!detailsTableBody) {
+        console.error('Không tìm thấy bảng chi tiết hóa đơn');
+        return;
+    }
+    
+    // Xóa toàn bộ dữ liệu hiện có
+    detailsTableBody.innerHTML = '';
+    
+    // Nếu không có chi tiết hóa đơn, hiển thị thông báo
+    if (!tempInvoiceDetails || tempInvoiceDetails.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = `<td colspan="5" class="text-center">Chưa có sản phẩm nào được thêm vào hóa đơn</td>`;
+        detailsTableBody.appendChild(emptyRow);
+        return;
+    }
+    
+    // Hiển thị các chi tiết hóa đơn
+    tempInvoiceDetails.forEach((detail, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${detail.sanPham ? detail.sanPham.tenSanPham : 'Không xác định'}</td>
+            <td>${formatCurrency(detail.gia || 0)}</td>
+            <td>${detail.soLuong || 0}</td>
+            <td>${formatCurrency(detail.thanhTien || 0)}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-danger remove-item" data-index="${index}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        detailsTableBody.appendChild(row);
+    });
+    
+    // Gắn sự kiện xóa chi tiết
+    document.querySelectorAll('.remove-item').forEach(button => {
+        button.addEventListener('click', function() {
+            const index = parseInt(this.getAttribute('data-index'));
+            removeInvoiceDetail(index);
+        });
+    });
+    
+    // Cập nhật tổng tiền
+    calculateTotal();
+}
+
+// Xóa chi tiết hóa đơn tạm thời theo index
+function removeInvoiceDetail(index) {
+    if (index >= 0 && index < tempInvoiceDetails.length) {
+        // Lưu thông tin chi tiết hóa đơn trước khi xóa
+        const detail = tempInvoiceDetails[index];
+        
+        // Hoàn trả số lượng sản phẩm vào kho
+        if (detail.sanPham && products) {
+            // Tìm sản phẩm trong danh sách products
+            const productInList = products.find(p => p.idSanPham === detail.sanPham.idSanPham);
+            if (productInList) {
+                // Cộng lại số lượng sản phẩm vào kho
+                productInList.soLuong += detail.soLuong;
+                console.log(`Đã hoàn trả ${detail.soLuong} sản phẩm "${detail.sanPham.tenSanPham}" vào kho.`);
             }
         }
         
-        showSuccess('Đã cập nhật trạng thái thanh toán thành công. Nếu hóa đơn liên quan đến đăng ký, trạng thái đăng ký đã được cập nhật thành Đang hoạt động.');
+        // Xóa chi tiết khỏi mảng
+        tempInvoiceDetails.splice(index, 1);
         
-        // Cập nhật lại modal chi tiết để hiển thị nút hoàn thành nếu khách hàng đã thanh toán
-        const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewInvoiceModal'));
-        if (viewModal) {
-            viewModal.hide();
-            setTimeout(() => {
-                viewInvoiceDetails(invoiceId);
-            }, 500);
-        }
-    } catch (error) {
-        console.error('Lỗi khi đánh dấu đã thanh toán:', error);
-        showError('Không thể cập nhật trạng thái thanh toán. Vui lòng thử lại.');
-    } finally {
-        hideLoading();
+        // Cập nhật lại hiển thị
+        displayInvoiceDetails();
     }
 }
 
-// Đánh dấu hóa đơn chưa thanh toán
-async function markAsUnpaid(invoiceId) {
-    try {
-        if (!confirm('Xác nhận đánh dấu hóa đơn này chưa thanh toán?')) {
-            return;
-        }
-        
-        showLoading();
-        const updatedInvoice = await HoaDonAPI.chuaThanhToan(invoiceId);
-        
-        // Update DOM elements
-        const paymentStatusElement = document.getElementById('viewPaymentStatus');
-        if (paymentStatusElement) {
-            paymentStatusElement.textContent = 'Chưa thanh toán';
-            paymentStatusElement.className = 'status-badge payment-pending';
-        }
-        
-        // Update action buttons
-        updatePaymentButtons(invoiceId, false);
-        
-        // Update invoice in list
-        const index = invoices.findIndex(inv => inv.idHoaDon == invoiceId);
-        if (index !== -1) {
-            invoices[index] = {...invoices[index], trangThaiThanhToan: 'Chưa thanh toán'};
-            displayInvoices();
-        }
-        
-        showSuccess('Đã cập nhật trạng thái thanh toán thành công.');
-        
-        // Cập nhật lại modal chi tiết để ẩn nút hoàn thành vì khách hàng chưa thanh toán
-        const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewInvoiceModal'));
-        if (viewModal) {
-            viewModal.hide();
-            setTimeout(() => {
-                viewInvoiceDetails(invoiceId);
-            }, 500);
-        }
-    } catch (error) {
-        console.error('Lỗi khi đánh dấu chưa thanh toán:', error);
-        showError('Không thể cập nhật trạng thái thanh toán. Vui lòng thử lại.');
-    } finally {
-        hideLoading();
-    }
-}
-
-// Update payment buttons
-function updatePaymentButtons(invoiceId, isPaid) {
-    const actionsContainer = document.getElementById('viewInvoiceActions');
-    if (!actionsContainer) return;
+// Tính lại tổng tiền từ giảm giá
+function calculateTotalFromDiscount() {
+    const tongTien = parseFloat(document.getElementById('tongTien').value) || 0;
+    const giamGia = parseFloat(document.getElementById('giamGia').value) || 0;
     
-    // Remove existing payment status buttons
-    const existingButtons = actionsContainer.querySelectorAll('.payment-status-btn');
-    existingButtons.forEach(btn => btn.remove());
-    
-    // Add appropriate button based on payment status
-    if (isPaid) {
-        const markUnpaidBtn = document.createElement('button');
-        markUnpaidBtn.className = 'btn btn-warning payment-status-btn';
-        markUnpaidBtn.innerHTML = '<i class="fas fa-money-bill"></i> Đánh dấu chưa thanh toán';
-        markUnpaidBtn.addEventListener('click', () => markAsUnpaid(invoiceId));
-        actionsContainer.appendChild(markUnpaidBtn);
-    } else {
-        const markPaidBtn = document.createElement('button');
-        markPaidBtn.className = 'btn btn-primary payment-status-btn';
-        markPaidBtn.innerHTML = '<i class="fas fa-money-bill"></i> Đánh dấu đã thanh toán';
-        markPaidBtn.addEventListener('click', () => markAsPaid(invoiceId));
-        actionsContainer.appendChild(markPaidBtn);
+    // Kiểm tra giảm giá có hợp lệ không
+    if (giamGia < 0) {
+        showError('Giảm giá không thể âm.');
+        document.getElementById('giamGia').value = 0;
+        return calculateTotalFromDiscount();
     }
+    
+    // Kiểm tra giảm giá có vượt quá tổng tiền không
+    if (giamGia > tongTien) {
+        showError('Giảm giá không thể lớn hơn tổng tiền.');
+        document.getElementById('giamGia').value = tongTien;
+        return calculateTotalFromDiscount();
+    }
+    
+    // Tính thành tiền
+    const thanhToan = tongTien - giamGia;
+    document.getElementById('thanhToan').value = thanhToan;
 }
 
 // Validate invoice data before saving
 function validateInvoiceData(invoiceData) {
     const errors = [];
-    
-    // Validate required fields
-    if (!invoiceData.khachHang && !invoiceData.dangKy) {
-        errors.push('Vui lòng chọn khách hàng hoặc đăng ký.');
-    }
-    
     // Validate amounts
     if (!invoiceData.tongTien || invoiceData.tongTien <= 0) {
         errors.push('Tổng tiền phải lớn hơn 0.');
@@ -921,13 +1187,13 @@ function resetForm() {
     // Reset mode
     editMode = false;
     currentInvoiceId = null;
+
 }
 
 // Cập nhật dropdown sản phẩm
 function updateProductDropdown() {
     const dropdown = document.getElementById('itemSanPham');
     dropdown.innerHTML = '';
-    
     if (products && products.length > 0) {
         products.forEach(product => {
             if (product.soLuong > 0) { // Chỉ hiển thị sản phẩm còn hàng
@@ -1415,141 +1681,36 @@ function selectCustomer(registration) {
     selectedCustomerInfo.classList.remove('d-none');
 }
 
-// Tải thông tin khách hàng cho từng hóa đơn
-async function loadCustomerDetailsForInvoices(invoices) {
+// Đánh dấu hóa đơn đã thanh toán
+async function markAsPaid(invoiceId) {
     try {
-        // Lấy danh sách riêng biệt của tất cả idKhachHang từ các hóa đơn
-        const customerIds = [];
-        invoices.forEach(invoice => {
-            if (invoice.khachHang && typeof invoice.khachHang === 'object' && invoice.khachHang.idKhachHang) {
-                if (!customerIds.includes(invoice.khachHang.idKhachHang)) {
-                    customerIds.push(invoice.khachHang.idKhachHang);
-                }
-            }
-        });
-        
-        if (customerIds.length === 0) {
-            console.log('Không có khách hàng cần tải thông tin');
-            return;
-        }
-        
-        console.log('Tải thông tin cho các khách hàng:', customerIds);
-        
-        // Gọi API để lấy thông tin chi tiết của từng khách hàng
-        for (const customerId of customerIds) {
-            try {
-                const response = await fetch(`http://localhost:8080/api/khachhang/${customerId}`);
-                if (response.ok) {
-                    const customer = await response.json();
-                    
-                    // Cập nhật tên khách hàng cho tất cả hóa đơn có khách hàng này
-                    invoices.forEach(invoice => {
-                        if (invoice.khachHang && invoice.khachHang.idKhachHang === customerId) {
-                            customerNamesMap[invoice.idHoaDon] = customer.tenKhachHang;
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error(`Lỗi khi tải thông tin khách hàng ID ${customerId}:`, error);
-            }
-        }
-    } catch (error) {
-        console.error('Lỗi khi tải thông tin khách hàng:', error);
-    }
-}
-
-// Lấy thông tin khách hàng cho một hóa đơn cụ thể
-async function loadCustomerDetailsForInvoice(invoice) {
-    try {
-        // Kiểm tra xem thông tin khách hàng đã có trong map chưa
-        if (customerNamesMap[invoice.idHoaDon]) {
-            console.log(`Thông tin khách hàng cho hóa đơn ${invoice.idHoaDon} đã có sẵn`);
-            return; // Đã có thông tin khách hàng
-        }
-        
-        console.log(`Đang tải thông tin khách hàng cho hóa đơn ${invoice.idHoaDon}`);
-        
-        // Lấy ID khách hàng từ hóa đơn
-        let customerId = null;
-        if (invoice.khachHang && invoice.khachHang.idKhachHang) {
-            customerId = invoice.khachHang.idKhachHang;
-            console.log(`Tìm thấy ID khách hàng từ trường khachHang: ${customerId}`);
-        } else if (invoice.dangKy && invoice.dangKy.khachHang && invoice.dangKy.khachHang.idKhachHang) {
-            customerId = invoice.dangKy.khachHang.idKhachHang;
-            console.log(`Tìm thấy ID khách hàng từ trường dangKy: ${customerId}`);
-        }
-        
-        if (!customerId) {
-            console.log(`Không tìm thấy ID khách hàng cho hóa đơn ${invoice.idHoaDon}`);
-            // Vẫn gán một giá trị mặc định để tránh lặp lại việc tìm kiếm
-            customerNamesMap[invoice.idHoaDon] = 'Khách lẻ';
-            return; // Không có ID khách hàng
-        }
-        
-        // Gọi API để lấy thông tin khách hàng
-        try {
-            console.log(`Đang gọi API lấy thông tin khách hàng có ID ${customerId}`);
-            const response = await fetch(`http://localhost:8080/api/khachhang/${customerId}`);
-            if (response.ok) {
-                const customer = await response.json();
-                if (customer && customer.tenKhachHang) {
-                    console.log(`Đã tìm thấy thông tin khách hàng: ${customer.tenKhachHang}`);
-                    customerNamesMap[invoice.idHoaDon] = customer.tenKhachHang;
-                } else {
-                    console.log(`Không có thông tin tên cho khách hàng ID ${customerId}`);
-                    customerNamesMap[invoice.idHoaDon] = 'Khách hàng #' + customerId;
-                }
-            } else {
-                console.log(`API trả về lỗi khi tìm khách hàng ID ${customerId}. Status: ${response.status}`);
-                customerNamesMap[invoice.idHoaDon] = 'Khách hàng #' + customerId;
-            }
-        } catch (error) {
-            console.error(`Lỗi khi tải thông tin khách hàng cho hóa đơn ${invoice.idHoaDon}:`, error);
-            customerNamesMap[invoice.idHoaDon] = 'Khách hàng không xác định';
-        }
-    } catch (error) {
-        console.error('Lỗi khi tải thông tin khách hàng cho hóa đơn:', error);
-        if (invoice && invoice.idHoaDon) {
-            customerNamesMap[invoice.idHoaDon] = 'Khách hàng không xác định';
-        }
-    }
-}
-
-// Đánh dấu hóa đơn là Hoàn thành
-async function completeInvoice(invoiceId) {
-    try {
-        // Kiểm tra xem hóa đơn đã được thanh toán chưa
-        const invoice = invoices.find(inv => inv.idHoaDon == invoiceId);
-        if (!invoice) {
-            showError('Không tìm thấy thông tin hóa đơn.');
-            return;
-        }
-        
-        // Nếu hóa đơn chưa thanh toán, hiển thị thông báo lỗi
-        if (invoice.trangThaiThanhToan !== 'Đã thanh toán') {
-            showError('Không thể hoàn thành hóa đơn chưa thanh toán. Vui lòng thanh toán hóa đơn trước.');
-            return;
-        }
-        
-        if (!confirm('Xác nhận đánh dấu hóa đơn này là hoàn thành?')) {
+        if (!confirm('Xác nhận đánh dấu hóa đơn này đã thanh toán?')) {
             return;
         }
         
         showLoading();
+        const updatedInvoice = await HoaDonAPI.daThanhToan(invoiceId);
         
-        // Gọi API để cập nhật trạng thái hóa đơn thành Hoàn thành
-        const updatedInvoice = await HoaDonAPI.hoanThanhHoaDon(invoiceId);
+        // Update DOM elements
+        const paymentStatusElement = document.getElementById('viewPaymentStatus');
+        if (paymentStatusElement) {
+            paymentStatusElement.textContent = 'Đã thanh toán';
+            paymentStatusElement.className = 'status-badge payment-completed';
+        }
         
-        // Cập nhật hóa đơn trong mảng
+        // Update action buttons
+        updatePaymentButtons(invoiceId, true);
+        
+        // Update invoice in list
         const index = invoices.findIndex(inv => inv.idHoaDon == invoiceId);
         if (index !== -1) {
-            invoices[index] = {...invoices[index], trangThai: 'Hoàn thành'};
+            invoices[index] = {...invoices[index], trangThaiThanhToan: 'Đã thanh toán'};
             displayInvoices();
         }
         
-        showSuccess('Đã cập nhật trạng thái hóa đơn thành Hoàn thành.');
+        showSuccess('Đã cập nhật trạng thái thanh toán thành công.');
         
-        // Nếu đang mở modal chi tiết, đóng modal và mở lại để cập nhật giao diện
+        // Cập nhật lại modal chi tiết để hiển thị nút hoàn thành nếu khách hàng đã thanh toán
         const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewInvoiceModal'));
         if (viewModal) {
             viewModal.hide();
@@ -1557,42 +1718,180 @@ async function completeInvoice(invoiceId) {
                 viewInvoiceDetails(invoiceId);
             }, 500);
         }
-        
     } catch (error) {
-        console.error('Lỗi khi cập nhật trạng thái hóa đơn:', error);
-        showError('Không thể cập nhật trạng thái hóa đơn. Vui lòng thử lại sau.');
+        console.error('Lỗi khi đánh dấu đã thanh toán:', error);
+        showError('Không thể cập nhật trạng thái thanh toán. Vui lòng thử lại.');
     } finally {
         hideLoading();
     }
 }
 
-// Đánh dấu hóa đơn là Hủy
-async function cancelInvoice(invoiceId) {
+// Đánh dấu hóa đơn chưa thanh toán
+async function markAsUnpaid(invoiceId) {
     try {
-        if (!confirm('Xác nhận hủy hóa đơn này?')) {
+        if (!confirm('Xác nhận đánh dấu hóa đơn này chưa thanh toán?')) {
             return;
         }
         
         showLoading();
+        const updatedInvoice = await HoaDonAPI.chuaThanhToan(invoiceId);
         
-        // Gọi API để cập nhật trạng thái hóa đơn thành Hủy
-        const updatedInvoice = await HoaDonAPI.huyHoaDon(invoiceId);
+        // Update DOM elements
+        const paymentStatusElement = document.getElementById('viewPaymentStatus');
+        if (paymentStatusElement) {
+            paymentStatusElement.textContent = 'Chưa thanh toán';
+            paymentStatusElement.className = 'status-badge payment-pending';
+        }
         
-        // Cập nhật hóa đơn trong mảng
+        // Update action buttons
+        updatePaymentButtons(invoiceId, false);
+        
+        // Update invoice in list
         const index = invoices.findIndex(inv => inv.idHoaDon == invoiceId);
         if (index !== -1) {
-            invoices[index] = {...invoices[index], trangThai: 'Hủy'};
+            invoices[index] = {...invoices[index], trangThaiThanhToan: 'Chưa thanh toán'};
             displayInvoices();
         }
         
-        showSuccess('Đã cập nhật trạng thái hóa đơn thành Hủy.');
+        showSuccess('Đã cập nhật trạng thái thanh toán thành công.');
         
+        // Cập nhật lại modal chi tiết để ẩn nút hoàn thành vì khách hàng chưa thanh toán
+        const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewInvoiceModal'));
+        if (viewModal) {
+            viewModal.hide();
+            setTimeout(() => {
+                viewInvoiceDetails(invoiceId);
+            }, 500);
+        }
     } catch (error) {
-        console.error('Lỗi khi cập nhật trạng thái hóa đơn:', error);
-        showError('Không thể cập nhật trạng thái hóa đơn. Vui lòng thử lại sau.');
+        console.error('Lỗi khi đánh dấu chưa thanh toán:', error);
+        showError('Không thể cập nhật trạng thái thanh toán. Vui lòng thử lại.');
     } finally {
         hideLoading();
     }
 }
 
-//# sourceMappingURL=hoadon.js.map
+// Update payment buttons
+function updatePaymentButtons(invoiceId, isPaid) {
+    const actionsContainer = document.getElementById('viewInvoiceActions');
+    if (!actionsContainer) return;
+    
+    // Remove existing payment status buttons
+    const existingButtons = actionsContainer.querySelectorAll('.payment-status-btn');
+    existingButtons.forEach(btn => btn.remove());
+    
+    // Add appropriate button based on payment status
+    if (isPaid) {
+        const markUnpaidBtn = document.createElement('button');
+        markUnpaidBtn.className = 'btn btn-warning payment-status-btn';
+        markUnpaidBtn.innerHTML = '<i class="fas fa-money-bill"></i> Đánh dấu chưa thanh toán';
+        markUnpaidBtn.addEventListener('click', () => markAsUnpaid(invoiceId));
+        actionsContainer.appendChild(markUnpaidBtn);
+    } else {
+        const markPaidBtn = document.createElement('button');
+        markPaidBtn.className = 'btn btn-primary payment-status-btn';
+        markPaidBtn.innerHTML = '<i class="fas fa-money-bill"></i> Đánh dấu đã thanh toán';
+        markPaidBtn.addEventListener('click', () => markAsPaid(invoiceId));
+        actionsContainer.appendChild(markPaidBtn);
+    }
+}
+
+// Hiển thị thông tin hóa đơn trong modal để chỉnh sửa
+async function showEditInvoiceModal(invoiceId) {
+    try {
+        // Đặt chế độ sửa và lưu ID hóa đơn hiện tại
+        editMode = true;
+        currentInvoiceId = invoiceId;
+        
+        // Lấy thông tin hóa đơn từ server
+        const invoice = await HoaDonAPI.getHoaDonById(invoiceId);
+        console.log("Thông tin hóa đơn để sửa:", invoice);
+        
+        // Điền thông tin vào form
+        document.getElementById('idHoaDon').value = invoice.idHoaDon;
+        document.getElementById('tongTien').value = invoice.tongTien;
+        document.getElementById('giamGia').value = invoice.giamGia;
+        document.getElementById('thanhToan').value = invoice.thanhToan;
+        document.getElementById('phuongThuc').value = invoice.phuongThuc;
+        document.getElementById('trangThai').value = invoice.trangThai;
+        document.getElementById('trangThaiThanhToan').value = invoice.trangThaiThanhToan;
+        
+        // Thiết lập thông tin khách hàng
+        if (invoice.khachHang && invoice.khachHang.idKhachHang) {
+            document.querySelector('#selectedCustomerInfo input[type="hidden"]').value = invoice.khachHang.idKhachHang;
+            document.getElementById('customerNameDisplay').textContent = `${invoice.khachHang.ho} ${invoice.khachHang.ten}`;
+            document.getElementById('customerPhoneDisplay').textContent = invoice.khachHang.sdt || 'Chưa có';
+            document.getElementById('customerEmailDisplay').textContent = invoice.khachHang.email || 'Chưa có';
+        } else {
+            document.querySelector('#selectedCustomerInfo input[type="hidden"]').value = '';
+            document.getElementById('customerNameDisplay').textContent = 'Khách lẻ';
+            document.getElementById('customerPhoneDisplay').textContent = '';
+            document.getElementById('customerEmailDisplay').textContent = '';
+        }
+        
+        // Hiển thị danh sách chi tiết hóa đơn
+        const details = await HoaDonChiTietAPI.getHoaDonChiTietByHoaDon(invoiceId);
+        console.log("Chi tiết hóa đơn để sửa:", details);
+        tempInvoiceDetails = details.map(detail => ({
+            sanPham: detail.sanPham,
+            gia: detail.gia,
+            soLuong: detail.soLuong,
+            thanhTien: detail.thanhTien
+        }));
+        displayInvoiceDetails();
+        
+        // Hiển thị modal
+        const invoiceModal = new bootstrap.Modal(document.getElementById('invoiceModal'));
+        invoiceModal.show();
+    } catch (error) {
+        console.error('Lỗi khi mở hóa đơn để sửa:', error);
+        showError('Không thể mở hóa đơn để sửa. Vui lòng thử lại sau.');
+    }
+}
+
+// Tạo chi tiết hóa đơn mới
+async function createInvoiceDetails(invoiceId) {
+    try {
+        if (!tempInvoiceDetails || tempInvoiceDetails.length === 0) {
+            return; // Không có chi tiết để tạo
+        }
+        
+        // Tạo mảng chi tiết hóa đơn để gửi lên API
+        const invoiceDetails = tempInvoiceDetails.map(detail => {
+            return {
+                hoaDon: { idHoaDon: invoiceId },
+                sanPham: { idSanPham: detail.sanPham.idSanPham },
+                gia: detail.gia,
+                soLuong: detail.soLuong,
+                thanhTien: detail.thanhTien
+            };
+        });
+        
+        // Gọi API để lưu các chi tiết hóa đơn
+        for (const detail of invoiceDetails) {
+            await HoaDonChiTietAPI.createHoaDonChiTiet(detail);
+        }
+        
+        // Reset danh sách chi tiết tạm
+        tempInvoiceDetails = [];
+        
+    } catch (error) {
+        console.error('Lỗi khi tạo chi tiết hóa đơn:', error);
+        throw error;
+    }
+}
+
+// Cập nhật chi tiết hóa đơn
+async function updateInvoiceDetails(invoiceId) {
+    try {
+        // Xóa chi tiết hóa đơn cũ
+        await HoaDonChiTietAPI.deleteHoaDonChiTietByHoaDon(invoiceId);
+        
+        // Tạo chi tiết mới
+        await createInvoiceDetails(invoiceId);
+        
+    } catch (error) {
+        console.error('Lỗi khi cập nhật chi tiết hóa đơn:', error);
+        throw error;
+    }
+}
