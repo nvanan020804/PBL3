@@ -230,4 +230,20 @@ public class KhachHangService {
             return khachHang;
         });
     }
+
+    public KhachHangResponse getKhachHangByUsername(String username) {
+        KhachHang khachHang = khachHangRepository.findByUsername(username);
+        if (khachHang == null) {
+            return null;
+        }
+        KhachHangResponse response = new KhachHangResponse();
+        response.setIdKhachHang(khachHang.getIdKhachHang());
+        response.setTenKhachHang(khachHang.getTenKhachHang());
+        response.setNamSinh(khachHang.getNamSinh());
+        response.setSoDienThoai(khachHang.getSoDienThoai());
+        response.setCccd(khachHang.getCccd());
+        response.setEmail(khachHang.getEmail());
+        response.setTrangThai(khachHang.getTrangThai());
+        return response;
+    }
 }

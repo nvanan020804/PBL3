@@ -24,6 +24,7 @@ public class SecurityConfig {
                 // Cho phép truy cập tự do các endpoint này
                 .requestMatchers("/api/accounts/login").permitAll()
                 .requestMatchers("/api/accounts/register/**").permitAll()
+                .requestMatchers("/api/khachhang/profile").hasRole("khachhang")
                 .requestMatchers("/api/khachhang/**").permitAll() // Tạm thời cho phép truy cập API khách hàng
                 // Các endpoint khác yêu cầu xác thực (có thể bỏ qua hoặc thay đổi tùy theo nhu cầu)
                 .anyRequest().permitAll()

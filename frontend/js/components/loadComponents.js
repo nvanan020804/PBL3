@@ -16,44 +16,146 @@ fetch("../../components/menu.html")
     const registerButton = document.getElementById("register-button");
     const logoutButton = document.getElementById("logout-button");
     const userDisplay = document.getElementById("user-display");
+    const profileButton = document.getElementById("profile-button"); // Thêm nút Hồ sơ
+    const adminOnlyItems = document.querySelectorAll(".admin-only");
+    const userOnlyItems = document.querySelectorAll(".user-only"); // Thêm class user-only
+    const allMenuLinks = document.querySelectorAll(".menu-items a");
+    const authLinks = document.querySelectorAll(".auth-buttons a");
 
-    // Kiểm tra xem người dùng đã đăng nhập chưa
-    const user = localStorage.getItem('user');
-    
+    // Kiểm tra trạng thái đăng nhập
+    const user = JSON.parse(localStorage.getItem("user"));
+    console.log("User data:", user); // Debug
+
     if (user) {
-        // Người dùng đã đăng nhập
-        if (loginButton) loginButton.style.display = 'none';
-        if (registerButton) registerButton.style.display = 'none';
-        if (logoutButton) logoutButton.style.display = 'block';
+      // Đã đăng nhập
+      loginButton.style.display = "none";
+      registerButton.style.display = "none";
+      logoutButton.style.display = "block";
+      userDisplay.textContent = user.tenDangNhap || "Người dùng";
+      userDisplay.style.display = "inline-block";
+
+      // Xử lý phân quyền admin/user
+      const role = user.phanQuyen ? user.phanQuyen.toLowerCase().trim() : '';
+      console.log("Phân quyền hiện tại:", role);
+      
+      if (role.includes("admin")) {
+        // Nếu là admin
+        adminOnlyItems.forEach((item) => {
+          item.style.display = "block";
+          item.classList.add("admin-visible");
+        });
+        userOnlyItems.forEach((item) => {
+          item.style.display = "none"; // Ẩn nút Hồ sơ cho admin
+        });
         
-        // Hiển thị tên người dùng nếu có
-        if (userDisplay) {
-            try {
-                const userData = JSON.parse(user);
-                userDisplay.textContent = userData.tenDangNhap || 'Người dùng';
-                userDisplay.style.display = 'inline-block';
-            } catch (e) {
-                console.error('Lỗi khi xử lý thông tin người dùng:', e);
+        // Điều chỉnh đường dẫn cho admin hoặc khách hàng
+        allMenuLinks.forEach((link) => {
+          // Lấy href hiện tại
+          let href = link.getAttribute("href");
+          console.log("Link original href:", href);
+          
+          // Hiện thị đường dẫn hiện tại để debug
+          console.log("Current path:", window.location.pathname);
+          
+          // Đã ở trong trang admin
+          if (window.location.pathname.includes("/admin/")) {
+            // Xử lý đặc biệt cho trang chủ
+            if (href === "index.html") {
+              link.setAttribute("href", "home.html");
+              console.log("Admin path: Changed index.html to home.html");
             }
-        }
+          } 
+          // Đã ở trong trang khách hàng
+          else if (window.location.pathname.includes("/khachhang/")) {
+            // Xử lý đặc biệt cho trang chủ
+            if (href === "index.html") {
+              link.setAttribute("href", "home.html");
+              console.log("Customer path: Changed index.html to home.html");
+            }
+          }
+          // Chưa ở trang admin hoặc khách hàng, cần chuyển hướng
+          else if (href && !href.includes("../admin/") && !href.includes("../khachhang/")) {
+            // Admin thì chuyển hướng về trang admin
+            if (role.includes("admin")) {
+              // Xử lý đặc biệt cho trang chủ (index.html -> home.html)
+              if (href === "index.html") {
+                link.setAttribute("href", "../admin/home.html");
+                console.log("Redirecting to admin home from outside");
+              } else {
+                // Chuyển đường dẫn thành đường dẫn admin tương ứng cho các trang khác
+                const pageName = href.split("/").pop() || href;
+                link.setAttribute("href", "../admin/" + pageName);
+                console.log("Redirecting to admin page:", pageName);
+              }
+            } 
+            // Khách hàng thì chuyển hướng về trang khách hàng
+            else {
+              // Xử lý đặc biệt cho trang chủ (index.html -> home.html)
+              if (href === "index.html") {
+                link.setAttribute("href", "../khachhang/home.html");
+                console.log("Redirecting to customer home from outside");
+              } else {
+                // Chuyển đường dẫn thành đường dẫn khách hàng tương ứng cho các trang khác
+                const pageName = href.split("/").pop() || href;
+                link.setAttribute("href", "../khachhang/" + pageName);
+                console.log("Redirecting to customer page:", pageName);
+              }
+            }
+          }
+        });
+      } else {
+        // Nếu là user
+        adminOnlyItems.forEach((item) => {
+          item.style.display = "none";
+          item.classList.remove("admin-visible");
+        });
+        userOnlyItems.forEach((item) => {
+          item.style.display = "block"; // Hiển thị nút Hồ sơ cho user
+        });
+      }
+
+      allMenuLinks.forEach((link) => {
+        link.addEventListener("click", (e) => {});
+      });
     } else {
-        // Người dùng chưa đăng nhập
-        if (loginButton) loginButton.style.display = 'block';
-        if (registerButton) registerButton.style.display = 'block';
-        if (logoutButton) logoutButton.style.display = 'none';
-        if (userDisplay) userDisplay.style.display = 'none';
+      // Chưa đăng nhập
+      loginButton.style.display = "block";
+      registerButton.style.display = "block";
+      logoutButton.style.display = "none";
+      userDisplay.style.display = "none";
+      profileButton.style.display = "none"; // Ẩn nút Hồ sơ khi chưa đăng nhập
+      adminOnlyItems.forEach((item) => (item.style.display = "none"));
+      userOnlyItems.forEach((item) => (item.style.display = "none")); // Ẩn nút Hồ sơ
+
+      allMenuLinks.forEach((link) => {
+        if (!link.getAttribute("href").includes(".html")) {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.location.href = "login.html";
+          });
+        }
+      });
     }
 
-    // Xử lý sự kiện đăng xuất
-    if (logoutButton) {
-        logoutButton.addEventListener('click', function (e) {
-            e.preventDefault();
-            // Xóa thông tin người dùng khỏi localStorage
-            localStorage.clear(); // Xóa tất cả dữ liệu
-            // Chuyển hướng về trang chủ
-            window.location.href = "../../pages/trangchu/index.html";
-        });
-    }
+    authLinks.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
+    });
+
+    logoutButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      // Xóa tất cả dữ liệu đăng nhập
+      localStorage.removeItem("user");
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("idLienKet");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("khachhang");
+      localStorage.removeItem("token");
+      
+      // Chuyển về trang đăng nhập
+      window.location.href = "../../pages/trangchu/login.html";
+    });
   });
 
 // Load footer

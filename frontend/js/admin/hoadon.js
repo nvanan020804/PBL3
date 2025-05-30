@@ -1187,7 +1187,6 @@ function resetForm() {
     // Reset mode
     editMode = false;
     currentInvoiceId = null;
-
 }
 
 // Cập nhật dropdown sản phẩm

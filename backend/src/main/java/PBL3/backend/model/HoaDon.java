@@ -1,8 +1,11 @@
 package PBL3.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +23,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idHoaDon")
 public class HoaDon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +33,7 @@ public class HoaDon {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "idDangKy", nullable = true)
     @JsonBackReference(value = "dangky-hoadon")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private DangKy dangKy;
     
     @Column(name = "thoiGianTao", nullable = false)
@@ -52,7 +57,7 @@ public class HoaDon {
     @Column(name = "trangThaiThanhToan", length = 50)
     private String trangThaiThanhToan;
     
-    @OneToMany(mappedBy = "hoaDon", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "hoaDon", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference(value = "hoadon-chitiet")
     private List<HoaDonChiTiet> chiTietList = new ArrayList<>();
     

@@ -1,6 +1,9 @@
 package PBL3.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +18,7 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idHoaDonChiTiet")
 public class HoaDonChiTiet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,11 +28,13 @@ public class HoaDonChiTiet {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idHoaDon", nullable = false)
     @JsonBackReference(value = "hoadon-chitiet")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private HoaDon hoaDon;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idSanPham", nullable = false)
     @JsonBackReference(value = "sanpham-chitiet")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private SanPham sanPham;
     
     @Column(name = "soLuong", nullable = false)

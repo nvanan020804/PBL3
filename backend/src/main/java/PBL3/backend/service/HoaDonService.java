@@ -18,6 +18,8 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class HoaDonService {
@@ -56,11 +58,16 @@ public class HoaDonService {
     
     // Phương thức tìm hóa đơn theo ID nhân viên đã bị loại bỏ
 
+   
+   
+
+    public List<HoaDon> getHoaDonByKhachHang(int idKhachHang) {
+        return hoaDonRepository.findByDangKyKhachHangId(idKhachHang);
+    }
+
     @Transactional(readOnly = false)
     public HoaDon createHoaDon(HoaDon hoaDon) {
-        // Kiểm tra đăng ký (nếu có)
         if (hoaDon.getDangKy() != null && hoaDon.getDangKy().getIdDangKy() > 0) {
-            // Lấy thông tin đầy đủ của đăng ký
             DangKy dangKy = dangKyRepository.findById(hoaDon.getDangKy().getIdDangKy())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đăng ký với ID: " + hoaDon.getDangKy().getIdDangKy()));
             hoaDon.setDangKy(dangKy);
@@ -200,10 +207,9 @@ public class HoaDonService {
         
         hoaDon.setTongTien(tongTien);
         
-        // Tính thành tiền sau giảm giá
         BigDecimal giamGia = hoaDon.getGiamGia() != null ? hoaDon.getGiamGia() : BigDecimal.ZERO;
         BigDecimal thanhToan = tongTien.subtract(giamGia);
-        hoaDon.setThanhToan(thanhToan);
+        hoaDon.setThanhToan(thanhToan.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : thanhToan);
         
         return hoaDonRepository.save(hoaDon);
     }

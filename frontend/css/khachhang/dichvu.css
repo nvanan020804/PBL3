@@ -1,0 +1,299 @@
+.dichvu-container h1 {
+  font-family: 'Oswald', Arial, sans-serif;
+  color: #DA2128;
+  font-size: 2.2em;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 18px;
+  margin-bottom: 28px;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 8px rgba(218,33,40,0.07);
+}
+.goi-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  justify-content: center;
+  margin-top: 30px;
+  /* Giới hạn chiều rộng để mỗi dòng tối đa 3 card */   
+  max-width: 930px; /* 3 x 290px card + 2 x 28px gap */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.goi-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(218,33,40,0.10);
+  width: 290px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s;
+  border: 1.5px solid #fbeaec;
+}
+
+.goi-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 8px 32px rgba(218,33,40,0.18);
+  border-color: #DA2128;
+}
+
+.goi-card img {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  background: #eee;
+}
+
+.goi-card .goi-info {
+  padding: 18px 18px 12px 18px;
+  width: 100%;
+}
+
+.goi-card .goi-ten {
+  font-family: 'Oswald', Arial, sans-serif;
+  color: #DA2128;
+  font-size: 1.18em;
+  font-weight: bold;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.goi-card .goi-gia {
+  color: #222;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.goi-card .goi-thoihan {
+  color: #a81a22;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.goi-card .goi-mota {
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 10px;
+  min-height: 38px;
+}
+
+.goi-card .btn-register {
+  margin: 10px 0 8px 0;
+  width: 90%;
+}
+.btn-register {
+  padding: 8px 18px;
+  background-color: #DA2128;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 6px rgba(218,33,40,0.08);
+}
+
+.btn-register:disabled,
+.btn-register[disabled] {
+  background: #ccc;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.btn-register:hover:not(:disabled) {
+  background: #a81a22;
+  color: #fff;
+}
+
+/* Gói đang sử dụng: vẫn là card lớn, nổi bật */
+#goi-hien-tai {
+  max-width: 520px;
+  margin: 32px auto 0 auto;
+  padding: 28px 32px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(218,33,40,0.10);
+  border-left: 7px solid #DA2128;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.2s;
+}
+#goi-hien-tai h3 {
+  color: #DA2128;
+  margin-bottom: 18px;
+  text-align: center;
+  font-family: 'Oswald', Arial, sans-serif;
+  font-size: 1.35em;
+  letter-spacing: 1.2px;
+  font-weight: bold;
+}
+#goi-hien-tai p {
+  margin: 10px 0;
+  color: #222;
+  padding: 7px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 1.08em;
+  font-family: 'Montserrat', Arial, sans-serif;
+  width: 100%;
+  text-align: left;
+}
+#goi-hien-tai p:last-child {
+  border-bottom: none;
+}
+
+/* Gói đã hết hạn: list ngang, mỗi gói là 1 item nhỏ, có nút xem */
+#goi-het-han {
+  max-width: 1000px;
+  margin: 32px auto 0 auto;
+  padding: 18px 0 0 0;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+#goi-het-han h3 {
+  color: #a81a22;
+  margin-bottom: 18px;
+  text-align: center;
+  font-family: 'Oswald', Arial, sans-serif;
+  font-size: 1.15em;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+.expired-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  justify-content: flex-start;
+  margin: 0 auto;
+  padding: 0 12px 18px 12px;
+}
+.expired-package {
+  background: #fff;
+  border: 1.5px solid #fbeaec;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(218,33,40,0.07);
+  padding: 16px 22px 14px 22px;
+  min-width: 240px;
+  max-width: 270px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.expired-package:hover {
+  border-color: #DA2128;
+  box-shadow: 0 4px 18px rgba(218,33,40,0.13);
+}
+.expired-package .expired-ten {
+  font-family: 'Oswald', Arial, sans-serif;
+  color: #a81a22;
+  font-size: 1.08em;
+  font-weight: bold;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+.expired-package .expired-thoihan {
+  color: #555;
+  font-size: 0.98em;
+  margin-bottom: 4px;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+.expired-package .expired-gia {
+  color: #222;
+  font-size: 1em;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+.expired-package .btn-xem {
+  margin-top: 6px;
+  padding: 6px 18px;
+  background: #DA2128;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Oswald', Arial, sans-serif;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.2s;
+  align-self: flex-end;
+}
+.expired-package .btn-xem:hover {
+  background: #a81a22;
+}
+/* Modal */
+.modal {
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background: #fff;
+  padding: 36px 28px 28px 28px;
+  border-radius: 12px;
+  min-width: 350px;
+  max-width: 95vw;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(218,33,40,0.18);
+  font-family: 'Montserrat', sans-serif;
+}
+.close {
+  position: absolute;
+  right: 18px;
+  top: 12px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #DA2128;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.close:hover {
+  color: #a81a22;
+}
+#btn-xac-nhan-thanh-toan {
+  margin-top: 18px;
+  padding: 10px 24px;
+  background: #DA2128;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+#btn-xac-nhan-thanh-toan:hover {
+  background: #a81a22;
+}
+
+/* Thông tin chuyển khoản */
+#thong-tin-chuyen-khoan {
+  background: #fbeaec;
+  border-left: 4px solid #DA2128;
+  padding: 10px 16px;
+  border-radius: 6px;
+  margin-top: 10px;
+  margin-bottom: 8px;
+}
+#thong-tin-chuyen-khoan p {
+  color: #a81a22;
+  font-size: 15px;
+}
+.note {
+  color: #DA2128;
+  font-style: italic;
+  margin-top: 10px;
+  font-size: 14px;
+}

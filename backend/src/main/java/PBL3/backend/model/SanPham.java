@@ -17,6 +17,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idSanPham")
 public class SanPham {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +47,8 @@ public class SanPham {
     @Column(name = "hinhAnh", columnDefinition = "TEXT")
     private String hinhAnh;
     
-    @OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference(value = "sanpham-chitiet")
+    @JsonIgnore
     private List<HoaDonChiTiet> hoaDonChiTietList = new ArrayList<>();
 }

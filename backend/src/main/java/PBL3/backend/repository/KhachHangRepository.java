@@ -15,4 +15,7 @@ public interface KhachHangRepository extends JpaRepository<KhachHang, Integer> {
     
     @Query(value = "SELECT * FROM khachhang", nativeQuery = true)
     List<KhachHang> findAllKhachHang();
+    
+    @Query(value = "SELECT k.* FROM khachhang k JOIN accounts a ON k.idKhachHang = a.id_lien_ket WHERE a.ten_dang_nhap = ?1 AND a.phan_quyen = 'khachhang'", nativeQuery = true)
+    KhachHang findByUsername(String username);
 }
