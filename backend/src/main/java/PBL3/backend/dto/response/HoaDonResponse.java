@@ -11,11 +11,10 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+
 public class HoaDonResponse {
     private int idHoaDon;
     private Integer idDangKy; // Đã thay đổi thành Integer để có thể null nếu không có đăng ký
-    private int idDangKy;
     private String tenKhachHang;
     private LocalDateTime thoiGianTao;
     private String trangThai;

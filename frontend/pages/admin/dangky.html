@@ -283,20 +283,15 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="invoiceStatus" class="form-label">Trạng thái hóa đơn</label>
-                            <select class="form-select" id="invoiceStatus">
-                                <option value="Chờ xử lý" selected>Chờ xử lý</option>
-                                <option value="Hoàn thành">Hoàn thành</option>
-                                <option value="Hủy">Hủy</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mb-3">
                             <label for="paymentStatus" class="form-label">Trạng thái thanh toán</label>
                             <select class="form-select" id="paymentStatus">
                                 <option value="Chưa thanh toán" selected>Chưa thanh toán</option>
                                 <option value="Đã thanh toán">Đã thanh toán</option>
                             </select>
+                        </div>
+                        
+                        <div class="form-text text-info">
+                            <i class="fas fa-info-circle"></i> Trạng thái hóa đơn sẽ được tự động xác định: "Hoàn thành" nếu đã thanh toán, "Chờ xử lý" nếu chưa thanh toán.
                         </div>
                         
                         <div class="mb-3">

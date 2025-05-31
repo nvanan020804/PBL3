@@ -30,12 +30,17 @@
     padding: 0;
 }
 .menu-items li {
-    display: inline;
+    display: inline-block;
+    position: relative;
+    margin: 0 5px;
 }
 .menu-items li a {
     color: white;
     text-decoration: none;
     font-size: 18px;
+    /* Đảm bảo thẻ a phủ toàn bộ kích thước của item để dễ click */
+    display: block;
+    padding: 8px 12px;
 }
 .menu-items li a:hover {
     color: #DA2128;
@@ -64,6 +69,7 @@
     transition: all 0.3s ease;
     cursor: pointer;
     margin-right: 10px;
+    position: relative; /* Đảm bảo vị trí là relative để con absolute có thể định vị */
 }
 
 .login-btn:last-child {
@@ -84,6 +90,14 @@
     font-size: 14px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
+    /* Đảm bảo thẻ a phủ toàn bộ kích thước của nút và dễ click */
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    z-index: 2;  /* Đảm bảo thẻ a nằm trên cùng để nhận sự kiện click */
 }
 
 .login-btn:hover a {

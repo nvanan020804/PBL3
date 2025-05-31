@@ -136,7 +136,10 @@ public class DangKyController {
     public ResponseEntity<?> cancelDangKy(@PathVariable int id) {
         try {
             DangKy updatedDangKy = dangKyService.cancelDangKy(id);
-            return new ResponseEntity<>(updatedDangKy, HttpStatus.OK);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Đăng ký đã được hủy thành công");
+            response.put("dangKy", updatedDangKy);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (RuntimeException e) {
             Map<String, String> response = new HashMap<>();
             response.put("message", e.getMessage());

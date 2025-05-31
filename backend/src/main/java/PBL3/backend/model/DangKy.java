@@ -50,6 +50,9 @@ public class DangKy {
     @Column(name = "gio_tap", length = 50)
     private String gioTap;
     
+    @Column(name = "ngayKetThuc")
+    private LocalDate ngayKetThuc;
+    
     @OneToMany(mappedBy = "dangKy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference(value = "dangky-hoadon")
     private List<HoaDon> hoaDons = new ArrayList<>();

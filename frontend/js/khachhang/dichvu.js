@@ -83,22 +83,25 @@ window.dangKyGoi = async function (idGoi) {
 
 // Hàm xử lý hủy gói dịch vụ
 window.huyGoiDangDung = async function (idDangKy) {
-  if (!confirm("Bạn có chắc chắn muốn hủy gói dịch vụ hiện tại?")) return;
+  if (!confirm("Bạn có chắc chắn muốn hủy gói dịch vụ hiện tại? Sau khi hủy, gói dịch vụ sẽ ngừng hoạt động ngay lập tức.")) return;
   try {
-    // Gửi yêu cầu hủy, backend cần lưu lại thời gian hủy là thời gian hiện tại
+    // Gửi yêu cầu hủy, backend sẽ lưu lại thời gian hủy là thời gian hiện tại
     const response = await fetch(
       `http://localhost:8080/api/dangky/${idDangKy}/cancel`,
       {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        // Gửi thêm thời gian hủy nếu backend cần, hoặc backend tự lấy thời gian hiện tại
-        body: JSON.stringify({
-          thoiGianHuy: new Date().toISOString(),
-        }),
+        headers: { "Content-Type": "application/json" }
       }
     );
-    if (!response.ok) throw new Error("Lỗi khi hủy gói dịch vụ");
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Lỗi khi hủy gói dịch vụ");
+    }
+    
     alert("Đã hủy gói dịch vụ thành công!");
+    // Tải lại trang để cập nhật thông tin
+    location.reload();
     window.location.reload();
   } catch (error) {
     console.error("Lỗi:", error);

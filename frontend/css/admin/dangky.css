@@ -228,3 +228,26 @@
 body {
     background-color: #f8f9fa;
 }
+
+/* Styling for the invoice status info message */
+.form-text.text-info,
+.form-text.text-success {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    border-left: 4px solid;
+}
+
+.form-text.text-info {
+    border-left-color: #0dcaf0;
+    background-color: rgba(13, 202, 240, 0.1);
+}
+
+.form-text.text-success {
+    border-left-color: #198754;
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.form-text strong {
+    font-weight: 600;
+}

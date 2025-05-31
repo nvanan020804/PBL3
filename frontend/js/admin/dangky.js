@@ -66,6 +66,12 @@ function setupEventListeners() {
     // Sự kiện nút xác nhận tạo hóa đơn
     document.getElementById('confirmCreateInvoiceBtn').addEventListener('click', confirmAndCreateInvoice);
     
+    // Sự kiện thay đổi trạng thái thanh toán
+    const paymentStatusElement = document.getElementById('paymentStatus');
+    if (paymentStatusElement) {
+        paymentStatusElement.addEventListener('change', validatePaymentStatus);
+    }
+    
     // Sự kiện nút tìm kiếm đăng ký
     document.getElementById('searchBtn').addEventListener('click', function() {
         const searchTerm = document.getElementById('searchInput').value.trim();
@@ -1484,6 +1490,15 @@ async function createInvoiceForRegistration(registration) {
             paymentMethod: document.getElementById('paymentMethod')
         });
         
+        // Khởi tạo thông báo trạng thái tự động cho hóa đơn
+        const paymentStatusElement = document.getElementById('paymentStatus');
+        if (paymentStatusElement) {
+            // Gắn sự kiện change
+            paymentStatusElement.addEventListener('change', validatePaymentStatus);
+            // Kích hoạt ngay để hiển thị thông báo phù hợp với lựa chọn ban đầu
+            validatePaymentStatus();
+        }
+        
         // Gắn lại sự kiện cho nút xác nhận
         const confirmBtn = document.getElementById('confirmCreateInvoiceBtn');
         
@@ -1524,11 +1539,13 @@ async function confirmAndCreateInvoice() {
         const registrationId = registrationIdElement.value;
         console.log('Debug - confirmRegistrationId value:', registrationId);
         
-        const trangThai = document.getElementById('invoiceStatus').value;
+        // Lấy trạng thái thanh toán và tự động xác định trạng thái hóa đơn
         const trangThaiThanhToan = document.getElementById('paymentStatus').value;
+        // Quyết định trạng thái hóa đơn dựa vào trạng thái thanh toán
+        const trangThai = trangThaiThanhToan === 'Đã thanh toán' ? 'Hoàn thành' : 'Chờ xử lý';
         const phuongThuc = document.getElementById('paymentMethod').value;
         
-        console.log('Form values:', { 
+        console.log('Form values và trạng thái hóa đơn tự động:', { 
             trangThai, 
             trangThaiThanhToan, 
             phuongThuc 
@@ -1814,4 +1831,22 @@ function showError(message) {
     setTimeout(() => {
         alert.classList.remove('show');
     }, 5000);
+}
+
+// Xác thực và hiển thị thông tin về trạng thái hóa đơn khi trạng thái thanh toán thay đổi
+function validatePaymentStatus() {
+    const paymentStatus = document.getElementById('paymentStatus').value;
+    const statusMessage = document.querySelector('.form-text.text-info');
+    
+    if (statusMessage) {
+        if (paymentStatus === 'Đã thanh toán') {
+            statusMessage.innerHTML = '<i class="fas fa-info-circle"></i> Trạng thái hóa đơn sẽ được tự động xác định là <strong>"Hoàn thành"</strong> khi thanh toán đã hoàn tất.';
+            statusMessage.classList.remove('text-info');
+            statusMessage.classList.add('text-success');
+        } else {
+            statusMessage.innerHTML = '<i class="fas fa-info-circle"></i> Trạng thái hóa đơn sẽ được tự động xác định là <strong>"Chờ xử lý"</strong> khi chưa thanh toán.';
+            statusMessage.classList.remove('text-success');
+            statusMessage.classList.add('text-info');
+        }
+    }
 }

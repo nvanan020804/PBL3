@@ -3,9 +3,11 @@ package PBL3.backend.service;
 import PBL3.backend.model.DangKy;
 import PBL3.backend.model.HoaDon;
 import PBL3.backend.model.HoaDonChiTiet;
+import PBL3.backend.model.KhachHang;
 import PBL3.backend.repository.DangKyRepository;
 import PBL3.backend.repository.HoaDonChiTietRepository;
 import PBL3.backend.repository.HoaDonRepository;
+import PBL3.backend.repository.KhachHangRepository;
 import PBL3.backend.dto.response.ThongKeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,14 +29,17 @@ public class HoaDonService {
     private final HoaDonRepository hoaDonRepository;
     private final DangKyRepository dangKyRepository;
     private final HoaDonChiTietRepository hoaDonChiTietRepository;
+    private final KhachHangRepository khachHangRepository;
 
     @Autowired
     public HoaDonService(HoaDonRepository hoaDonRepository, 
                          DangKyRepository dangKyRepository,
-                         HoaDonChiTietRepository hoaDonChiTietRepository) {
+                         HoaDonChiTietRepository hoaDonChiTietRepository,
+                         KhachHangRepository khachHangRepository) {
         this.hoaDonRepository = hoaDonRepository;
         this.dangKyRepository = dangKyRepository;
         this.hoaDonChiTietRepository = hoaDonChiTietRepository;
+        this.khachHangRepository = khachHangRepository;
     }
 
     public List<HoaDon> getAllHoaDon() {
@@ -181,6 +186,28 @@ public class HoaDonService {
             .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + id));
             
         hoaDon.setTrangThai("Hoàn thành");
+        
+        // Khi hóa đơn hoàn thành, cập nhật trạng thái đăng ký liên quan (nếu có)
+        if (hoaDon.getDangKy() != null) {
+            DangKy dangKy = hoaDon.getDangKy();
+            
+            // Chỉ cập nhật nếu đăng ký đang ở trạng thái "Chờ xử lý"
+            if ("Chờ xử lý".equals(dangKy.getTrangThai())) {
+                dangKy.setTrangThai("Đang hoạt động");
+                dangKyRepository.save(dangKy);
+                
+                // Cập nhật trạng thái khách hàng
+                KhachHang khachHang = dangKy.getKhachHang();
+                if (khachHang != null) {
+                    khachHang.setTrangThai("Đang hoạt động");
+                    khachHangRepository.save(khachHang);
+                    System.out.println("Đã kích hoạt đăng ký ID " + dangKy.getIdDangKy() + 
+                                      " và cập nhật trạng thái khách hàng ID " + 
+                                      khachHang.getIdKhachHang() + " thành 'Đang hoạt động'");
+                }
+            }
+        }
+        
         return hoaDonRepository.save(hoaDon);
     }
     

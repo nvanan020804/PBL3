@@ -791,26 +791,56 @@ async function completeInvoice(invoiceId) {
         }
         
         showLoading();
-        
-        // Gọi API để cập nhật trạng thái hóa đơn thành Hoàn thành
-        const updatedInvoice = await HoaDonAPI.hoanThanhHoaDon(invoiceId);
-        
-        // Cập nhật hóa đơn trong mảng
-        const index = invoices.findIndex(inv => inv.idHoaDon == invoiceId);
-        if (index !== -1) {
-            invoices[index] = {...invoices[index], trangThai: 'Hoàn thành'};
-            displayInvoices();
-        }
-        
-        showSuccess('Đã cập nhật trạng thái hóa đơn thành Hoàn thành.');
-        
-        // Nếu đang mở modal chi tiết, đóng modal và mở lại để cập nhật giao diện
-        const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewInvoiceModal'));
-        if (viewModal) {
-            viewModal.hide();
-            setTimeout(() => {
-                viewInvoiceDetails(invoiceId);
-            }, 500);
+
+        try {
+            // 1. Hoàn thành hóa đơn
+            const updatedInvoice = await HoaDonAPI.hoanThanhHoaDon(invoiceId);
+            
+            // 2. Nếu hóa đơn có đăng ký, cập nhật trạng thái đăng ký thành "Đang hoạt động"
+            if (invoice.idDangKy) {
+                try {
+                    await DangKyAPI.updateDangKyStatus(invoice.idDangKy, {
+                        trangThai: 'Đang hoạt động'
+                    });
+                    console.log('Đã cập nhật trạng thái đăng ký thành "Đang hoạt động"');
+                } catch (regError) {
+                    console.error('Lỗi khi cập nhật trạng thái đăng ký:', regError);
+                    showError('Hoàn thành hóa đơn thành công nhưng không thể cập nhật trạng thái đăng ký.');
+                }
+            }
+
+            // 3. Cập nhật trạng thái khách hàng thành "Đang hoạt động"
+            if (invoice.dangKy && invoice.dangKy.idKhachHang) {
+                try {
+                    await KhachHangAPI.updateKhachHang(invoice.dangKy.idKhachHang, {
+                        trangThai: 'Đang hoạt động'
+                    });
+                    console.log('Đã cập nhật trạng thái khách hàng thành "Đang hoạt động"');
+                } catch (custError) {
+                    console.error('Lỗi khi cập nhật trạng thái khách hàng:', custError);
+                    showError('Hoàn thành hóa đơn thành công nhưng không thể cập nhật trạng thái khách hàng.');
+                }
+            }
+            
+            // 4. Cập nhật giao diện
+            const index = invoices.findIndex(inv => inv.idHoaDon == invoiceId);
+            if (index !== -1) {
+                invoices[index] = {...invoices[index], trangThai: 'Hoàn thành'};
+                displayInvoices();
+            }
+            
+            showSuccess('Đã cập nhật trạng thái hóa đơn thành Hoàn thành.');
+            
+            // Nếu đang mở modal chi tiết, đóng modal và mở lại để cập nhật giao diện
+            const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewInvoiceModal'));
+            if (viewModal) {
+                viewModal.hide();
+                setTimeout(() => {
+                    viewInvoiceDetails(invoiceId);
+                }, 500);
+            }
+        } catch (error) {
+            throw error;
         }
         
     } catch (error) {

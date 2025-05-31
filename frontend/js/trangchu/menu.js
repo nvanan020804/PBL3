@@ -21,10 +21,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Khôi phục sự kiện click thông thường cho tất cả các nút trong menu
+    document.querySelectorAll('.menu-items li a, .auth-buttons li a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Ngăn chặn sự kiện click từ việc đi xuống đến thẻ li nếu cần xử lý đặc biệt
+            // Không gọi preventDefault() ở đây vì sẽ ngăn chặn hành vi chuyển trang
+            e.stopPropagation();
+        });
+    });
+    
     // Quản lý hiển thị nút đăng nhập/đăng ký/đăng xuất
     const loginButton = document.getElementById('login-button');
     const registerButton = document.getElementById('register-button');
     const logoutButton = document.getElementById('logout-button');
+    const profileButton = document.getElementById('profile-button');
     
     // Kiểm tra nếu người dùng đã đăng nhập
     const user = localStorage.getItem('user');
@@ -62,14 +72,45 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Xử lý sự kiện click cho các nút
+    if (loginButton) {
+        const loginLink = loginButton.querySelector('a');
+        loginButton.addEventListener('click', function() {
+            if (loginLink) loginLink.click();
+        });
+    }
+    
+    if (registerButton) {
+        const registerLink = registerButton.querySelector('a');
+        registerButton.addEventListener('click', function() {
+            if (registerLink) registerLink.click();
+        });
+    }
+    
+    if (profileButton) {
+        const profileLink = profileButton.querySelector('a');
+        profileButton.addEventListener('click', function() {
+            if (profileLink) profileLink.click();
+        });
+    }
+    
     // Xử lý sự kiện đăng xuất
     if (logoutButton) {
-        logoutButton.addEventListener('click', function() {
+        // Bắt sự kiện cho cả nút đăng xuất và thẻ a bên trong
+        logoutButton.addEventListener('click', handleLogout);
+        
+        const logoutLink = logoutButton.querySelector('a');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', handleLogout);
+        }
+        
+        function handleLogout(event) {
+            event.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ a
             // Xóa tất cả dữ liệu trong localStorage
             localStorage.clear();
             
             // Chuyển hướng về trang chủ sau khi đăng xuất
             window.location.href = '../trangchu/index.html';
-        });
+        }
     }
 });
