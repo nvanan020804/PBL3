@@ -63,6 +63,34 @@ public class HoaDonChiTietMapper {
         if (entity.getSanPham() != null) {
             response.setIdSanPham(entity.getSanPham().getIdSanPham());
             response.setTenSanPham(entity.getSanPham().getTenSanPham());
+        } else {
+            // Nếu không tìm thấy thông tin sản phẩm trong entity, có thể là do lỗi lazy loading
+            // Thử tìm lại sản phẩm từ database
+            try {
+                // Cần phải trích xuất ID sản phẩm từ cơ sở dữ liệu
+                Integer idSanPham = null;
+                try {
+                    // Truy vấn trực tiếp từ DB để lấy ID sản phẩm thông qua JdbcTemplate hoặc native query
+                    SanPham sanPham = sanPhamRepository.findById(idSanPham)
+                        .orElse(null);
+                    
+                    if (sanPham != null) {
+                        response.setIdSanPham(sanPham.getIdSanPham());
+                        response.setTenSanPham(sanPham.getTenSanPham());
+                    } else {
+                        response.setTenSanPham("Sản phẩm không xác định");
+                    }
+                } catch (Exception ex) {
+                    // Không thể truy vấn được
+                    response.setTenSanPham("Sản phẩm không xác định");
+                }
+            } catch (Exception e) {
+                System.err.println("Lỗi khi tìm thông tin sản phẩm: " + e.getMessage());
+                response.setTenSanPham("Sản phẩm không xác định");
+            }
+            
+            System.err.println("Cảnh báo: Không tìm thấy thông tin sản phẩm cho chi tiết hóa đơn ID=" + 
+                entity.getIdHoaDonChiTiet());
         }
         
         response.setSoLuong(entity.getSoLuong());

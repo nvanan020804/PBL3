@@ -353,7 +353,6 @@ async function viewInvoiceDetails(invoiceId) {
         
         // Lấy danh sách chi tiết hóa đơn
         const details = await HoaDonChiTietAPI.getHoaDonChiTietByHoaDon(invoiceId);
-        console.log("Đã lấy thông tin chi tiết hóa đơn:", details);
         
         // Biến theo dõi việc đã lấy được thông tin đăng ký chưa
         let registrationDetails = null;
@@ -361,12 +360,7 @@ async function viewInvoiceDetails(invoiceId) {
         // Nếu hóa đơn có ID đăng ký, lấy thông tin đăng ký từ API
         if (invoice.idDangKy) {
             try {
-                console.log("Lấy thông tin đăng ký từ ID:", invoice.idDangKy);
                 registrationDetails = await DangKyAPI.getDangKyById(invoice.idDangKy);
-                
-                if (registrationDetails && registrationDetails.goiDichVu) {
-                    console.log("Đã lấy thành công thông tin đăng ký:", registrationDetails);
-                }
             } catch (error) {
                 console.error("Lỗi khi lấy thông tin đăng ký:", error);
             }
@@ -449,7 +443,7 @@ async function viewInvoiceDetails(invoiceId) {
             details.forEach(detail => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${detail.sanPham ? detail.sanPham.tenSanPham : ''}</td>
+                    <td>${detail.tenSanPham || 'Sản phẩm không xác định'}</td>
                     <td>${formatCurrency(detail.gia)}</td>
                     <td>${detail.soLuong}</td>
                     <td>${formatCurrency(detail.thanhTien)}</td>

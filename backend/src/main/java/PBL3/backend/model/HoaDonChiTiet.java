@@ -31,7 +31,7 @@ public class HoaDonChiTiet {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private HoaDon hoaDon;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "idSanPham", nullable = false)
     @JsonBackReference(value = "sanpham-chitiet")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})

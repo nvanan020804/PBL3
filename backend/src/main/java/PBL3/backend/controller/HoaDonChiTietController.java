@@ -7,6 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +42,34 @@ public class HoaDonChiTietController {
     }
 
     @GetMapping("/hoadon/{idHoaDon}")
-    public ResponseEntity<List<HoaDonChiTiet>> getChiTietByHoaDon(@PathVariable int idHoaDon) {
+    public ResponseEntity<?> getChiTietByHoaDon(@PathVariable int idHoaDon) {
         try {
             List<HoaDonChiTiet> hoaDonChiTietList = hoaDonChiTietService.getChiTietByHoaDon(idHoaDon);
-            return new ResponseEntity<>(hoaDonChiTietList, HttpStatus.OK);
+            
+            // Tạo response DTO thủ công để đảm bảo thông tin sản phẩm được trả về
+            List<Map<String, Object>> responseList = new ArrayList<>();
+            
+            for (HoaDonChiTiet chiTiet : hoaDonChiTietList) {
+                Map<String, Object> chiTietMap = new HashMap<>();
+                chiTietMap.put("idHoaDonChiTiet", chiTiet.getIdHoaDonChiTiet());
+                chiTietMap.put("idHoaDon", chiTiet.getHoaDon().getIdHoaDon());
+                chiTietMap.put("soLuong", chiTiet.getSoLuong());
+                chiTietMap.put("gia", chiTiet.getGia());
+                chiTietMap.put("thanhTien", chiTiet.getThanhTien());
+                
+                if (chiTiet.getSanPham() != null) {
+                    chiTietMap.put("idSanPham", chiTiet.getSanPham().getIdSanPham());
+                    chiTietMap.put("tenSanPham", chiTiet.getSanPham().getTenSanPham());
+                } else {
+                    chiTietMap.put("tenSanPham", "Không xác định");
+                }
+                
+                responseList.add(chiTietMap);
+            }
+            
+            return new ResponseEntity<>(responseList, HttpStatus.OK);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

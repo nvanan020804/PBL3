@@ -41,7 +41,9 @@ public class HoaDonChiTietService {
     public List<HoaDonChiTiet> getChiTietByHoaDon(int idHoaDon) {
         HoaDon hoaDon = hoaDonRepository.findById(idHoaDon)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + idHoaDon));
-        return hoaDonChiTietRepository.findByHoaDon(hoaDon);
+        
+        // Sử dụng JOIN FETCH query để lấy chi tiết hóa đơn với sản phẩm đã được eager loaded
+        return hoaDonChiTietRepository.findByHoaDonWithSanPham(hoaDon);
     }
 
     @Transactional
