@@ -23,23 +23,22 @@ function formatCurrency(amount) {
   }).format(amount);
 }
 
-// Hàm tiện ích
+// Hàm hiển thị loading
 function showLoading() {
-  console.log("Showing loading...");
   document.body.insertAdjacentHTML(
     "beforeend",
-    '<div id="loading" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">Đang tải...</div>'
+    '<div id="loading" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 15px 30px; border-radius: 5px; z-index: 9999;"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>'
   );
 }
 
+// Hàm ẩn loading
 function hideLoading() {
-  console.log("Hiding loading...");
   const loading = document.getElementById("loading");
   if (loading) loading.remove();
 }
 
+// Hàm hiển thị thông báo lỗi
 function showError(message) {
-  console.log("Error:", message);
   alert(message);
 }
 
@@ -48,40 +47,40 @@ async function loadInvoices() {
   try {
     showLoading();
 
-    // Bước 1: Lấy idKhachHang từ API /api/khachhang/profile
-    console.log("Fetching user profile...");
     const profileResponse = await fetch(
       "http://127.0.0.1:8080/api/khachhang/profile",
       {
-        credentials: "include", // Gửi cookie/session để xác thực
+        credentials: "include",
       }
     );
-    if (!profileResponse.ok) {
-      throw new Error(
-        `Lỗi HTTP khi lấy thông tin profile: ${profileResponse.status}`
-      );
+
+    if (profileResponse.status === 401) {
+      showError("Vui lòng đăng nhập để xem hóa đơn!");
+      window.location.href = "/login.html"; // Chuyển hướng đến trang đăng nhập
+      return;
     }
+
+    if (!profileResponse.ok) {
+      const errorText = await profileResponse.text();
+      throw new Error(`Lỗi HTTP: ${profileResponse.status} - ${errorText}`);
+    }
+
     const profile = await profileResponse.json();
     const idKhachHang = profile.idKhachHang;
-    console.log("idKhachHang:", idKhachHang);
 
-    // Bước 2: Lấy danh sách hóa đơn dựa trên idKhachHang
-    console.log("Fetching invoices...");
     const invoicesResponse = await fetch(
       `http://127.0.0.1:8080/api/hoadon/khachhang/${idKhachHang}`,
       {
-        credentials: "include", // Gửi cookie/session để xác thực
+        credentials: "include",
       }
     );
-    if (!invoicesResponse.ok) {
-      throw new Error(
-        `Lỗi HTTP khi lấy danh sách hóa đơn: ${invoicesResponse.status}`
-      );
-    }
-    const userInvoices = await invoicesResponse.json();
-    console.log("User Invoices:", userInvoices);
 
-    // Hiển thị danh sách
+    if (!invoicesResponse.ok) {
+      const errorText = await invoicesResponse.text();
+      throw new Error(`Lỗi HTTP: ${invoicesResponse.status} - ${errorText}`);
+    }
+
+    const userInvoices = await invoicesResponse.json();
     displayInvoices(userInvoices);
     hideLoading();
   } catch (error) {
@@ -95,7 +94,6 @@ async function loadInvoices() {
 
 // Hàm hiển thị danh sách hóa đơn
 function displayInvoices(invoices) {
-  console.log("Displaying invoices:", invoices);
   const invoiceTableBody = document.getElementById("invoiceTableBody");
   invoiceTableBody.innerHTML = "";
 
@@ -110,14 +108,14 @@ function displayInvoices(invoices) {
     row.innerHTML = `
       <td>${invoice.idHoaDon ?? "N/A"}</td>
       <td>${formatDateTime(invoice.thoiGianTao)}</td>
-      <td>${formatCurrency(invoice.tongTien ?? 0)}</td>
+      <td>${formatCurrency(invoice.thanhToan ?? 0)}</td>
       <td>${invoice.trangThai ?? "N/A"}</td>
       <td>${invoice.trangThaiThanhToan ?? "N/A"}</td>
       <td>
         <button class="btn btn-primary btn-sm" onclick="viewInvoiceDetails(${
           invoice.idHoaDon ?? 0
         })">
-          Xem Chi Tiết
+          <i class="fas fa-eye"></i> Xem
         </button>
       </td>
     `;
@@ -130,57 +128,85 @@ async function viewInvoiceDetails(invoiceId) {
   try {
     showLoading();
 
-    console.log("Fetching details for invoice ID:", invoiceId);
     const response = await fetch(
       `http://127.0.0.1:8080/api/hoadon/${invoiceId}`,
       {
-        credentials: "include", // Gửi cookie/session để xác thực
+        credentials: "include",
       }
     );
-    if (!response.ok) {
-      throw new Error(`Lỗi HTTP: ${response.status}`);
-    }
-    const invoice = await response.json();
-    console.log("Invoice Details:", invoice);
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Lỗi HTTP: ${response.status} - ${errorText}`);
+    }
+
+    const invoice = await response.json();
     const modalContent = document.getElementById("invoiceDetailContent");
     modalContent.innerHTML = `
-      <p><strong>ID Hóa Đơn:</strong> ${invoice.idHoaDon ?? "N/A"}</p>
-      <p><strong>Thời Gian Tạo:</strong> ${formatDateTime(
-        invoice.thoiGianTao
-      )}</p>
-      <p><strong>Tổng Tiền:</strong> ${formatCurrency(
-        invoice.tongTien ?? 0
-      )}</p>
-      <p><strong>Giảm Giá:</strong> ${formatCurrency(invoice.giamGia ?? 0)}</p>
-      <p><strong>Thanh Toán:</strong> ${formatCurrency(
-        invoice.thanhToan ?? 0
-      )}</p>
-      <p><strong>Phương Thức:</strong> ${invoice.phuongThuc ?? "N/A"}</p>
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>ID Hóa Đơn:</strong> ${invoice.idHoaDon ?? "N/A"}</p>
+          <p><strong>Thời Gian Tạo:</strong> ${formatDateTime(
+            invoice.thoiGianTao
+          )}</p>
+          <p><strong>Khách Hàng:</strong> ${
+            invoice.dangKy?.khachHang?.hoTen ?? "N/A"
+          }</p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Tổng Tiền:</strong> ${formatCurrency(
+            invoice.tongTien ?? 0
+          )}</p>
+          <p><strong>Giảm Giá:</strong> ${formatCurrency(
+            invoice.giamGia ?? 0
+          )}</p>
+          <p><strong>Thành Tiền:</strong> ${formatCurrency(
+            invoice.thanhToan ?? 0
+          )}</p>
+        </div>
+      </div>
+      <p><strong>Phương Thức Thanh Toán:</strong> ${
+        invoice.phuongThuc === "tienmat"
+          ? "Tiền mặt"
+          : invoice.phuongThuc === "chuyenkhoan"
+          ? "Chuyển khoản"
+          : invoice.phuongThuc === "thetindung"
+          ? "Thẻ tín dụng"
+          : "N/A"
+      }</p>
       <p><strong>Trạng Thái:</strong> ${invoice.trangThai ?? "N/A"}</p>
       <p><strong>Trạng Thái Thanh Toán:</strong> ${
         invoice.trangThaiThanhToan ?? "N/A"
       }</p>
     `;
 
-    // Hiển thị chi tiết dịch vụ nếu có
     if (invoice.chiTietList && invoice.chiTietList.length > 0) {
       let chiTietHTML =
-        '<div class="mt-4"><h6>Chi Tiết Dịch Vụ:</h6><table class="table table-bordered table-sm">';
+        '<div class="mt-3"><h6>Chi Tiết Dịch Vụ:</h6><table class="table table-bordered table-sm">';
       chiTietHTML +=
-        "<thead><tr><th>Sản Phẩm</th><th>Số Lượng</th><th>Giá</th><th>Thành Tiền</th></tr></thead><tbody>";
-
+        "<thead><tr><th>Sản Phẩm/Dịch Vụ</th><th>Số Lượng</th><th>Giá</th><th>Thành Tiền</th></tr></thead><tbody>";
       invoice.chiTietList.forEach((chiTiet) => {
         chiTietHTML += `<tr>
           <td>${chiTiet.sanPham?.tenSanPham ?? "N/A"}</td>
-          <td>${chiTiet.soLuong}</td>
+          <td>${chiTiet.soLuong ?? 0}</td>
           <td>${formatCurrency(chiTiet.gia ?? 0)}</td>
           <td>${formatCurrency(chiTiet.thanhTien ?? 0)}</td>
         </tr>`;
       });
-
       chiTietHTML += "</tbody></table></div>";
       modalContent.innerHTML += chiTietHTML;
+    } else if (invoice.dangKy?.goiDichVu) {
+      modalContent.innerHTML += `
+        <div class="mt-3">
+          <h6>Gói Dịch Vụ:</h6>
+          <p><strong>Tên Gói:</strong> ${
+            invoice.dangKy?.goiDichVu?.tenGoi ?? "N/A"
+          }</p>
+          <p><strong>Giá Gói:</strong> ${formatCurrency(
+            invoice.dangKy?.goiDichVu?.gia ?? 0
+          )}</p>
+        </div>
+      `;
     } else {
       modalContent.innerHTML +=
         "<p><strong>Chi Tiết Dịch Vụ:</strong> Không có</p>";
