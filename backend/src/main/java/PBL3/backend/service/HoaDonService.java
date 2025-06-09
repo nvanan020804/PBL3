@@ -247,6 +247,30 @@ public class HoaDonService {
             .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + id));
             
         hoaDon.setTrangThaiThanhToan("Đã thanh toán");
+        
+        // Nếu là hóa đơn đăng ký và trạng thái là "Chờ xác nhận", tự động chuyển sang "Hoàn thành"
+        // để kích hoạt gói đăng ký
+        if (hoaDon.getDangKy() != null && "Chờ xác nhận".equals(hoaDon.getTrangThai())) {
+            hoaDon.setTrangThai("Hoàn thành");
+            
+            // Kích hoạt đăng ký
+            DangKy dangKy = hoaDon.getDangKy();
+            if ("Chờ xác nhận".equals(dangKy.getTrangThai())) {
+                dangKy.setTrangThai("Đang hoạt động");
+                dangKyRepository.save(dangKy);
+                
+                // Cập nhật trạng thái khách hàng
+                KhachHang khachHang = dangKy.getKhachHang();
+                if (khachHang != null) {
+                    khachHang.setTrangThai("Đang hoạt động");
+                    khachHangRepository.save(khachHang);
+                    System.out.println("Đã kích hoạt đăng ký ID " + dangKy.getIdDangKy() + 
+                                       " và cập nhật trạng thái khách hàng ID " + 
+                                       khachHang.getIdKhachHang() + " thành 'Đang hoạt động'");
+                }
+            }
+        }
+        
         return hoaDonRepository.save(hoaDon);
     }
     

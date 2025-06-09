@@ -1,0 +1,111 @@
+/* Active package styling */
+.active-package {
+  max-width: 520px;
+  margin: 40px auto 30px auto;
+  padding: 0;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.09);
+  overflow: hidden;
+}
+
+.active-package-header {
+  background: #DA2128;
+  color: white;
+  padding: 15px 25px;
+  font-family: 'Oswald', Arial, sans-serif;
+  position: relative;
+}
+
+.active-package-header h3 {
+  margin: 0;
+  font-size: 1.4em;
+  letter-spacing: 1px;
+  color: white !important; /* Force white text color */
+  font-weight: bold;
+}
+
+.active-package-header::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 30px;
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 15px solid #DA2128;
+}
+
+.active-package-content {
+  padding: 30px 25px 25px;
+}
+
+.active-package p {
+  margin: 12px 0;
+  padding: 5px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 16px;
+}
+
+.active-package p:last-of-type {
+  border-bottom: none;
+  margin-bottom: 20px;
+}
+
+.active-package strong {
+  color: #333;
+  display: inline-block;
+  width: 140px;
+}
+
+.active-package .cancel-btn {
+  background-color: white;
+  color: #DA2128;
+  border: 1.5px solid #DA2128;
+  border-radius: 5px;
+  padding: 8px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: block;
+  width: 150px;
+  margin: 20px auto 5px auto;
+  text-align: center;
+}
+
+.active-package .cancel-btn:hover {
+  background-color: #DA2128;
+  color: white;
+}
+
+.pending-notice {
+  background-color: #fff3cd;
+  color: #856404;
+  border-left: 4px solid #ffc107;
+  padding: 15px;
+  margin: 20px 0;
+  border-radius: 5px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Active badge styling */
+.package-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-left: 10px;
+}
+
+.badge-active {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.badge-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}

@@ -69,6 +69,15 @@ function setupEventListeners() {
     
     // Nút làm mới
     document.getElementById('refreshBtn').addEventListener('click', function() {
+        // Reset tất cả bộ lọc về trạng thái ban đầu
+        document.getElementById('searchInput').value = '';
+        document.getElementById('statusFilter').value = 'all';
+        document.getElementById('paymentStatusFilter').value = 'all';
+        
+        // Reset trang về trang 1
+        currentPage = 1;
+        
+        // Tải lại danh sách hóa đơn
         loadInvoices();
     });
     
@@ -133,6 +142,10 @@ async function loadInvoices() {
         
         // Hiển thị danh sách
         displayInvoices();
+        
+        // Chạy debug để kiểm tra trạng thái
+        debugInvoiceStatus();
+        
         hideLoading();
     } catch (error) {
         console.error('Lỗi khi tải danh sách hóa đơn:', error);
@@ -275,7 +288,6 @@ function displayInvoices() {
                         <li><a class="dropdown-item cancel-btn" href="#" data-id="${invoice.idHoaDon}"><i class="fas fa-times"></i> Hủy</a></li>
                     </ul>
                 </div>
-                <button class="btn btn-sm btn-danger delete-btn" data-id="${invoice.idHoaDon}"><i class="fas fa-trash"></i></button>
             `;
         }
         
@@ -329,14 +341,6 @@ function attachActionButtons() {
             e.preventDefault();
             const invoiceId = this.getAttribute('data-id');
             cancelInvoice(invoiceId);
-        });
-    });
-    
-    // Nút xóa hóa đơn
-    document.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const invoiceId = this.getAttribute('data-id');
-            deleteInvoice(invoiceId);
         });
     });
 }
@@ -1330,14 +1334,42 @@ function filterAndSearchInvoices() {
     // Lọc theo trạng thái
     if (statusValue !== 'all') {
         filteredInvoices = filteredInvoices.filter(invoice => {
-            return statusValue === formatStatus(invoice.trangThai).toLowerCase().replace(/\s+/g, '');
+            // Debug log để xem trạng thái thực tế
+            console.log(`Debug - So sánh: ${statusValue} với [${invoice.trangThai}] => ${formatStatus(invoice.trangThai).toLowerCase().replace(/\s+/g, '')}`);
+            
+            // Kiểm tra chính xác trạng thái
+            if (statusValue === 'choxuly' && (invoice.trangThai === 'Chờ xử lý' || invoice.trangThai === null || invoice.trangThai === '')) {
+                return true;
+            }
+            
+            if (statusValue === 'hoanthanh' && invoice.trangThai === 'Hoàn thành') {
+                return true;
+            }
+            
+            if (statusValue === 'huy' && invoice.trangThai === 'Hủy') {
+                return true;
+            }
+            
+            return false;
         });
     }
     
     // Lọc theo trạng thái thanh toán
     if (paymentStatusValue !== 'all') {
         filteredInvoices = filteredInvoices.filter(invoice => {
-            return paymentStatusValue === formatPaymentStatus(invoice.trangThaiThanhToan).toLowerCase().replace(/\s+/g, '');
+            // Debug log để xem trạng thái thanh toán thực tế
+            console.log(`Debug Payment - So sánh: ${paymentStatusValue} với [${invoice.trangThaiThanhToan}] => ${formatPaymentStatus(invoice.trangThaiThanhToan).toLowerCase().replace(/\s+/g, '')}`);
+            
+            // Kiểm tra chính xác trạng thái thanh toán
+            if (paymentStatusValue === 'dathanhtoan' && invoice.trangThaiThanhToan === 'Đã thanh toán') {
+                return true;
+            }
+            
+            if (paymentStatusValue === 'chuathanhtoan' && (invoice.trangThaiThanhToan === 'Chưa thanh toán' || invoice.trangThaiThanhToan === null || invoice.trangThaiThanhToan === '')) {
+                return true;
+            }
+            
+            return false;
         });
     }
     
@@ -1361,6 +1393,44 @@ function paginateInvoices(filteredInvoices) {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return filteredInvoices.slice(startIndex, endIndex);
+}
+
+// Hàm debug trạng thái hóa đơn - hữu ích để phát hiện sự khác biệt về trạng thái
+function debugInvoiceStatus() {
+    console.group('Debug trạng thái hóa đơn');
+    
+    // Tạo danh sách trạng thái duy nhất từ các hóa đơn
+    const uniqueStatuses = [];
+    const uniquePaymentStatuses = [];
+    
+    invoices.forEach(invoice => {
+        if (invoice.trangThai && !uniqueStatuses.includes(invoice.trangThai)) {
+            uniqueStatuses.push(invoice.trangThai);
+        }
+        
+        if (invoice.trangThaiThanhToan && !uniquePaymentStatuses.includes(invoice.trangThaiThanhToan)) {
+            uniquePaymentStatuses.push(invoice.trangThaiThanhToan);
+        }
+    });
+    
+    console.log('Các trạng thái hóa đơn hiện có:', uniqueStatuses);
+    console.log('Các trạng thái thanh toán hiện có:', uniquePaymentStatuses);
+    
+    // Kiểm tra việc lọc cho mỗi trạng thái
+    console.log('Kiểm tra bộ lọc:');
+    uniqueStatuses.forEach(status => {
+        const formatted = formatStatus(status).toLowerCase().replace(/\s+/g, '');
+        console.log(`Trạng thái [${status}] sẽ khớp với filter [${formatted}]`);
+    });
+    
+    uniquePaymentStatuses.forEach(status => {
+        const formatted = formatPaymentStatus(status).toLowerCase().replace(/\s+/g, '');
+        console.log(`Trạng thái thanh toán [${status}] sẽ khớp với filter [${formatted}]`);
+    });
+    
+    console.groupEnd();
+    
+    return { uniqueStatuses, uniquePaymentStatuses };
 }
 
 // Hiển thị phân trang
@@ -1444,14 +1514,45 @@ function formatDate(date) {
 
 // Format trạng thái
 function formatStatus(status) {
-    return status || 'Chờ xử lý';
+    // Trả về "Chờ xử lý" cho các trường hợp null, undefined, hoặc chuỗi rỗng
+    if (!status) return 'Chờ xử lý';
+    
+    // Chuẩn hóa trạng thái để đảm bảo tính nhất quán
+    switch(status.trim()) {
+        case 'Chờ xử lý':
+        case 'choxuly':
+        case 'Cho xu ly':
+            return 'Chờ xử lý';
+        case 'Hoàn thành':
+        case 'hoanthanh':
+        case 'Hoan thanh':
+            return 'Hoàn thành';
+        case 'Hủy':
+        case 'huy':
+            return 'Hủy';
+        default:
+            return status;
+    }
 }
 
 // Format trạng thái thanh toán
 function formatPaymentStatus(status) {
-    const defaultStatus = 'Chưa thanh toán';
-    if (!status) return defaultStatus;
-    return status;
+    // Trả về "Chưa thanh toán" cho các trường hợp null, undefined, hoặc chuỗi rỗng
+    if (!status) return 'Chưa thanh toán';
+    
+    // Chuẩn hóa trạng thái thanh toán
+    switch(status.trim()) {
+        case 'Đã thanh toán':
+        case 'dathanhtoan':
+        case 'Da thanh toan':
+            return 'Đã thanh toán';
+        case 'Chưa thanh toán':
+        case 'chuathanhtoan':
+        case 'Chua thanh toan':
+            return 'Chưa thanh toán';
+        default:
+            return status;
+    }
 }
 
 // Format phương thức thanh toán
@@ -1712,6 +1813,12 @@ async function markAsPaid(invoiceId) {
         }
         
         showLoading();
+        
+        // Lấy thông tin hóa đơn hiện tại
+        const invoice = invoices.find(inv => inv.idHoaDon == invoiceId);
+        const isRegistrationInvoice = invoice && invoice.idDangKy;
+        
+        // Đánh dấu hóa đơn đã thanh toán
         const updatedInvoice = await HoaDonAPI.daThanhToan(invoiceId);
         
         // Update DOM elements
@@ -1721,19 +1828,38 @@ async function markAsPaid(invoiceId) {
             paymentStatusElement.className = 'status-badge payment-completed';
         }
         
+        // Nếu là hóa đơn đăng ký và vừa thanh toán, tự động hoàn thành
+        if (isRegistrationInvoice && updatedInvoice.trangThaiThanhToan === 'Đã thanh toán') {
+            try {
+                // Hoàn thành hóa đơn sẽ kích hoạt đăng ký và cập nhật khách hàng
+                const completedInvoice = await HoaDonAPI.hoanThanhHoaDon(invoiceId);
+                showSuccess('Đã thanh toán và kích hoạt gói đăng ký thành công!');
+                
+                // Cập nhật lại hóa đơn trong danh sách
+                const index = invoices.findIndex(inv => inv.idHoaDon == invoiceId);
+                if (index !== -1) {
+                    invoices[index] = {...completedInvoice};
+                }
+            } catch (error) {
+                console.error('Lỗi khi hoàn thành hóa đơn sau khi thanh toán:', error);
+                showError('Đã thanh toán nhưng không thể kích hoạt gói đăng ký tự động.');
+            }
+        } else {
+            showSuccess('Đã cập nhật trạng thái thanh toán thành công.');
+        }
+        
         // Update action buttons
         updatePaymentButtons(invoiceId, true);
         
         // Update invoice in list
         const index = invoices.findIndex(inv => inv.idHoaDon == invoiceId);
         if (index !== -1) {
-            invoices[index] = {...invoices[index], trangThaiThanhToan: 'Đã thanh toán'};
+            // Cập nhật hóa đơn với thông tin mới nhất
+            invoices[index] = {...invoices[index], ...updatedInvoice};
             displayInvoices();
         }
         
-        showSuccess('Đã cập nhật trạng thái thanh toán thành công.');
-        
-        // Cập nhật lại modal chi tiết để hiển thị nút hoàn thành nếu khách hàng đã thanh toán
+        // Cập nhật lại modal chi tiết
         const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewInvoiceModal'));
         if (viewModal) {
             viewModal.hide();

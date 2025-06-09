@@ -81,8 +81,10 @@ public class DangKyService {
             dangKy.setNgayBatDau(LocalDate.now());
         }
         
-        if (dangKy.getTrangThai() == null) {
-            dangKy.setTrangThai("Chờ xử lý");
+        // Nếu không có trạng thái hoặc trạng thái là "Đang hoạt động", đặt về "Chờ xác nhận"
+        // Đảm bảo rằng đăng ký mới luôn ở trạng thái chờ xử lý cho đến khi admin xác nhận
+        if (dangKy.getTrangThai() == null || dangKy.getTrangThai().equals("Đang hoạt động")) {
+            dangKy.setTrangThai("Chờ xác nhận");
         }
         
         // Tính toán ngày kết thúc dựa trên thời hạn gói dịch vụ (thoiGian là số tháng)

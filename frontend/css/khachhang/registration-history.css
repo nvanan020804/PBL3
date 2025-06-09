@@ -1,0 +1,270 @@
+/* Registration history styling */
+.history-section {
+  padding: 40px 0;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 0 15px;
+}
+
+.history-title {
+  font-family: 'Oswald', Arial, sans-serif;
+  color: #333;
+  font-size: 1.8em;
+  font-weight: bold;
+  position: relative;
+  padding-bottom: 8px;
+  margin: 0;
+}
+
+.history-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background-color: #DA2128;
+}
+
+.view-all-btn {
+  background-color: transparent;
+  color: #DA2128;
+  border: 1.5px solid #DA2128;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-all-btn:hover {
+  background-color: #DA2128;
+  color: white;
+}
+
+.expired-packages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 0 15px;
+}
+
+.expired-package-item {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  width: calc(33.333% - 20px);
+  min-width: 300px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  border-top: 4px solid #DA2128;
+}
+
+.expired-package-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.expired-details {
+  padding: 20px;
+}
+
+.expired-details h4 {
+  font-family: 'Oswald', Arial, sans-serif;
+  font-size: 1.2em;
+  color: #222;
+  margin: 0 0 15px;
+}
+
+.expired-details p {
+  margin: 8px 0;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.expired-details p:last-child {
+  margin-bottom: 0;
+}
+
+.expired-status {
+  font-weight: 600;
+  color: #777;
+}
+
+.expired-date {
+  font-size: 13px;
+  color: #888;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+/* Badge styles */
+.status-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+.badge-expired {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+.badge-active {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.badge-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* Modal styling enhancements */
+.modal-content h2 {
+  font-family: 'Oswald', Arial, sans-serif;
+  color: #DA2128;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f2f2f2;
+  position: relative;
+}
+
+.modal-content h2::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 80px;
+  height: 3px;
+  background-color: #DA2128;
+}
+
+.goi-het-han-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 10px;
+  padding-top: 5px;
+}
+
+.goi-het-han-item {
+  background: #fff;
+  border-radius: 8px;
+  padding: 18px;
+  border-left: 4px solid #DA2128;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.goi-het-han-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.goi-het-han-item::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background-color: #DA2128;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.modal-content {
+  border-radius: 12px;
+  border-top: 5px solid #DA2128;
+  max-width: 600px;
+}
+
+.goi-het-han-item p {
+  margin: 8px 0;
+}
+
+/* Scrollbar styling */
+.goi-het-han-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.goi-het-han-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.goi-het-han-list::-webkit-scrollbar-thumb {
+  background: #DA2128;
+  border-radius: 10px;
+}
+
+.goi-het-han-list::-webkit-scrollbar-thumb:hover {
+  background: #a81a22;
+}
+
+/* Empty state */
+.empty-history {
+  text-align: center;
+  padding: 60px 20px;
+  color: #777;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px dashed #ddd;
+  margin: 20px 15px;
+}
+
+.empty-history i {
+  font-size: 54px;
+  color: #DA2128;
+  opacity: 0.2;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.empty-history p {
+  font-size: 16px;
+  color: #666;
+}
+
+/* Add animations to registration history items */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.expired-package-item {
+  animation: fadeInUp 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+/* Stagger animation for items */
+.expired-packages .expired-package-item:nth-child(1) { animation-delay: 0.1s; }
+.expired-packages .expired-package-item:nth-child(2) { animation-delay: 0.2s; }
+.expired-packages .expired-package-item:nth-child(3) { animation-delay: 0.3s; }
+.expired-packages .expired-package-item:nth-child(4) { animation-delay: 0.4s; }
+.expired-packages .expired-package-item:nth-child(5) { animation-delay: 0.5s; }
+.expired-packages .expired-package-item:nth-child(6) { animation-delay: 0.6s; }

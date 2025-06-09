@@ -75,6 +75,19 @@ function setupEventListeners() {
     
     // Sự kiện nút làm mới
     document.getElementById('refreshBtn').addEventListener('click', function() {
+        // Reset tất cả filters và tìm kiếm
+        document.getElementById('searchInput').value = '';
+        document.getElementById('categoryFilter').value = 'all';
+        document.getElementById('stockFilter').value = 'all';
+        
+        // Reset về trang đầu tiên
+        currentPage = 1;
+        
+        // Reset các biến toàn cục
+        currentFilter = 'all';
+        currentStockFilter = 'all';
+        
+        // Tải lại danh sách sản phẩm
         loadProducts();
     });
     

@@ -1,0 +1,69 @@
+/* Fix for red header with white text */
+.active-package-header {
+  background-color: #DA2128 !important;
+  color: white !important;
+}
+
+.active-package-header h3 {
+  color: white !important;
+  font-weight: bold;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  font-family: 'Oswald', Arial, sans-serif;
+}
+
+/* Additional fixes for the active package */
+.active-package {
+  max-width: 520px;
+  margin: 40px auto 30px auto;
+  padding: 0;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+/* Make sure all headers are properly styled */
+h3 {
+  font-family: 'Oswald', Arial, sans-serif;
+}
+
+/* Improve visibility of badges */
+.package-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-left: 10px;
+}
+
+.badge-active {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.badge-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* Make sure button is visible */
+.cancel-btn {
+  background-color: white;
+  color: #DA2128;
+  border: 1.5px solid #DA2128;
+  border-radius: 5px;
+  padding: 8px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: block;
+  width: 150px;
+  margin: 20px auto 5px auto;
+  text-align: center;
+}
+
+.cancel-btn:hover {
+  background-color: #DA2128;
+  color: white;
+}
