@@ -10,7 +10,7 @@ fetch("../../components/menu.html")
   .then((res) => res.text())
   .then((data) => {
     document.getElementById("menu-container").innerHTML = data;
-    
+
     // Thực thi menu.js sau khi menu được load
     const loginButton = document.getElementById("login-button");
     const registerButton = document.getElementById("register-button");
@@ -35,9 +35,9 @@ fetch("../../components/menu.html")
       userDisplay.style.display = "inline-block";
 
       // Xử lý phân quyền admin/user
-      const role = user.phanQuyen ? user.phanQuyen.toLowerCase().trim() : '';
+      const role = user.phanQuyen ? user.phanQuyen.toLowerCase().trim() : "";
       console.log("Phân quyền hiện tại:", role);
-      
+
       if (role.includes("admin")) {
         // Nếu là admin
         adminOnlyItems.forEach((item) => {
@@ -47,16 +47,16 @@ fetch("../../components/menu.html")
         userOnlyItems.forEach((item) => {
           item.style.display = "none"; // Ẩn nút Hồ sơ cho admin
         });
-        
+
         // Điều chỉnh đường dẫn cho admin hoặc khách hàng
         allMenuLinks.forEach((link) => {
           // Lấy href hiện tại
           let href = link.getAttribute("href");
           console.log("Link original href:", href);
-          
+
           // Hiện thị đường dẫn hiện tại để debug
           console.log("Current path:", window.location.pathname);
-          
+
           // Đã ở trong trang admin
           if (window.location.pathname.includes("/admin/")) {
             // Xử lý đặc biệt cho trang chủ
@@ -64,7 +64,7 @@ fetch("../../components/menu.html")
               link.setAttribute("href", "home.html");
               console.log("Admin path: Changed index.html to home.html");
             }
-          } 
+          }
           // Đã ở trong trang khách hàng
           else if (window.location.pathname.includes("/khachhang/")) {
             // Xử lý đặc biệt cho trang chủ
@@ -74,7 +74,11 @@ fetch("../../components/menu.html")
             }
           }
           // Chưa ở trang admin hoặc khách hàng, cần chuyển hướng
-          else if (href && !href.includes("../admin/") && !href.includes("../khachhang/")) {
+          else if (
+            href &&
+            !href.includes("../admin/") &&
+            !href.includes("../khachhang/")
+          ) {
             // Admin thì chuyển hướng về trang admin
             if (role.includes("admin")) {
               // Xử lý đặc biệt cho trang chủ (index.html -> home.html)
@@ -87,7 +91,7 @@ fetch("../../components/menu.html")
                 link.setAttribute("href", "../admin/" + pageName);
                 console.log("Redirecting to admin page:", pageName);
               }
-            } 
+            }
             // Khách hàng thì chuyển hướng về trang khách hàng
             else {
               // Xử lý đặc biệt cho trang chủ (index.html -> home.html)
@@ -152,7 +156,7 @@ fetch("../../components/menu.html")
       localStorage.removeItem("userName");
       localStorage.removeItem("khachhang");
       localStorage.removeItem("token");
-      
+
       // Chuyển về trang đăng nhập
       window.location.href = "../../pages/trangchu/login.html";
     });

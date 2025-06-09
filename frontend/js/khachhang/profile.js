@@ -20,37 +20,56 @@ $(document).ready(async function () {
     khachhang = JSON.parse(localStorage.getItem("khachhang"));
     if (khachhang) setProfileView(khachhang);
     else setProfileView(null);
-  }
+  } // Hiệu ứng khi tải trang - nhẹ nhàng hơn
+  $(".profile-container").css("opacity", "0.5").animate({ opacity: 1 }, 300);
+  $(".info-row").each(function (i) {
+    $(this)
+      .css("opacity", "0.7")
+      .delay(50 * i)
+      .animate({ opacity: 1 }, 200);
+  });
 
   // Sự kiện nút Sửa
   $("#btn-edit").click(function () {
-    $("#btn-edit").hide();
-    $("#btn-save, #btn-cancel").show();
-    // Hiện input, ẩn text
+    // Hiệu ứng chuyển đổi nhẹ nhàng hơn
+    $(this).hide();
+    $("#btn-save, #btn-cancel").fadeIn(150);
+
+    // Hiện input, ẩn text với hiệu ứng nhẹ nhàng hơn
     $(
       "#profile-name, #profile-birthyear, #profile-cccd, #profile-email, #profile-phone"
     ).hide();
     $(
       "#edit-name, #edit-birthyear, #edit-cccd, #edit-email, #edit-phone"
-    ).show();
+    ).fadeIn(150);
+
     // Gán giá trị input
     $("#edit-name").val(khachhang?.tenKhachHang || "");
     $("#edit-birthyear").val(khachhang?.namSinh || "");
     $("#edit-cccd").val(khachhang?.cccd || "");
     $("#edit-email").val(khachhang?.email || "");
     $("#edit-phone").val(khachhang?.soDienThoai || "");
-  });
 
+    // Tạo hiệu ứng nhấn mạnh
+    $(".profile-container").addClass("editing");
+  });
   // Sự kiện nút Quay lại
   $("#btn-cancel").click(function () {
-    $("#btn-edit").show();
-    $("#btn-save, #btn-cancel").hide();
-    $(
-      "#profile-name, #profile-birthyear, #profile-cccd, #profile-email, #profile-phone"
-    ).show();
+    // Hiệu ứng chuyển đổi nhẹ nhàng hơn
+    $(this).hide();
+    $("#btn-save").hide();
+    $("#btn-edit").fadeIn(150);
+
+    // Hiện text, ẩn input với hiệu ứng nhẹ nhàng hơn
     $(
       "#edit-name, #edit-birthyear, #edit-cccd, #edit-email, #edit-phone"
     ).hide();
+    $(
+      "#profile-name, #profile-birthyear, #profile-cccd, #profile-email, #profile-phone"
+    ).fadeIn(150);
+
+    // Xóa hiệu ứng nhấn mạnh
+    $(".profile-container").removeClass("editing");
   });
 
   // Sự kiện nút Lưu
@@ -75,22 +94,49 @@ $(document).ready(async function () {
         localStorage.setItem("khachhang", JSON.stringify(newData));
         setProfileView(newData);
         khachhang = newData;
-        alert("Cập nhật thành công!");
+        showNotification("Cập nhật thông tin thành công!");
       } else {
-        alert("Cập nhật thất bại!");
+        showNotification("Cập nhật thất bại! Vui lòng thử lại.", "error");
       }
     } catch (e) {
-      alert("Có lỗi khi cập nhật!");
-    }
-    $("#btn-edit").show();
+      showNotification("Có lỗi khi cập nhật!", "error");
+    } // Hiệu ứng chuyển đổi nhẹ nhàng hơn
     $("#btn-save, #btn-cancel").hide();
-    $(
-      "#profile-name, #profile-birthyear, #profile-cccd, #profile-email, #profile-phone"
-    ).show();
+    $("#btn-edit").fadeIn(150);
+
+    // Hiện text, ẩn input với hiệu ứng nhẹ nhàng hơn
     $(
       "#edit-name, #edit-birthyear, #edit-cccd, #edit-email, #edit-phone"
     ).hide();
+    $(
+      "#profile-name, #profile-birthyear, #profile-cccd, #profile-email, #profile-phone"
+    ).fadeIn(150);
+
+    // Xóa hiệu ứng nhấn mạnh
+    $(".profile-container").removeClass("editing");
   });
+
+  // Hàm hiển thị thông báo
+  function showNotification(message, type = "success") {
+    // Kiểm tra xem đã có notification hay chưa
+    if ($(".notification").length === 0) {
+      $("body").append('<div class="notification"></div>');
+    }
+
+    // Thiết lập class dựa vào loại thông báo
+    let notifClass = "notification-" + type;
+    let icon =
+      type === "success"
+        ? '<i class="fas fa-check-circle"></i>'
+        : '<i class="fas fa-exclamation-circle"></i>';
+    $(".notification")
+      .removeClass()
+      .addClass("notification " + notifClass)
+      .html(icon + " " + message)
+      .fadeIn(200)
+      .delay(2000)
+      .fadeOut(300);
+  }
 
   function setProfileView(khachhang) {
     if (khachhang) {

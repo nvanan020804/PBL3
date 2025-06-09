@@ -4,6 +4,7 @@ import PBL3.backend.model.Account;
 import PBL3.backend.model.KhachHang;
 import PBL3.backend.repository.AccountRepository;
 import PBL3.backend.repository.KhachHangRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,17 +12,22 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @Service
 public class AccountService {
 
     private final AccountRepository accountRepository;
     private final KhachHangRepository khachHangRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public AccountService(AccountRepository accountRepository, 
-                         KhachHangRepository khachHangRepository) {
+                         KhachHangRepository khachHangRepository,
+                         PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
         this.khachHangRepository = khachHangRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Account> getAllAccounts() {
@@ -91,7 +97,8 @@ public class AccountService {
         // Tạo tài khoản cho khách hàng
         Account account = new Account();
         account.setTenDangNhap(username);
-        account.setMatKhau(password);
+        // Mã hóa mật khẩu trước khi lưu vào database
+        account.setMatKhau(passwordEncoder.encode(password));
         account.setPhanQuyen("khachhang");
         account.setIdLienKet(khachHang.getIdKhachHang());
         
@@ -103,8 +110,18 @@ public class AccountService {
     // Phương thức đăng nhập cơ bản
     public Account login(String username, String password) {
         Account account = accountRepository.findByTenDangNhap(username);
-        if (account != null && account.getMatKhau().equals(password)) {
-            return account;
+        if(account != null) {
+            if ("admin".equals(account.getPhanQuyen())) {
+                // Admin sử dụng mật khẩu plaintext
+                if (account.getMatKhau().equals(password)) {
+                    return account; // Trả về tài khoản admin nếu đăng nhập thành công
+                }
+            } else if ("khachhang".equals(account.getPhanQuyen())) {
+                // Khách hàng sử dụng mật khẩu đã mã hóa
+                if (passwordEncoder.matches(password, account.getMatKhau())) {
+                    return account; // Trả về tài khoản khách hàng nếu đăng nhập thành công
+                }   
+            }
         }
         return null;
     }

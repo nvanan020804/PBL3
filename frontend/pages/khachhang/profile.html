@@ -26,40 +26,47 @@
 <body>
     <div id="header-container"></div>
     <div id="menu-container"></div>
-    
-    <main class="profile-container">
-        <h1>Hồ sơ cá nhân</h1>
+      <main class="profile-container">
+        <h1>Thông tin tài khoản</h1>
+        
         <div class="profile-info">
             <div class="info-row">
-                <span class="info-label">Họ tên:</span>
+                <span class="info-label"><i class="fas fa-user"></i> Họ tên:</span>
                 <span id="profile-name" class="info-value"></span>
-                <input id="edit-name" class="info-value" style="display:none;" />
+                <input id="edit-name" class="info-value" style="display:none;" placeholder="Nhập họ tên của bạn" />
             </div>
             <div class="info-row">
-                <span class="info-label">Năm sinh:</span>
+                <span class="info-label"><i class="fas fa-calendar"></i> Năm sinh:</span>
                 <span id="profile-birthyear" class="info-value"></span>
-                <input id="edit-birthyear" class="info-value" style="display:none;" type="number" min="1900" max="2100" />
+                <input id="edit-birthyear" class="info-value" style="display:none;" type="number" min="1900" max="2100" placeholder="Nhập năm sinh của bạn" />
             </div>
             <div class="info-row">
-                <span class="info-label">CCCD:</span>
+                <span class="info-label"><i class="fas fa-id-card"></i> CCCD:</span>
                 <span id="profile-cccd" class="info-value"></span>
-                <input id="edit-cccd" class="info-value" style="display:none;" />
+                <input id="edit-cccd" class="info-value" style="display:none;" placeholder="Nhập số CCCD của bạn" />
             </div>
             <div class="info-row">
-                <span class="info-label">Email:</span>
+                <span class="info-label"><i class="fas fa-envelope"></i> Email:</span>
                 <span id="profile-email" class="info-value"></span>
-                <input id="edit-email" class="info-value" style="display:none;" type="email" />
+                <input id="edit-email" class="info-value" style="display:none;" type="email" placeholder="Nhập email của bạn" />
             </div>
             <div class="info-row">
-                <span class="info-label">Số điện thoại:</span>
+                <span class="info-label"><i class="fas fa-phone"></i> Số điện thoại:</span>
                 <span id="profile-phone" class="info-value"></span>
-                <input id="edit-phone" class="info-value" style="display:none;" />
+                <input id="edit-phone" class="info-value" style="display:none;" placeholder="Nhập số điện thoại của bạn" />
             </div>
         </div>
-        <div class="profile-actions" style="margin-top:20px; text-align:center;">
-            <button id="btn-edit" type="button">Sửa thông tin</button>
-            <button id="btn-save" type="button" style="display:none;">Lưu</button>
-            <button id="btn-cancel" type="button" style="display:none;">Quay lại</button>
+        
+        <div class="profile-actions">
+            <button id="btn-edit" type="button" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Sửa thông tin
+            </button>
+            <button id="btn-save" type="button" class="btn btn-success" style="display:none;">
+                <i class="fas fa-save"></i> Lưu thay đổi
+            </button>
+            <button id="btn-cancel" type="button" class="btn btn-secondary" style="display:none;">
+                <i class="fas fa-times"></i> Hủy bỏ
+            </button>
         </div>
     </main>
     
