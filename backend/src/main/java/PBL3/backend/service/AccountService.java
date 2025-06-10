@@ -119,4 +119,9 @@ public class AccountService {    private final AccountRepository accountReposito
     }
     return null;
 }
+
+    // Thêm hàm public để mã hóa mật khẩu
+    public String encodePassword(String rawPassword) {
+        return passwordEncoder.encode(rawPassword);
+    }
 }

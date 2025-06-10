@@ -221,4 +221,76 @@ public class AccountController {
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
     }
+
+    /**
+     * API xác thực quên mật khẩu: kiểm tra username và contact (số điện thoại hoặc email)
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, Object>> forgotPassword(@RequestBody Map<String, String> data) {
+        String username = data.get("username");
+        String contact = data.get("contact");
+        Map<String, Object> response = new HashMap<>();
+        if (username == null || contact == null) {
+            response.put("success", false);
+            response.put("message", "Thiếu thông tin tài khoản hoặc liên hệ");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        Optional<Account> accountOpt = accountService.getAccountByUsername(username);
+        if (accountOpt.isEmpty()) {
+            response.put("success", false);
+            response.put("message", "Tên đăng nhập không tồn tại");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        Account account = accountOpt.get();
+        if ("khachhang".equals(account.getPhanQuyen()) && account.getKhachHang() != null) {
+            String sdt = account.getKhachHang().getSoDienThoai();
+            String email = account.getKhachHang().getEmail();
+            if ((sdt != null && sdt.equals(contact)) || (email != null && email.equalsIgnoreCase(contact))) {
+                response.put("success", true);
+                response.put("message", "Xác thực thành công");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+        }
+        response.put("success", false);
+        response.put("message", "Thông tin không chính xác!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * API đặt lại mật khẩu: cập nhật mật khẩu mới cho username
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, Object>> resetPassword(@RequestBody Map<String, String> data) {
+        String username = data.get("username");
+        String newPassword = data.get("newPassword");
+        Map<String, Object> response = new HashMap<>();
+        if (username == null || newPassword == null) {
+            response.put("success", false);
+            response.put("message", "Thiếu thông tin tài khoản hoặc mật khẩu mới");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        try {
+            Optional<Account> accountOpt = accountService.getAccountByUsername(username);
+            if (accountOpt.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Tài khoản không tồn tại");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+            Account account = accountOpt.get();
+            // Mã hóa mật khẩu mới nếu là khách hàng
+            if ("khachhang".equals(account.getPhanQuyen())) {
+                account.setMatKhau(accountService.encodePassword(newPassword));
+            } else {
+                account.setMatKhau(newPassword); // admin có thể là plain text
+            }
+            accountService.updateAccount(username, account);
+            response.put("success", true);
+            response.put("message", "Đặt lại mật khẩu thành công");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Có lỗi xảy ra, vui lòng thử lại!");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

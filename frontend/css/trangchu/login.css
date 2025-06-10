@@ -10,7 +10,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: #f0f2f5;
+    background: linear-gradient(135deg, #23243a 0%, #101014 100%); /* tím than sang đen */
 }
 
 .page-container {
@@ -33,14 +33,17 @@ body {
 .left-section h1 {
     font-size: 3.5rem;
     font-weight: bold;
-    color: #1877f2;
+    color: #fff;
     margin-bottom: 10px;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 16px #b71c1c44, 0 1px 0 #222;
 }
 
 .left-section p {
     font-size: 1.5rem;
-    color: #1c1e21;
+    color: #e0e0e0;
     line-height: 1.4;
+    text-shadow: 0 1px 8px #0002;
 }
 
 .login-container {
@@ -49,20 +52,26 @@ body {
     margin: 0 auto;
 }
 
-.login-form {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+.login-form, .register-form {
+    background: linear-gradient(135deg, #fff 0%, #f3f3f3 100%); /* trắng đậm sang trắng nhạt */
+    border-radius: 18px;
+    padding: 36px 30px;
+    box-shadow: 0 8px 32px rgba(183,28,28,0.10), 0 2px 12px rgba(0,0,0,0.10);
     margin-bottom: 20px;
+    border-top: 4px solid #ff5252;
+    border-left: 1.5px solid #e0e0e0;
+    border-right: 1.5px solid #e0e0e0;
+    backdrop-filter: blur(1.5px);
 }
 
-.login-form h2 {
+.login-form h2, .register-form h2, .register-form h3 {
     text-align: center;
     margin-bottom: 20px;
-    color: #1c1e21;
-    font-weight: 600;
-    font-size: 1.5rem;
+    color: #b71c1c;
+    font-weight: 800;
+    font-size: 2rem;
+    letter-spacing: 1.5px;
+    text-shadow: 0 2px 12px #b71c1c22;
 }
 
 .input-box {
@@ -72,54 +81,65 @@ body {
 .input-box input {
     width: 100%;
     padding: 14px 16px;
-    border: 1px solid #dddfe2;
-    border-radius: 6px;
+    border: 1.5px solid #b71c1c;
+    border-radius: 8px;
     outline: none;
     font-size: 1rem;
-    color: #1c1e21;
-    background: #ffffff;
+    color: #b71c1c;
+    background: #fff;
+    transition: border 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 8px #b71c1c11;
 }
 
 .input-box input:focus {
-    border-color: #1877f2;
-    box-shadow: 0 0 0 2px #e7f3ff;
+    border-color: #ff5252;
+    box-shadow: 0 0 0 2px #ffebee;
 }
 
 .input-box input::placeholder {
-    color: #8a8d91;
+    color: #b71c1c;
+    opacity: 0.8;
+    letter-spacing: 0.5px;
 }
 
 .error-message {
-    color: #ff0000;
-    font-size: 13px;
+    color: #ff5252;
+    font-size: 14px;
     margin-top: 5px;
-    display: none;
+    display: block;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .success-message {
-    color: #42b72a;
-    font-size: 13px;
+    color: #43a047;
+    font-size: 14px;
     margin-top: 5px;
     margin-bottom: 10px;
-    display: none;
+    display: block;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 input[type="submit"] {
     width: 100%;
     padding: 12px;
-    background: #1877f2;
+    background: linear-gradient(90deg, #b71c1c 0%, #ff5252 100%);
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: bold;
-    color: white;
+    color: #fff;
     font-size: 1.1rem;
     cursor: pointer;
     margin-top: 10px;
-    transition: background 0.3s;
+    transition: background 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 12px #b71c1c22;
+    letter-spacing: 1px;
 }
 
 input[type="submit"]:hover {
-    background: #166fe5;
+    background: linear-gradient(90deg, #ff5252 0%, #b71c1c 100%);
+    box-shadow: 0 4px 24px #b71c1c33;
 }
 
 input[type="submit"]:active {
@@ -140,41 +160,49 @@ input[type="submit"]:active {
 }
 
 .divider span {
-    color: #8a8d91;
-    padding: 0 10px;
-    font-size: 0.9rem;
+    color: #b71c1c;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
 .create-account-btn {
-    display: block;
-    width: max-content;
-    margin: 0 auto;
-    padding: 10px 16px;
-    background: #42b72a;
+    background: linear-gradient(90deg, #b71c1c 0%, #ff5252 100%);
+    color: #fff;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: bold;
-    color: white;
     text-decoration: none;
     font-size: 1rem;
-    transition: background 0.3s;
+    transition: background 0.3s, box-shadow 0.3s;
+    margin-top: 10px;
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 12px 0;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 12px #b71c1c22;
 }
 
 .create-account-btn:hover {
-    background: #36a420;
+    background: linear-gradient(90deg, #ff5252 0%, #b71c1c 100%);
+    box-shadow: 0 4px 24px #b71c1c33;
 }
 
-.forgot-password {
+.forgot-password, .back-login {
     display: block;
     text-align: center;
     margin: 15px 0;
-    color: #1877f2;
+    color: #b71c1c;
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
 }
 
-.forgot-password:hover {
+.forgot-password:hover, .back-login:hover {
     text-decoration: underline;
+    color: #ff5252;
 }
 
 .exit-button {
@@ -217,16 +245,13 @@ input[type="submit"]:active {
     .page-container {
         flex-direction: column;
     }
-    
     .left-section {
         margin-bottom: 40px;
         text-align: center;
     }
-    
     .left-section h1 {
         font-size: 2.5rem;
     }
-    
     .left-section p {
         font-size: 1.2rem;
     }
@@ -257,4 +282,30 @@ input[type="submit"]:active {
 
 .role-selection input {
     margin-right: 5px;
+}
+
+/* Chỉ áp dụng cho forgot-password và reset-password */
+.forgot-password-form, .reset-password-form {
+    max-width: 520px !important;
+    min-width: 340px;
+    padding: 54px 44px !important;
+}
+.forgot-password-form .input-box, .reset-password-form .input-box {
+    margin-bottom: 32px !important;
+}
+.forgot-password-form .input-box input, .reset-password-form .input-box input {
+    padding: 20px 22px !important;
+    font-size: 1.18rem !important;
+}
+.forgot-password-form input[type="submit"], .reset-password-form input[type="submit"] {
+    margin-top: 22px !important;
+    padding: 18px 0 !important;
+    font-size: 1.18rem !important;
+}
+.forgot-password-form .forgot-password, .reset-password-form .back-login {
+    margin: 28px 0 !important;
+    font-size: 1.12rem !important;
+}
+.forgot-password-form .divider, .reset-password-form .divider {
+    margin: 38px 0 !important;
 }

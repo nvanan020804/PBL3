@@ -35,16 +35,23 @@ function capNhatGiaoDienDanhSachGoi(danhSachGoi) {
   container.innerHTML = "";
 
   danhSachGoi.forEach((goi) => {
+    // Lấy số tháng, ưu tiên goi.thoiHan, fallback goi.thoiGian, mặc định 0
+    const thoiHan = goi.thoiHan || goi.thoiGian || 0;
+    let imgSrc = "../../assets/goidichvu/goi1.jpg";
+    if (thoiHan >= 3 && thoiHan < 6) {
+      imgSrc = "../../assets/goidichvu/goi2.jpg";
+    } else if (thoiHan >= 6) {
+      imgSrc = "../../assets/goidichvu/goi3.jpg";
+    }
+
     const goiElement = document.createElement("div");
     goiElement.className = "goi-card";
     goiElement.innerHTML = `
-      <img src="../../assets/goidichvu/goi${goi.id || 1}.jpg" alt="${
-      goi.tenGoi
-    }">
+      <img src="${imgSrc}" >
       <div class="goi-info">
         <div class="goi-ten">${goi.tenGoi}</div>
         <div class="goi-gia">${formatCurrency(goi.gia)}</div>
-        <div class="goi-thoihan">Thời hạn: ${goi.thoiGian || 0} tháng</div>
+        <div class="goi-thoihan">Thời hạn: ${thoiHan} tháng</div>
         <div class="goi-mota">${goi.moTa || mota(goi.id)}</div>
         <button onclick="dangKyGoi(${goi.id})" class="btn-register" ${
       window._daCoGoiDangDung ? "disabled" : ""
