@@ -38,7 +38,7 @@ function capNhatGiaoDienDanhSachGoi(danhSachGoi) {
     const goiElement = document.createElement("div");
     goiElement.className = "goi-card";
     goiElement.innerHTML = `
-      <img src="../../assets/goidichvu/goi${goi.id || 1}.jpg" alt="${goi.tenGoi}">
+      <img src="../../assets/goidichvu/goi1.jpg" alt="">
       <div class="goi-info">
         <div class="goi-ten">${goi.tenGoi}</div>
         <div class="goi-gia">${formatCurrency(goi.gia)}</div>
