@@ -700,7 +700,7 @@ window.showModalHoaDon = function (
             : ""
         }
         <tr><th colspan="2" style="text-align:center;font-size:18px;">Thông tin khách hàng</th></tr>
-        <tr><td>Họ tên</td><td>${khachHang.tenKhachHang || ""}</td></tr>
+        <tr><td>Họ tên</td><td>${getCustomerName(khachHang)}</td></tr>
         <tr><td>Mã KH</td><td>${khachHang.idLienKet || ""}</td></tr>
         <tr><th colspan="2" style="text-align:center;font-size:18px;">Thông tin thanh toán</th></tr>
         <tr><td>Phương thức</td><td>${formatPaymentMethod(phuongThuc)}</td></tr>
@@ -816,9 +816,8 @@ function createDynamicReceiptModal(
             trangThai
               ? `<tr><td>Trạng thái</td><td><strong style="color: ${statusColor};">${trangThai}</strong></td></tr>`
               : ""
-          }
-          <tr><th colspan="2" style="text-align:center;font-size:18px;">Thông tin khách hàng</th></tr>
-          <tr><td>Họ tên</td><td>${khachHang.tenKhachHang || ""}</td></tr>
+          }          <tr><th colspan="2" style="text-align:center;font-size:18px;">Thông tin khách hàng</th></tr>
+          <tr><td>Họ tên</td><td>${getCustomerName(khachHang)}</td></tr>
           <tr><td>Mã KH</td><td>${khachHang.idLienKet || ""}</td></tr>
           <tr><th colspan="2" style="text-align:center;font-size:18px;">Thông tin thanh toán</th></tr>
           <tr><td>Phương thức</td><td>${formatPaymentMethod(
@@ -870,6 +869,53 @@ function formatCurrency(amount) {
     style: "currency",
     currency: "VND",
   }).format(amount);
+}
+
+/**
+ * Lấy tên khách hàng từ đối tượng khách hàng hoặc từ localStorage nếu không có
+ * @param {Object} khachHang - Đối tượng khách hàng
+ * @returns {string} - Tên khách hàng hoặc "N/A" nếu không tìm thấy
+ */
+function getCustomerName(khachHang) {
+  // Thử lấy tên từ đối tượng khách hàng được truyền vào
+  if (khachHang && khachHang.tenKhachHang) {
+    return khachHang.tenKhachHang;
+  }
+
+  // Nếu chỉ có đối tượng user (có thể có hoTen)
+  if (khachHang && khachHang.hoTen) {
+    return khachHang.hoTen;
+  }
+
+  // Nếu đối tượng khách hàng có tên đăng nhập và không có tên thật
+  if (khachHang && khachHang.tenDangNhap) {
+    // Thử tìm trong localStorage để lấy đối tượng khách hàng đầy đủ
+    const khachhangData = localStorage.getItem("khachhang");
+    if (khachhangData) {
+      const khachhangObj = JSON.parse(khachhangData);
+      if (khachhangObj && khachhangObj.tenKhachHang) {
+        return khachhangObj.tenKhachHang;
+      }
+    }
+
+    // Nếu không tìm thấy, dùng tên đăng nhập
+    return khachHang.tenDangNhap;
+  }
+
+  // Cuối cùng, thử lấy từ localStorage nếu tất cả cách trên đều không có
+  try {
+    const khachhangData = localStorage.getItem("khachhang");
+    if (khachhangData) {
+      const khachhangObj = JSON.parse(khachhangData);
+      if (khachhangObj && khachhangObj.tenKhachHang) {
+        return khachhangObj.tenKhachHang;
+      }
+    }
+  } catch (error) {
+    console.error("Lỗi khi lấy tên khách hàng từ localStorage:", error);
+  }
+
+  return "N/A";
 }
 
 /**
