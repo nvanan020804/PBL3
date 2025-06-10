@@ -1,0 +1,127 @@
+/* Định dạng cho trang quản lý hóa đơn khách hàng */
+
+/* Định dạng các badge trạng thái */
+.badge {
+  font-size: 0.85rem;
+  padding: 0.35em 0.65em;
+  border-radius: 0.25rem;
+}
+
+/* Định dạng bảng hóa đơn */
+.table thead th {
+  background-color: #343a40;
+  color: white;
+  border-color: #454d55;
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.075);
+}
+
+/* Định dạng button xem chi tiết */
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border-radius: 0.2rem;
+}
+
+/* Định dạng modal */
+.modal-lg {
+  max-width: 800px;
+}
+
+.modal-body p {
+  margin-bottom: 0.5rem;
+}
+
+.modal-body .table th,
+.modal-body .table td {
+  padding: 0.5rem;
+}
+
+/* Định dạng text trong modal */
+.text-success {
+  color: #28a745 !important;
+  font-weight: bold;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+  font-weight: bold;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+  font-weight: bold;
+}
+
+.text-secondary {
+  color: #6c757d !important;
+  font-weight: bold;
+}
+
+/* Định dạng phân trang */
+.pagination {
+  margin-bottom: 0;
+}
+
+.page-link {
+  color: #0d6efd;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+}
+
+.page-item.active .page-link {
+  z-index: 3;
+  color: #fff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.page-link:hover {
+  z-index: 2;
+  color: #0a58ca;
+  text-decoration: none;
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}
+
+/* Định dạng alert messages */
+.alert {
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+}
+
+.alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.alert-info {
+  color: #0c5460;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+  .table-responsive {
+    font-size: 0.9rem;
+  }
+  
+  .btn-sm {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.8rem;
+  }
+}

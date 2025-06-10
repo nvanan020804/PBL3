@@ -7,21 +7,23 @@ import PBL3.backend.repository.KhachHangRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class AccountService {
-
-    private final AccountRepository accountRepository;
+public class AccountService {    private final AccountRepository accountRepository;
     private final KhachHangRepository khachHangRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public AccountService(AccountRepository accountRepository, 
-                         KhachHangRepository khachHangRepository) {
+                         KhachHangRepository khachHangRepository,
+                         PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
         this.khachHangRepository = khachHangRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Account> getAllAccounts() {
@@ -91,7 +93,7 @@ public class AccountService {
         // Tạo tài khoản cho khách hàng
         Account account = new Account();
         account.setTenDangNhap(username);
-        account.setMatKhau(password);
+        account.setMatKhau(passwordEncoder.encode(password));
         account.setPhanQuyen("khachhang");
         account.setIdLienKet(khachHang.getIdKhachHang());
         
@@ -100,12 +102,21 @@ public class AccountService {
 
     // Phương thức tạo tài khoản admin đã được loại bỏ vì admin sẽ được tạo trực tiếp trong database
 
-    // Phương thức đăng nhập cơ bản
     public Account login(String username, String password) {
-        Account account = accountRepository.findByTenDangNhap(username);
-        if (account != null && account.getMatKhau().equals(password)) {
-            return account;
+    Account account = accountRepository.findByTenDangNhap(username);
+    if (account != null) {
+        if ("admin".equals(account.getPhanQuyen())) {
+            // Đăng nhập admin: So sánh mật khẩu plaintext
+            if (account.getMatKhau().equals(password)) {
+                return account;
+            }
+        } else if ("khachhang".equals(account.getPhanQuyen())) {
+            // Đăng nhập khách hàng: So sánh mật khẩu đã mã hóa
+            if (passwordEncoder.matches(password, account.getMatKhau())) {
+                return account;
+            }
         }
-        return null;
     }
+    return null;
+}
 }

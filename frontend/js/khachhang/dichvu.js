@@ -9,7 +9,7 @@ async function layDanhSachGoiDichVu() {
     if (!response.ok) {
       throw new Error("Không thể lấy danh sách gói dịch vụ");
     }
-    
+
     danhSachGoi = await response.json();
     capNhatGiaoDienDanhSachGoi(danhSachGoi);
   } catch (error) {
@@ -38,7 +38,9 @@ function capNhatGiaoDienDanhSachGoi(danhSachGoi) {
     const goiElement = document.createElement("div");
     goiElement.className = "goi-card";
     goiElement.innerHTML = `
-      <img src="../../assets/goidichvu/goi${goi.id || 1}.jpg" alt="${goi.tenGoi}">
+      <img src="../../assets/goidichvu/goi${goi.id || 1}.jpg" alt="${
+      goi.tenGoi
+    }">
       <div class="goi-info">
         <div class="goi-ten">${goi.tenGoi}</div>
         <div class="goi-gia">${formatCurrency(goi.gia)}</div>
@@ -68,6 +70,36 @@ window.dangKyGoi = async function (idGoi) {
     window.location.href = "../trangchu/login.html";
     return;
   }
+
+  // Kiểm tra lại trạng thái đăng ký hiện tại
+  const user = JSON.parse(userJson);
+  try {
+    // Kiểm tra nếu người dùng đã có gói dịch vụ chưa
+    const dangkyRes = await fetch(
+      `http://localhost:8080/api/dangky/khachhang/${user.idLienKet}`
+    );
+    if (dangkyRes.ok) {
+      const dangKyList = await dangkyRes.json();
+
+      // Kiểm tra nếu có bất kỳ gói nào đang hoạt động hoặc chờ xác nhận
+      const goiDangDung = dangKyList.find(
+        (dk) => dk.trangThai === "Đang hoạt động"
+      );
+      const goiChoXacNhan = dangKyList.find(
+        (dk) => dk.trangThai === "Chờ xác nhận"
+      );
+
+      if (goiDangDung || goiChoXacNhan) {
+        alert(
+          "Bạn đã có gói dịch vụ đang hoạt động hoặc đang chờ xác nhận. Vui lòng chờ kết thúc gói hiện tại trước khi đăng ký gói mới."
+        );
+        return;
+      }
+    }
+  } catch (error) {
+    console.error("Lỗi khi kiểm tra trạng thái đăng ký hiện tại:", error);
+  }
+
   // Lấy thông tin gói
   const response = await fetch("http://localhost:8080/api/goidichvu");
   const dsGoi = await response.json();
@@ -89,39 +121,41 @@ window.dangKyGoi = async function (idGoi) {
           phuongThucThanhToan: phuongThuc,
         }),
       });
-      
-      if (!dangkyRes.ok) throw new Error("Lỗi khi tạo yêu cầu đăng ký gói dịch vụ");
-      
+
+      if (!dangkyRes.ok)
+        throw new Error("Lỗi khi tạo yêu cầu đăng ký gói dịch vụ");
+
       // 2. Lấy dữ liệu đăng ký vừa tạo
       const dangKyData = await dangkyRes.json();
-      
+
       // 3. Tạo hóa đơn liên kết với đăng ký
       const hoaDonRes = await fetch("http://localhost:8080/api/hoadon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           dangKy: {
-            idDangKy: dangKyData.idDangKy
+            idDangKy: dangKyData.idDangKy,
           },
           trangThai: "Chờ xác nhận",
           tongTien: goi.gia,
           giamGia: 0,
           thanhToan: goi.gia,
           phuongThuc: phuongThuc,
-          trangThaiThanhToan: "Chưa thanh toán"
+          trangThaiThanhToan: "Chưa thanh toán",
         }),
       });
-      
+
       if (!hoaDonRes.ok) throw new Error("Lỗi khi tạo hóa đơn cho đăng ký");
-      
+
       // 4. Hiển thị thông báo thành công
       window.showModalHoaDon(goi, user, gioTap, phuongThuc, "Chờ xác nhận");
-      
+
       // 5. Thông báo chi tiết
       setTimeout(() => {
-        alert("Đăng ký gói dịch vụ thành công! Vui lòng chờ admin xác nhận và kích hoạt gói của bạn.");
+        alert(
+          "Đăng ký gói dịch vụ thành công! Vui lòng chờ admin xác nhận và kích hoạt gói của bạn."
+        );
       }, 1000);
-      
     } catch (error) {
       console.error("Lỗi:", error);
       alert("Có lỗi xảy ra khi đăng ký gói dịch vụ: " + error.message);
@@ -131,22 +165,27 @@ window.dangKyGoi = async function (idGoi) {
 
 // Hàm xử lý hủy gói dịch vụ
 window.huyGoiDangDung = async function (idDangKy) {
-  if (!confirm("Bạn có chắc chắn muốn hủy gói dịch vụ hiện tại? Sau khi hủy, gói dịch vụ sẽ ngừng hoạt động ngay lập tức.")) return;
+  if (
+    !confirm(
+      "Bạn có chắc chắn muốn hủy gói dịch vụ hiện tại? Sau khi hủy, gói dịch vụ sẽ ngừng hoạt động ngay lập tức."
+    )
+  )
+    return;
   try {
     // Gửi yêu cầu hủy, backend sẽ lưu lại thời gian hủy là thời gian hiện tại
     const response = await fetch(
       `http://localhost:8080/api/dangky/${idDangKy}/cancel`,
       {
         method: "PUT",
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       }
     );
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || "Lỗi khi hủy gói dịch vụ");
     }
-    
+
     alert("Đã hủy gói dịch vụ thành công!");
     // Tải lại trang để cập nhật thông tin
     location.reload();
@@ -170,16 +209,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (response.ok) {
         const dangKyList = await response.json();
 
+        console.log("Danh sách đăng ký của khách hàng:", dangKyList);
+
         // Lọc gói đang sử dụng hoặc đang chờ xác nhận
         const goiDangDung = dangKyList.find(
           (dk) => dk.trangThai === "Đang hoạt động"
         );
-        
+
         // Lọc gói đang chờ xác nhận
         const goiChoXacNhan = dangKyList.find(
           (dk) => dk.trangThai === "Chờ xác nhận"
         );
-        
+
+        // Kiểm tra nếu có bất kỳ gói đăng ký nào đang hoạt động hoặc chờ xác nhận
+        window._daCoGoiDangDung = Boolean(goiDangDung || goiChoXacNhan);
+        console.log("Trạng thái _daCoGoiDangDung:", window._daCoGoiDangDung);
+
         // Lọc các gói đã hết hạn (chỉ trạng thái "Hết hạn" hoặc "Đã hủy")
         const goiHetHan = dangKyList.filter(
           (dk) => dk.trangThai === "Hết hạn" || dk.trangThai === "Đã hủy"
@@ -187,12 +232,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Hiển thị gói đang sử dụng hoặc đang chờ xác nhận
         const goiHienTai = document.getElementById("goi-hien-tai");
-        
+
         // Kiểm tra tồn tại của element trước khi thao tác
         if (goiHienTai) {
           // Nếu có gói đang sử dụng, hiển thị thông tin gói đó
           if (goiDangDung) {
-            window._daCoGoiDangDung = true;
             goiHienTai.style.display = "block";
             goiHienTai.className = "active-package";
             goiHienTai.innerHTML = `
@@ -202,16 +246,22 @@ document.addEventListener("DOMContentLoaded", async () => {
               <div class="active-package-content">
                 <p><strong>Tên gói:</strong> ${goiDangDung.tenGoi}</p>
                 <p><strong>Giá:</strong> ${formatCurrency(goiDangDung.gia)}</p>
-                <p><strong>Thời hạn:</strong> ${goiDangDung.thoiHan || 0} tháng</p>
+                <p><strong>Thời hạn:</strong> ${
+                  goiDangDung.thoiHan || 0
+                } tháng</p>
                 <p><strong>Trạng thái:</strong> <span class="package-badge badge-active">Đang hoạt động</span></p>
                 <p><strong>Ngày bắt đầu:</strong> ${
                   goiDangDung.ngayBatDau
-                    ? new Date(goiDangDung.ngayBatDau).toLocaleDateString("vi-VN")
+                    ? new Date(goiDangDung.ngayBatDau).toLocaleDateString(
+                        "vi-VN"
+                      )
                     : ""
                 }</p>
                 <p><strong>Ngày kết thúc:</strong> ${
                   goiDangDung.ngayKetThuc
-                    ? new Date(goiDangDung.ngayKetThuc).toLocaleDateString("vi-VN")
+                    ? new Date(goiDangDung.ngayKetThuc).toLocaleDateString(
+                        "vi-VN"
+                      )
                     : ""
                 }</p>
                 <p><strong>Giờ tập:</strong> ${goiDangDung.gioTap}</p>
@@ -222,7 +272,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             `;
           } else if (goiChoXacNhan) {
             // Nếu có gói đang chờ xác nhận, hiển thị nó
-            window._daCoGoiDangDung = true; // Vẫn đánh dấu là có gói để vô hiệu hóa các nút đăng ký gói mới
             goiHienTai.style.display = "block";
             goiHienTai.className = "active-package";
             goiHienTai.innerHTML = `
@@ -231,15 +280,23 @@ document.addEventListener("DOMContentLoaded", async () => {
               </div>
               <div class="active-package-content">
                 <p><strong>Tên gói:</strong> ${goiChoXacNhan.tenGoi}</p>
-                <p><strong>Giá:</strong> ${formatCurrency(goiChoXacNhan.gia)}</p>
-                <p><strong>Thời hạn:</strong> ${goiChoXacNhan.thoiHan || 0} tháng</p>
+                <p><strong>Giá:</strong> ${formatCurrency(
+                  goiChoXacNhan.gia
+                )}</p>
+                <p><strong>Thời hạn:</strong> ${
+                  goiChoXacNhan.thoiHan || 0
+                } tháng</p>
                 <p><strong>Trạng thái:</strong> <span class="package-badge badge-pending">Chờ xác nhận</span></p>
                 <p><strong>Ngày đăng ký:</strong> ${
                   goiChoXacNhan.ngayBatDau
-                    ? new Date(goiChoXacNhan.ngayBatDau).toLocaleDateString("vi-VN")
+                    ? new Date(goiChoXacNhan.ngayBatDau).toLocaleDateString(
+                        "vi-VN"
+                      )
                     : ""
                 }</p>
-                <p><strong>Giờ tập:</strong> ${goiChoXacNhan.gioTap || "Chưa xác định"}</p>
+                <p><strong>Giờ tập:</strong> ${
+                  goiChoXacNhan.gioTap || "Chưa xác định"
+                }</p>
                 
                 <div class="pending-notice">
                   <strong>Lưu ý:</strong> Đăng ký của bạn đang chờ xác nhận và thanh toán từ admin. 
@@ -248,7 +305,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               </div>
             `;
           } else {
-            window._daCoGoiDangDung = false;
+            // Không có gói nào đang hoạt động hoặc chờ xác nhận
             goiHienTai.style.display = "none";
           }
         } else {
@@ -261,10 +318,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (goiHetHanContainer) {
             goiHetHanContainer.style.display = "block";
             goiHetHanContainer.className = "history-section";
-            
+
             // Tạo một hàm để lấy class badge dựa trên trạng thái
             const getStatusBadgeClass = (trangThai) => {
-              switch(trangThai) {
+              switch (trangThai) {
                 case "Đã hết hạn":
                 case "Hết hạn":
                   return "badge-expired";
@@ -278,13 +335,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                   return "";
               }
             };
-            
-            const goiHetHanList = goiHetHan.map(goi => {
-              const endDate = goi.ngayKetThuc ? new Date(goi.ngayKetThuc) : null;
-              const isPast = endDate ? endDate < new Date() : false;
-              const badgeClass = getStatusBadgeClass(goi.trangThai);
-              
-              return `
+
+            const goiHetHanList = goiHetHan
+              .map((goi) => {
+                const endDate = goi.ngayKetThuc
+                  ? new Date(goi.ngayKetThuc)
+                  : null;
+                const isPast = endDate ? endDate < new Date() : false;
+                const badgeClass = getStatusBadgeClass(goi.trangThai);
+
+                return `
               <div class="expired-package-item">
                 <div class="expired-date">
                   ${new Date(goi.ngayBatDau).toLocaleDateString("vi-VN")}
@@ -293,29 +353,45 @@ document.addEventListener("DOMContentLoaded", async () => {
                   <h4>${goi.tenGoi}</h4>
                   <p><strong>Giá:</strong> ${formatCurrency(goi.gia)}</p>
                   <p><strong>Thời hạn:</strong> ${goi.thoiHan || 0} tháng</p>
-                  <p><strong>Ngày bắt đầu:</strong> ${new Date(goi.ngayBatDau).toLocaleDateString("vi-VN")}</p>
-                  <p><strong>Ngày kết thúc:</strong> ${endDate ? endDate.toLocaleDateString("vi-VN") : "N/A"}</p>
-                  <p><strong>Trạng thái:</strong> <span class="status-badge ${badgeClass}">${goi.trangThai}</span></p>
+                  <p><strong>Ngày bắt đầu:</strong> ${new Date(
+                    goi.ngayBatDau
+                  ).toLocaleDateString("vi-VN")}</p>
+                  <p><strong>Ngày kết thúc:</strong> ${
+                    endDate ? endDate.toLocaleDateString("vi-VN") : "N/A"
+                  }</p>
+                  <p><strong>Trạng thái:</strong> <span class="status-badge ${badgeClass}">${
+                  goi.trangThai
+                }</span></p>
                 </div>
               </div>
               `;
-            }).join("");
-            
-            const historyContent = goiHetHan.length > 0 ? `
+              })
+              .join("");
+
+            const historyContent =
+              goiHetHan.length > 0
+                ? `
               <div class="expired-packages">
                 ${goiHetHanList}
               </div>
-            ` : `
+            `
+                : `
               <div class="empty-history">
                 <i class="fas fa-history"></i>
                 <p>Bạn chưa có lịch sử đăng ký nào.</p>
               </div>
             `;
-            
+
             goiHetHanContainer.innerHTML = `
               <div class="history-header">
                 <h3 class="history-title">Lịch sử đăng ký</h3>
-                ${goiHetHan.length > 3 ? '<button class="view-all-btn" onclick="showModalGoiHetHan(' + JSON.stringify(goiHetHan) + ')">Xem tất cả</button>' : ''}
+                ${
+                  goiHetHan.length > 3
+                    ? '<button class="view-all-btn" onclick="showModalGoiHetHan(' +
+                      JSON.stringify(goiHetHan) +
+                      ')">Xem tất cả</button>'
+                    : ""
+                }
               </div>
               ${historyContent}
             `;
@@ -335,7 +411,7 @@ function mota(id) {
   const descriptions = {
     1: "Tập luyện không giới hạn số buổi trong tháng",
     2: "Được sử dụng phòng xông hơi",
-    3: "Được huấn luyện viên cá nhân 1 lần/tuần"
+    3: "Được huấn luyện viên cá nhân 1 lần/tuần",
   };
   return descriptions[id] || "Miễn phí vào cửa, sử dụng các dịch vụ cơ bản";
 }
@@ -345,10 +421,10 @@ window.showModalGoiHetHan = function (goiHetHan) {
   const modal = document.createElement("div");
   modal.id = "modal-goi-het-han";
   modal.className = "modal";
-  
+
   // Function to determine badge class
   const getStatusBadgeClass = (trangThai) => {
-    switch(trangThai) {
+    switch (trangThai) {
       case "Đã hết hạn":
       case "Hết hạn":
         return "badge-expired";
@@ -362,49 +438,60 @@ window.showModalGoiHetHan = function (goiHetHan) {
         return "";
     }
   };
-  
+
   // Sort packages by date (newest first)
-  const sortedGoiHetHan = [...goiHetHan].sort((a, b) => 
-    new Date(b.ngayBatDau) - new Date(a.ngayBatDau)
+  const sortedGoiHetHan = [...goiHetHan].sort(
+    (a, b) => new Date(b.ngayBatDau) - new Date(a.ngayBatDau)
   );
-  
+
   modal.innerHTML = `
     <div class="modal-content">
       <span id="close-modal-goi-het-han" class="close">&times;</span>
       <h2>Lịch sử đăng ký gói dịch vụ</h2>
       <div class="goi-het-han-list">
-        ${sortedGoiHetHan.map(goi => {
-          const badgeClass = getStatusBadgeClass(goi.trangThai);
-          return `
+        ${sortedGoiHetHan
+          .map((goi) => {
+            const badgeClass = getStatusBadgeClass(goi.trangThai);
+            return `
           <div class="goi-het-han-item">
             <p><strong>Tên gói:</strong> ${goi.tenGoi}</p>
             <p><strong>Giá:</strong> ${formatCurrency(goi.gia)}</p>
             <p><strong>Thời hạn:</strong> ${goi.thoiHan || 0} tháng</p>
-            <p><strong>Ngày bắt đầu:</strong> ${new Date(goi.ngayBatDau).toLocaleDateString("vi-VN")}</p>
-            <p><strong>Ngày kết thúc:</strong> ${goi.ngayKetThuc ? new Date(goi.ngayKetThuc).toLocaleDateString("vi-VN") : "N/A"}</p>
-            <p><strong>Trạng thái:</strong> <span class="status-badge ${badgeClass}">${goi.trangThai}</span></p>
+            <p><strong>Ngày bắt đầu:</strong> ${new Date(
+              goi.ngayBatDau
+            ).toLocaleDateString("vi-VN")}</p>
+            <p><strong>Ngày kết thúc:</strong> ${
+              goi.ngayKetThuc
+                ? new Date(goi.ngayKetThuc).toLocaleDateString("vi-VN")
+                : "N/A"
+            }</p>
+            <p><strong>Trạng thái:</strong> <span class="status-badge ${badgeClass}">${
+              goi.trangThai
+            }</span></p>
           </div>
-        `}).join("")}
+        `;
+          })
+          .join("")}
       </div>
       <div style="text-align: center; margin-top: 20px;">
         <button class="view-all-btn" style="width: 120px;" id="close-history-btn">Đóng</button>
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(modal);
   // Close modal using X button
   document.getElementById("close-modal-goi-het-han").onclick = function () {
     document.body.removeChild(modal);
   };
-  
+
   // Close modal using the close button
   document.getElementById("close-history-btn").onclick = function () {
     document.body.removeChild(modal);
   };
-  
+
   // Close modal when clicking outside
-  window.onclick = function(event) {
+  window.onclick = function (event) {
     if (event.target === modal) {
       document.body.removeChild(modal);
     }
