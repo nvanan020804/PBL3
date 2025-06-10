@@ -86,13 +86,25 @@ window.dangKyGoi = async function (idGoi) {
       `http://localhost:8080/api/dangky/khachhang/${user.idLienKet}`
     );
     if (dangkyRes.ok) {
-      const dangKyList = await dangkyRes.json();
+      const dangKyList = await dangkyRes.json(); // Lọc các đăng ký hợp lệ (không bị null, không bị undefined, và không có trạng thái là "Hủy" hoặc "Đã hủy")
+      const validDangKyList = dangKyList.filter(
+        (dk) =>
+          dk !== null &&
+          dk !== undefined &&
+          dk.trangThai !== "Hủy" &&
+          dk.trangThai !== "Đã hủy"
+      );
+
+      console.log(
+        "Danh sách đăng ký hợp lệ (khi kiểm tra đăng ký):",
+        validDangKyList
+      );
 
       // Kiểm tra nếu có bất kỳ gói nào đang hoạt động hoặc chờ xác nhận
-      const goiDangDung = dangKyList.find(
+      const goiDangDung = validDangKyList.find(
         (dk) => dk.trangThai === "Đang hoạt động"
       );
-      const goiChoXacNhan = dangKyList.find(
+      const goiChoXacNhan = validDangKyList.find(
         (dk) => dk.trangThai === "Chờ xác nhận"
       );
 
@@ -155,13 +167,13 @@ window.dangKyGoi = async function (idGoi) {
       if (!hoaDonRes.ok) throw new Error("Lỗi khi tạo hóa đơn cho đăng ký");
 
       // 4. Hiển thị thông báo thành công
-      window.showModalHoaDon(goi, user, gioTap, phuongThuc, "Chờ xác nhận");
-
-      // 5. Thông báo chi tiết
+      window.showModalHoaDon(goi, user, gioTap, phuongThuc, "Chờ xác nhận"); // 5. Thông báo chi tiết
       setTimeout(() => {
         alert(
           "Đăng ký gói dịch vụ thành công! Vui lòng chờ admin xác nhận và kích hoạt gói của bạn."
         );
+        // Làm mới trang sau khi đăng ký thành công
+        location.reload();
       }, 1000);
     } catch (error) {
       console.error("Lỗi:", error);
@@ -170,7 +182,7 @@ window.dangKyGoi = async function (idGoi) {
   });
 };
 
-// Hàm xử lý hủy gói dịch vụ
+// Hàm xử lý hủy gói dịch vụ đang hoạt động
 window.huyGoiDangDung = async function (idDangKy) {
   if (
     !confirm(
@@ -202,6 +214,52 @@ window.huyGoiDangDung = async function (idDangKy) {
   }
 };
 
+// Hàm xử lý hủy gói đang chờ xác nhận
+window.huyGoiDangKy = async function (idDangKy) {
+  if (
+    !confirm(
+      "Bạn có chắc chắn muốn hủy đăng ký gói dịch vụ này? Bạn sẽ có thể đăng ký gói khác ngay sau khi hủy."
+    )
+  )
+    return;
+  try {
+    // Sử dụng phương thức PUT để cập nhật trạng thái thành "Hủy" thay vì xóa
+    // Do backend có thể không cho phép xóa đăng ký đã liên kết với hóa đơn
+    const response = await fetch(
+      `http://localhost:8080/api/dangky/${idDangKy}/update-status`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trangThai: "Đã hủy" }),
+      }
+    );
+
+    if (!response.ok) {
+      // Thử phương thức /cancel như một giải pháp thay thế nếu update-status không thành công
+      const cancelResponse = await fetch(
+        `http://localhost:8080/api/dangky/${idDangKy}/cancel`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (!cancelResponse.ok) {
+        throw new Error("Lỗi khi hủy đăng ký gói dịch vụ");
+      }
+    }
+
+    alert(
+      "Đã hủy đăng ký gói dịch vụ thành công! Bạn có thể đăng ký gói dịch vụ khác ngay bây giờ."
+    );
+    // Tải lại trang để cập nhật thông tin
+    location.reload();
+  } catch (error) {
+    console.error("Lỗi:", error);
+    alert("Có lỗi xảy ra khi hủy đăng ký: " + error.message);
+  }
+};
+
 // Load danh sách khi trang được tải
 document.addEventListener("DOMContentLoaded", async () => {
   await layDanhSachGoiDichVu();
@@ -215,27 +273,33 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
       if (response.ok) {
         const dangKyList = await response.json();
-
         console.log("Danh sách đăng ký của khách hàng:", dangKyList);
+        // Lọc các đăng ký đã bị xóa ra khỏi danh sách và loại bỏ các gói có trạng thái "Hủy"
+        const validDangKyList = dangKyList.filter(
+          (dk) =>
+            dk !== null &&
+            dk !== undefined &&
+            dk.trangThai !== "Hủy" &&
+            dk.trangThai !== "Đã hủy"
+        );
+
+        console.log("Danh sách đăng ký hợp lệ:", validDangKyList);
 
         // Lọc gói đang sử dụng hoặc đang chờ xác nhận
-        const goiDangDung = dangKyList.find(
+        const goiDangDung = validDangKyList.find(
           (dk) => dk.trangThai === "Đang hoạt động"
         );
 
         // Lọc gói đang chờ xác nhận
-        const goiChoXacNhan = dangKyList.find(
+        const goiChoXacNhan = validDangKyList.find(
           (dk) => dk.trangThai === "Chờ xác nhận"
         );
 
         // Kiểm tra nếu có bất kỳ gói đăng ký nào đang hoạt động hoặc chờ xác nhận
         window._daCoGoiDangDung = Boolean(goiDangDung || goiChoXacNhan);
-        console.log("Trạng thái _daCoGoiDangDung:", window._daCoGoiDangDung);
-
-        // Lọc các gói đã hết hạn (chỉ trạng thái "Hết hạn" hoặc "Đã hủy")
-        const goiHetHan = dangKyList.filter(
-          (dk) => dk.trangThai === "Hết hạn" || dk.trangThai === "Đã hủy"
-        );
+        console.log("Trạng thái _daCoGoiDangDung:", window._daCoGoiDangDung); // Lọc các gói đã hết hạn (chỉ trạng thái "Hết hạn")
+        // Không hiển thị các gói đã hủy trong lịch sử, coi như chưa đăng ký
+        const goiHetHan = dangKyList.filter((dk) => dk.trangThai === "Hết hạn");
 
         // Hiển thị gói đang sử dụng hoặc đang chờ xác nhận
         const goiHienTai = document.getElementById("goi-hien-tai");
@@ -304,11 +368,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <p><strong>Giờ tập:</strong> ${
                   goiChoXacNhan.gioTap || "Chưa xác định"
                 }</p>
-                
-                <div class="pending-notice">
+                  <div class="pending-notice">
                   <strong>Lưu ý:</strong> Đăng ký của bạn đang chờ xác nhận và thanh toán từ admin. 
                   Gói dịch vụ sẽ được kích hoạt sau khi admin xác nhận thanh toán.
                 </div>
+                <button class="cancel-btn" onclick="huyGoiDangKy('${
+                  goiChoXacNhan.idDangKy
+                }')">Hủy đăng ký</button></div>
+              <div class="refresh-container" style="margin-top: 15px; text-align: center;">
+                <button class="refresh-btn" onclick="location.reload()" style="padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                  <i class="fas fa-sync-alt" style="margin-right: 5px;"></i> Làm mới trạng thái
+                </button>
               </div>
             `;
           } else {
@@ -445,9 +515,9 @@ window.showModalGoiHetHan = function (goiHetHan) {
         return "";
     }
   };
-
-  // Sort packages by date (newest first)
-  const sortedGoiHetHan = [...goiHetHan].sort(
+  // Sort packages by date (newest first), and exclude cancelled ones
+  const validGoiHetHan = goiHetHan.filter((goi) => goi.trangThai !== "Đã hủy");
+  const sortedGoiHetHan = [...validGoiHetHan].sort(
     (a, b) => new Date(b.ngayBatDau) - new Date(a.ngayBatDau)
   );
 
