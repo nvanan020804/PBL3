@@ -105,16 +105,9 @@ public class AccountService {    private final AccountRepository accountReposito
     public Account login(String username, String password) {
     Account account = accountRepository.findByTenDangNhap(username);
     if (account != null) {
-        if ("admin".equals(account.getPhanQuyen())) {
-            // Đăng nhập admin: So sánh mật khẩu plaintext
-            if (account.getMatKhau().equals(password)) {
-                return account;
-            }
-        } else if ("khachhang".equals(account.getPhanQuyen())) {
-            // Đăng nhập khách hàng: So sánh mật khẩu đã mã hóa
-            if (passwordEncoder.matches(password, account.getMatKhau())) {
-                return account;
-            }
+        // Sử dụng BCrypt để kiểm tra mật khẩu cho cả admin và khách hàng
+        if (passwordEncoder.matches(password, account.getMatKhau())) {
+            return account;
         }
     }
     return null;

@@ -36,6 +36,12 @@ document.addEventListener('DOMContentLoaded', function() {
             showError('passwordError', 'Mật khẩu phải có ít nhất 6 ký tự');
             return;
         }
+        // kiểm tra số điện thoại
+        const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})\b/;
+        if (!phoneRegex.test(formData.khachHang.soDienThoai)) {
+            showError('soDienThoaiError', 'Số điện thoại không hợp lệ');
+            return;
+        }
         
         try {
             // Kiểm tra kết nối trước khi gọi API
