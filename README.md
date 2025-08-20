@@ -1,34 +1,34 @@
-# PBL3 - Hệ Thống Quản Lý Phòng Gym & Cửa Hàng Thể Thao
+# PBL3 - Gym & Sports Store Management System
 
-## Giới thiệu
+## Introduction
 
-PBL3 là một ứng dụng web quản lý tích hợp cho phòng gym và cửa hàng thể thao được phát triển bằng công nghệ Full-stack. Hệ thống bao gồm Spring Boot cho backend API và HTML/CSS/JavaScript cho frontend, cung cấp đầy đủ chức năng quản lý khách hàng, dịch vụ gym, sản phẩm thể thao, hóa đơn, doanh thu và thống kê.
+PBL3 is an integrated web management application for gyms and sports stores developed using Full-stack technology. The system includes Spring Boot for backend API and HTML/CSS/JavaScript for frontend, providing comprehensive functionality for customer management, gym services, sports products, invoices, revenue, and statistics.
 
-## 🏗️ Công nghệ sử dụng
+## 🏗️ Technologies Used
 
 ### Backend
-- **Java 17** - Ngôn ngữ lập trình chính
-- **Spring Boot 3.2.4** - Framework chính
-- **Spring Data JPA** - Quản lý dữ liệu
+- **Java 17** - Main programming language
+- **Spring Boot 3.2.4** - Main framework
+- **Spring Data JPA** - Data management
 - **Spring Web** - REST API
-- **Spring Validation** - Validation dữ liệu
+- **Spring Validation** - Data validation
 - **Hibernate 6.4.4** - ORM Framework
 - **MySQL Connector** - Database driver
-- **Lombok** - Giảm thiểu boilerplate code
-- **Maven** - Quản lý dependencies
+- **Lombok** - Reduce boilerplate code
+- **Maven** - Dependency management
 
 ### Frontend
-- **HTML5** - Cấu trúc trang web
-- **CSS3** - Styling và responsive design
-- **JavaScript (ES6+)** - Logic frontend
+- **HTML5** - Web page structure
+- **CSS3** - Styling and responsive design
+- **JavaScript (ES6+)** - Frontend logic
 - **Font Awesome** - Icon library
 - **Google Fonts** (Montserrat, Oswald) - Typography
 
 ### Database
-- **MySQL 8.0+** - Cơ sở dữ liệu chính
+- **MySQL 8.0+** - Main database
 - **Flyway** - Database Migration
 
-## 🏛️ Cấu trúc dự án
+## 🏛️ Project Structure
 
 ```
 PBL3/
@@ -80,63 +80,100 @@ PBL3/
 └── README.md
 ```
 
-## ✨ Chức năng chính
+## ✨ Main Features
 
+### 🔐 Account Management & Authorization
+![login](album/dangnhap.png)
+![register](album/dangky.png)
+- System login/logout
+- User role management: Admin, Customer
+- Personal account information management
 
-### 🔐 Quản lý tài khoản & phân quyền
-![đăng nhập](album/dangnhap.png)
-![đăng ký](album/dangky.png)
-- Đăng nhập/Đăng xuất hệ thống
-- Phân quyền người dùng: Admin, Khách hàng
-- Quản lý thông tin tài khoản cá nhân
+### 👥 Customer Management
+![customer management](album/qlkhachhang.png)
+- Register new customers with complete information
+- Update customer information (name, birth year, phone, ID card, email)
+- Manage customer status
+- Link accounts with customer information
 
-### 👥 Quản lý khách hàng
-![qlkhachhang](album/qlkhachhang.png)
-- Đăng ký khách hàng mới với đầy đủ thông tin
-- Cập nhật thông tin khách hàng (tên, năm sinh, SĐT, CCCD, email)
-- Quản lý trạng thái khách hàng
-- Liên kết tài khoản với thông tin khách hàng
+### 🏋️ Gym Service Package Management
+![service package management](album/qlgoidichvu.png)
+- Create and manage gym workout packages
+- Set prices and duration for each package
+- Register workout packages for customers
+- Track remaining package time
 
+### 🛍️ Product & Store Management
+![product management](album/qlsanpham.png)
+- **Product Category Management**: Create, edit, delete categories
+- **Product Management**: 
+  - Add new products with complete information (name, price, description, images)
+  - Update product information
+  - Inventory management: update quantity, stock in
+  - Search products by name and category
+- **Equipment Management**: Track gym equipment
 
-### 🏋️ Quản lý gói dịch vụ gym
+### 🧾 Invoice & Payment Management
+![invoice management](album/qlhoadon.png)
 
-![qlgoidichvu](album/qlgoidichvu.png)
-- Tạo và quản lý các gói tập gym
-- Thiết lập giá và thời hạn cho từng gói
-- Đăng ký gói tập cho khách hàng
-- Theo dõi thời gian còn lại của gói
+- **Create invoices**: For workout packages and product purchases
+- **Invoice status management**: 
+  - Completed / Incomplete
+  - Paid / Unpaid
+  - Cancel invoice
+- **Invoice details**: Manage each product in the invoice
+- **Invoice linking**: With customers and package registrations
 
-### 🛍️ Quản lý sản phẩm & cửa hàng
-  ![qlsanpham](album/qlsanpham.png)
-- **Quản lý danh mục sản phẩm**: Tạo, sửa, xóa các danh mục
-- **Quản lý sản phẩm**: 
-  - Thêm sản phẩm mới với đầy đủ thông tin (tên, giá, công dụng, hình ảnh)
-  - Cập nhật thông tin sản phẩm
-  - Quản lý tồn kho: cập nhật số lượng, nhập hàng
-  - Tìm kiếm sản phẩm theo tên và danh mục
-- **Quản lý thiết bị**: Theo dõi thiết bị phòng gym
+### 📊 Revenue Statistics & Reports
+![statistics 1](album/thongke1.png)
+![statistics 2](album/thongke2.png)
+- **Revenue management**: Track total income and expenses by time
+- **Time-based statistics**:
+  - Daily revenue (from date to date)
+  - Monthly revenue
+  - Annual revenue
+- **Revenue updates**: Add income and expenses to the system
+- **Reports**: Export detailed revenue reports
 
-### 🧾 Quản lý hóa đơn & thanh toán
-  ![qlhoadon](album/qlhoadon.png)
+### � Features for Customers (Users)
 
-- **Tạo hóa đơn**: Cho gói tập và mua sản phẩm
-- **Quản lý trạng thái hóa đơn**: 
-  - Đã hoàn thành / Chưa hoàn thành
-  - Đã thanh toán / Chưa thanh toán
-  - Hủy hóa đơn
-- **Chi tiết hóa đơn**: Quản lý từng sản phẩm trong hóa đơn
-- **Liên kết hóa đơn**: Với khách hàng và đăng ký gói
+<div align="center">
 
-### 📊 Thống kê & báo cáo doanh thu
-  ![thongke1](album/thongke1.png)
-  ![thongke2](album/thongke2.png)
-- **Quản lý doanh thu**: Theo dõi tổng thu, tổng chi theo thời gian
-- **Thống kê theo thời gian**:
-  - Doanh thu theo ngày (từ ngày đến ngày)
-  - Doanh thu theo tháng
-  - Doanh thu theo năm
-- **Cập nhật doanh thu**: Thêm thu nhập, chi phí vào hệ thống
-- **Báo cáo**: Xuất báo cáo doanh thu chi tiết
+#### 🏠 Customer Homepage
+![user-home](album/user-home.png)
+
+#### 🏋️ View and Register Service Packages
+![user-service1](album/user-dichvu1.png)
+![user-service2](album/user-dichvu2.png)
+
+#### 🛒 Product Shopping
+![user-products](album/user-sanpham.png)
+
+#### 🛒 Invoices
+![user-invoices](album/user-hoadon.png)
+
+</div>
+
+**Detailed features for customers:**
+- ✅ **Register/Login**: Create account and access system
+- ✅ **View service packages**: Browse available gym packages
+- ✅ **Register workout packages**: Choose and register suitable packages
+- ✅ **Product shopping**: Browse and buy sports products
+- ✅ **Shopping cart management**: Add/remove products from cart
+- ✅ **Payment**: Make payments for services and products
+- ✅ **Profile management**: Update personal information
+- ✅ **Registration history**: View registered packages
+- ✅ **Purchase history**: Track orders and invoices
+
+### 🖥️ Multi-role Interface
+- **Admin Pages**: Complete system management
+- **Customer Pages**: View services, register packages
+- **Homepage**: Service introduction, login
+- **Responsive design**: Mobile and desktop compatible
+
+## 🚀 Installation and Running
+
+### System Requirements
 
 
 ### 👤 Chức năng dành cho Khách hàng (User)
@@ -184,129 +221,128 @@ PBL3/
 - Java JDK 17+
 - Maven 3.6+
 - MySQL 8.0+
-- Web Browser hiện đại
+- Modern Web Browser
 
-### Bước 1: Clone repository
+### Step 1: Clone repository
 ```bash
 git clone https://github.com/nvanan020804/PBL3.git
 cd PBL3
 ```
 
-
-
-### Bước 2: Cấu hình database
-1. Tạo database MySQL:
+### Step 2: Database Configuration
+1. Create MySQL database:
 ```sql
 CREATE DATABASE DATA2_PBL3;
 ```
 
-2. Cập nhật cấu hình trong `backend/src/main/resources/application.properties`:
+2. Update configuration in `backend/src/main/resources/application.properties`:
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/DATA2_PBL3?createDatabaseIfNotExist=true
 spring.datasource.username=root
 spring.datasource.password=your_password
 ```
 
-### Bước 3: Chạy Backend
+### Step 3: Run Backend
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
+```
 
-Backend sẽ chạy trên: http://localhost:8080
+Backend will run on: http://localhost:8080
 
-### Bước 4: Chạy Frontend
-Mở file `frontend/pages/trangchu/index.html` trong trình duyệt hoặc sử dụng web server:
+### Step 4: Run Frontend
+Open `frontend/pages/trangchu/index.html` in browser or use a web server:
 
 ```bash
 cd frontend
 python -m http.server 3000
-# hoặc
+# or
 npx serve . -p 3000
 ```
 
-Frontend sẽ chạy trên: http://localhost:3000
+Frontend will run on: http://localhost:3000
 
 ## 🔗 API Endpoints
 
-### Khách hàng (`/api/khachhang`)
-- `GET /api/khachhang` - Lấy danh sách khách hàng
-- `GET /api/khachhang/{id}` - Lấy thông tin khách hàng
-- `POST /api/khachhang` - Tạo khách hàng mới
-- `PUT /api/khachhang/{id}` - Cập nhật khách hàng
+### Customer (`/api/khachhang`)
+- `GET /api/khachhang` - Get customer list
+- `GET /api/khachhang/{id}` - Get customer information
+- `POST /api/khachhang` - Create new customer
+- `PUT /api/khachhang/{id}` - Update customer
 
-### Gói dịch vụ (`/api/goidichvu`)
-- `GET /api/goidichvu` - Lấy danh sách gói dịch vụ
-- `POST /api/goidichvu` - Tạo gói dịch vụ mới
-- `PUT /api/goidichvu/{id}` - Cập nhật gói dịch vụ
+### Service Packages (`/api/goidichvu`)
+- `GET /api/goidichvu` - Get service package list
+- `POST /api/goidichvu` - Create new service package
+- `PUT /api/goidichvu/{id}` - Update service package
 
-### Sản phẩm (`/api/sanpham`)
-- `GET /api/sanpham` - Lấy danh sách sản phẩm
-- `GET /api/sanpham/{id}` - Lấy thông tin sản phẩm
-- `GET /api/sanpham/danhmuc/{idDanhMuc}` - Lấy sản phẩm theo danh mục
-- `GET /api/sanpham/name/{tenSanPham}` - Tìm sản phẩm theo tên
-- `POST /api/sanpham` - Tạo sản phẩm mới
-- `PUT /api/sanpham/{id}` - Cập nhật sản phẩm
-- `PUT /api/sanpham/{id}/soluong` - Cập nhật số lượng
-- `PUT /api/sanpham/{id}/nhaphang` - Nhập hàng
-- `DELETE /api/sanpham/{id}` - Xóa sản phẩm
+### Products (`/api/sanpham`)
+- `GET /api/sanpham` - Get product list
+- `GET /api/sanpham/{id}` - Get product information
+- `GET /api/sanpham/danhmuc/{idDanhMuc}` - Get products by category
+- `GET /api/sanpham/name/{tenSanPham}` - Find product by name
+- `POST /api/sanpham` - Create new product
+- `PUT /api/sanpham/{id}` - Update product
+- `PUT /api/sanpham/{id}/soluong` - Update quantity
+- `PUT /api/sanpham/{id}/nhaphang` - Stock in
+- `DELETE /api/sanpham/{id}` - Delete product
 
-### Danh mục (`/api/danhmuc`)
-- `GET /api/danhmuc` - Lấy danh sách danh mục
-- `POST /api/danhmuc` - Tạo danh mục mới
-- `PUT /api/danhmuc/{id}` - Cập nhật danh mục
+### Categories (`/api/danhmuc`)
+- `GET /api/danhmuc` - Get category list
+- `POST /api/danhmuc` - Create new category
+- `PUT /api/danhmuc/{id}` - Update category
 
-### Hóa đơn (`/api/hoadon`)
-- `GET /api/hoadon` - Lấy danh sách hóa đơn
-- `GET /api/hoadon/{id}` - Lấy thông tin hóa đơn
-- `POST /api/hoadon` - Tạo hóa đơn mới
-- `PUT /api/hoadon/{id}/hoanthanh` - Hoàn thành hóa đơn
-- `PUT /api/hoadon/{id}/huy` - Hủy hóa đơn
-- `PUT /api/hoadon/{id}/dathanhtoan` - Đánh dấu đã thanh toán
-- `PUT /api/hoadon/{id}/chuathanhtoan` - Đánh dấu chưa thanh toán
+### Invoices (`/api/hoadon`)
+- `GET /api/hoadon` - Get invoice list
+- `GET /api/hoadon/{id}` - Get invoice information
+- `POST /api/hoadon` - Create new invoice
+- `PUT /api/hoadon/{id}/hoanthanh` - Complete invoice
+- `PUT /api/hoadon/{id}/huy` - Cancel invoice
+- `PUT /api/hoadon/{id}/dathanhtoan` - Mark as paid
+- `PUT /api/hoadon/{id}/chuathanhtoan` - Mark as unpaid
 
-### Thống kê (`/api/hoadon`)
-- `GET /api/hoadon/revenue/day?startDate&endDate` - Doanh thu theo ngày
-- `GET /api/hoadon/revenue/month?startMonth&endMonth` - Doanh thu theo tháng
-- `GET /api/hoadon/revenue/year?startYear&endYear` - Doanh thu theo năm
+### Statistics (`/api/hoadon`)
+- `GET /api/hoadon/revenue/day?startDate&endDate` - Daily revenue
+- `GET /api/hoadon/revenue/month?startMonth&endMonth` - Monthly revenue
+- `GET /api/hoadon/revenue/year?startYear&endYear` - Annual revenue
 
-### Doanh thu (`/api/doanhthu`)
-- `GET /api/doanhthu` - Lấy danh sách doanh thu
-- `POST /api/doanhthu` - Tạo bản ghi doanh thu
-- `PUT /api/doanhthu/{id}/themthu` - Thêm thu nhập
-- `PUT /api/doanhthu/{id}/themchi` - Thêm chi phí
+### Revenue (`/api/doanhthu`)
+- `GET /api/doanhthu` - Get revenue list
+- `POST /api/doanhthu` - Create revenue record
+- `PUT /api/doanhthu/{id}/themthu` - Add income
+- `PUT /api/doanhthu/{id}/themchi` - Add expense
 
-## 🗄️ Cấu trúc Database
+## 🗄️ Database Structure
 
-### Các bảng chính:
-- `accounts` - Quản lý tài khoản đăng nhập
-- `khachhang` - Thông tin khách hàng
-- `goidichvu` - Các gói dịch vụ gym
-- `dangky` - Đăng ký gói tập của khách hàng
-- `sanpham` - Sản phẩm thể thao
-- `phanloaisanpham` - Danh mục sản phẩm
-- `hoadon` - Hóa đơn bán hàng
-- `hoadonchitiet` - Chi tiết từng sản phẩm trong hóa đơn
-- `doanhthu` - Thống kê doanh thu theo thời gian
-- `thietbi` - Thiết bị phòng gym
+### Main tables:
+- `accounts` - Login account management
+- `khachhang` - Customer information
+- `goidichvu` - Gym service packages
+- `dangky` - Customer package registrations
+- `sanpham` - Sports products
+- `phanloaisanpham` - Product categories
+- `hoadon` - Sales invoices
+- `hoadonchitiet` - Invoice item details
+- `doanhthu` - Revenue statistics by time
+- `thietbi` - Gym equipment
 
-## 🤝 Đóng góp
+## 🤝 Contributing
 
-1. Fork project
-2. Tạo feature branch (`git checkout -b feature/AmazingFeature`)
+1. Fork the project
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Mở Pull Request
+5. Open Pull Request
 
 ## 📄 License
 
-Dự án này được phát triển cho mục đích học tập trong khuôn khổ môn học PBL3.
+This project is developed for educational purposes within the PBL3 course framework.
 
-## 📞 Liên hệ
+## 📞 Contact
 
 - **Repository**: [nvanan020804/PBL3](https://github.com/nvanan020804/PBL3)
-- **Branch hiện tại**: An
+- **Current Branch**: An
 
 ---
 
-**Lưu ý**: Đảm bảo cấu hình đúng thông tin database và khởi động MySQL trước khi chạy ứng dụng.
+**Note**: Ensure proper database configuration and start MySQL before running the application.
