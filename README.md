@@ -146,7 +146,7 @@ PBL3/
 ![user-service1](album/user-dichvu1.png)
 ![user-service2](album/user-dichvu2.png)
 
-#### 🛒 Product Shopping
+#### � View Products
 ![user-products](album/user-sanpham.png)
 
 #### 🛒 Invoices
