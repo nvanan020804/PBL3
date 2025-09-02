@@ -1,4 +1,4 @@
-# PBL3 - Gym & Sports Store Management System
+# PBL3 - Gym Management System
 
 ## Introduction
 
