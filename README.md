@@ -158,8 +158,7 @@ PBL3/
 - ✅ **Register/Login**: Create account and access system
 - ✅ **View service packages**: Browse available gym packages
 - ✅ **Register workout packages**: Choose and register suitable packages
-- ✅ **Product shopping**: Browse and buy sports products
-- ✅ **Shopping cart management**: Add/remove products from cart
+- ✅ **View products**: Browse sports products catalog
 - ✅ **Payment**: Make payments for services and products
 - ✅ **Profile management**: Update personal information
 - ✅ **Registration history**: View registered packages
@@ -174,52 +173,12 @@ PBL3/
 ## 🚀 Installation and Running
 
 ### System Requirements
-
-
-### 👤 Chức năng dành cho Khách hàng (User)
-
-<div align="center">
-
-#### 🏠 Trang chủ khách hàng
-![user-home](album/user-home.png)
-
-#### 🏋️ Xem và đăng ký gói dịch vụ
-![user-dichvu1](album/user-dichvu1.png)
-![user-dichvu2](album/user-dichvu2.png)
-
-
-#### 🛒 Mua sắm sản phẩm
-![user-sanpham](album/user-sanpham.png)
-
-#### 🛒 Hoá đơn
-![user-hoadon](album/user-hoadon.png)
-
-
-
-</div>
-
-**Chức năng chi tiết cho khách hàng:**
-- ✅ **Đăng ký/Đăng nhập**: Tạo tài khoản và truy cập hệ thống
-- ✅ **Xem gói dịch vụ**: Duyệt các gói tập gym có sẵn
-- ✅ **Đăng ký gói tập**: Chọn và đăng ký gói phù hợp
-- ✅ **Mua sắm sản phẩm**: Duyệt và mua các sản phẩm thể thao
-- ✅ **Quản lý giỏ hàng**: Thêm/xóa sản phẩm khỏi giỏ hàng
-- ✅ **Thanh toán**: Thực hiện thanh toán cho gói dịch vụ và sản phẩm
-- ✅ **Quản lý hồ sơ**: Cập nhật thông tin cá nhân
-- ✅ **Lịch sử đăng ký**: Xem các gói đã đăng ký
-- ✅ **Lịch sử mua hàng**: Theo dõi đơn hàng và hóa đơn
-
-### 🖥️ Giao diện đa vai trò
-- **Trang Admin**: Quản lý toàn bộ hệ thống
-- **Trang Khách hàng**: Xem dịch vụ, đăng ký gói tập
-- **Trang chủ**: Giới thiệu dịch vụ, đăng nhập
-- **Giao diện responsive**: Tương thích mobile và desktop
-
-## 🚀 Cài đặt và chạy dự án
-
-### Yêu cầu hệ thống
 - Java JDK 17+
 - Maven 3.6+
+- MySQL 8.0+
+- Modern Web Browser
+
+### Step 1: Clone repository
 - MySQL 8.0+
 - Modern Web Browser
 
